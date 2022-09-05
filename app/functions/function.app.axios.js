@@ -2,6 +2,14 @@ const axios = require(`axios`);
 const dbApi = require("../config/config.api");
 const Utilities = require('../functions/functions.utilities');
 
+/**
+ * Requête API FORECAST
+ * @constructor
+ * @param {string} method - POST ou GET
+ * @param {string} urlForecast - URL API.
+ * @param {string} data - Obj data
+
+ */
 exports.getForecastData = async (method, urlForecast, data = null) => {
     var test;
     if (method == 'GET') {
@@ -44,7 +52,6 @@ exports.getForecastData = async (method, urlForecast, data = null) => {
  */
 
 exports.dataFormatingForForecast = async (dataArrayFromReq, StartDate, EndDate, format) => {
-
 
     var TotalImpressions = []
     var OccupiedImpressions = []
@@ -90,8 +97,6 @@ exports.dataFormatingForForecast = async (dataArrayFromReq, StartDate, EndDate, 
     sommeOccupied = Utilities.numStr(sommeOccupied);
     volumeDispo = Utilities.numStr(volumeDispo);
 
-
-
     var tableData = {
         success: true,
         StartDate,
@@ -109,3 +114,5 @@ exports.dataFormatingForForecast = async (dataArrayFromReq, StartDate, EndDate, 
     }
     return tableData;
 }
+
+

@@ -1,6 +1,10 @@
 const dbApi = require("../config/config.api");
 const ModelInsertions = require("../models/models.insertions");
-
+/**
+ * Fonction pour l'affichage des données pour le front
+ * @param {string} method - string
+ * @returns le resultat de la requête
+ */
 exports.config = function (method, params = '') {
 
     switch (method) {
@@ -12,7 +16,6 @@ exports.config = function (method, params = '') {
             break;
         case 'advertiser':
             advertiser_id = params.advertiser_id;
-
             var configApiUrl = 'https://manage.smartadserverapis.com/2044/advertisers/' +
                 advertiser_id;
             break;
@@ -58,6 +61,10 @@ exports.config = function (method, params = '') {
         case 'insertions':
             var configApiUrl = 'https://manage.smartadserverapis.com/2044/insertions';
             break;
+        case 'insertion':
+            insertion_id = params.insertion_id;
+            var configApiUrl = 'https://manage.smartadserverapis.com/2044/insertions/' + insertion_id;
+            break;
         case 'insertions_templates':
             insertion_id = params.insertion_id;
             var configApiUrl = 'https://manage.smartadserverapis.com/2044/insertions/' +
@@ -88,9 +95,7 @@ exports.config = function (method, params = '') {
         auth: {
             username: dbApi.SMART_login,
             password: dbApi.SMART_password
-        },
-        // params: {}
-
+        }
         /*
         //condition config
         params: {
@@ -107,17 +112,7 @@ exports.config = function (method, params = '') {
             'limit': params.limit,
             'offset': params.offset,
         };
-
-
-        /*config['params'] = {
-              limit:  params.limit,
-           
-          }*/
-
-
-        // config['params']['limit'] = params.limit;
     }
-
 
     if (params.offset) {
         //config['params']['offset'] = params.offset;
@@ -127,19 +122,15 @@ exports.config = function (method, params = '') {
         };
 
     }
-    /*if (params.isArchived) {
-        config['params']['isArchived'] = params.isArchived;
+    if (params.isArchived) {
+        config.params = {
+            'limit': params.limit,
+            'offset': params.offset,
+            'isArchived': params.isArchived
+        };
     }
-*/
-    /*
-        config['params'] = {
-            limit:  params.limit,
-            offset: params.offset,
-         
-        }*/
 
-    console.log(config);
-
+    // console.log(config);
     return config;
 }
 
@@ -149,24 +140,24 @@ exports.sortDataReport = function (formatSearch, dataObject) {
     // Permet de faire l'addition
     const reducer = (accumulator, currentValue) => accumulator + currentValue;
 
-    insertions = new Array();
-    impressions = new Array();
-    //  viewable_impressions = new Array();
+    var insertions = new Array();
+    var impressions = new Array();
+    var creatives = new Array();
     clicks = new Array();
     complete = new Array();
-    sites = new Array();
-    sites_rename = new Array();
+    var sites = new Array();
+    var sites_rename = new Array();
 
     for (var jn = 0; jn < formatSearch.length; jn++) {
         key = formatSearch[jn];
         site_name = dataObject[key].site_name;
         insertion_name = dataObject[key].insertion_name;
+        creative = dataObject[key].image_creative;
 
         insertions.push(insertion_name);
         impressions.push(parseInt(dataObject[key].impressions));
         clicks.push(parseInt(dataObject[key].clicks));
         complete.push(parseInt(dataObject[key].complete));
-        //  viewable_impressions.push(parseInt(dataObject[key].viewable_impressions));
         sites_rename.push(site_name);
 
         // Récupére le nom des sites et les classes Créer les tableaux des sites
@@ -251,10 +242,40 @@ exports.sortDataReport = function (formatSearch, dataObject) {
 
             sites.push('LINFO.RE (site)');
         }
+
+        /*switch (true) {
+            case (/1024x768|2048x153/igm).test(creative):
+                creatives.push('Interstitiel (desktop)');
+
+                break;
+            case (/320x480|720x1280/igm).test(creative):
+                creatives.push('Interstitiel (mobile)');
+
+                break;
+
+            case (/1536x2048/igm).test(creative):
+                creatives.push('Interstitiel (tablette)');
+
+                break;
+
+            case (/300x600/igm).test(creative):
+                creatives.push('Grand Angle (desktop)');
+
+                break;
+            case (/300x250|300x250 APPLI/igm).test(creative):
+                creatives.push('Grand Angle (mobile)');
+
+                break;
+
+
+            default:
+                break;
+        }*/
     }
 
     // Gestion des sites
     if (sites && (sites.length > 0)) {
+
         var siteUnique = new Array();
         var siteUniqueKey = new Array();
         var siteUniqueCount = new Array();
@@ -268,7 +289,6 @@ exports.sortDataReport = function (formatSearch, dataObject) {
             impressionsSite = parseInt(dataObject[key].impressions);
             clicksSite = parseInt(dataObject[key].clicks);
             completeSite = parseInt(dataObject[key].complete);
-            //  viewableimpressionsSite = parseInt(dataObject[key].viewable_impressions);
 
             var nameSite = sites[kn];
 
@@ -309,27 +329,24 @@ exports.sortDataReport = function (formatSearch, dataObject) {
                 siteComplete[nameSite][0] = completeSite;
             }
 
-            // Rentre les Viewable Impression
-            /* if (siteViewableImpressions[nameSite]) {
-                 siteViewableImpressions[nameSite].splice(
-                     siteViewableImpressions[nameSite].length,
-                     1,
-                     viewableimpressionsSite
-                 );
-             } else {
-                 siteViewableImpressions[nameSite] = new Array();
-                 siteViewableImpressions[nameSite][0] = viewableimpressionsSite;
-             }*/
+
         }
+
+        //console.log(siteUnique)
 
         // Trie les données de sites
         if (siteUnique && (siteUniqueCount.length > 0)) {
+            //console.log('siteUniqueCount.length  '+siteUniqueCount.length)
+
+
             siteList = new Object();
             for (var ln = 0; ln < siteUniqueCount.length; ln++) {
                 sN = siteUniqueCount[ln];
-                console.log(sN)
                 siteImpressionsSUM = siteImpressions[sN].reduce(reducer);
+               
+
                 siteClicksSUM = siteClicks[sN].reduce(reducer);
+
                 siteCompleteSUM = siteComplete[sN].reduce(reducer);
                 //siteViewableImpressionsSUM = siteViewableImpressions[sN].reduce(reducer);
 
@@ -345,41 +362,133 @@ exports.sortDataReport = function (formatSearch, dataObject) {
                     ctr: siteCtrSUM,
                     complete: siteCompleteSUM,
                     ctrComplete: siteCtrComplete,
-                    // viewable_impressions: siteViewableImpressionsSUM
                 };
                 siteList[ln] = itemSite;
+                //console.log(itemSite)
 
+                // console.log('-----------------')
             }
+
 
         }
     }
+    //function qui permet de regrouper les insertions par créative
+    /*
+    if (creatives && (creatives.length > 0)) {
 
+
+        var creativeUnique = new Array();
+        var creativeUniqueCount = new Array();
+        var creativeImpressions = new Array();
+        var creativeClicks = new Array();
+        var creativeComplete = new Array();
+
+        for (var kn = 0; kn < creatives.length; kn++) {
+            key = formatSearch[kn];
+            impressionsSite = parseInt(dataObject[key].impressions);
+            clicksSite = parseInt(dataObject[key].clicks);
+            completeSite = parseInt(dataObject[key].complete);
+            //  viewableimpressionsSite = parseInt(dataObject[key].viewable_impressions);
+
+            var nameSite = creatives[kn];
+
+            // Rentre les impressions
+            if (creativeUnique[nameSite]) {
+                creativeUnique[nameSite].splice(creativeImpressions[nameSite].length, 1, key);
+            } else {
+                creativeUnique[nameSite] = new Array();
+                creativeUnique[nameSite][0] = key;
+                creativeUniqueCount.push(nameSite);
+            }
+
+            // Rentre les impressions
+            if (creativeImpressions[nameSite]) {
+                creativeImpressions[nameSite].splice(
+                    creativeImpressions[nameSite].length,
+                    1,
+                    impressionsSite
+                );
+            } else {
+                creativeImpressions[nameSite] = new Array();
+                creativeImpressions[nameSite][0] = impressionsSite;
+            }
+
+            // Rentre les Clicks
+            if (creativeClicks[nameSite]) {
+                creativeClicks[nameSite].splice(creativeClicks[nameSite].length, 1, clicksSite);
+            } else {
+                creativeClicks[nameSite] = new Array();
+                creativeClicks[nameSite][0] = clicksSite;
+            }
+
+            // Rentre les Complete
+            if (creativeComplete[nameSite]) {
+                creativeComplete[nameSite].splice(creativeComplete[nameSite].length, 1, completeSite);
+            } else {
+                creativeComplete[nameSite] = new Array();
+                creativeComplete[nameSite][0] = completeSite;
+            }
+
+        }
+
+        //console.log(creativeUnique)
+
+        // Trie les données de creatives
+        if (creativeUnique && (creativeUniqueCount.length > 0)) {
+            //console.log('creativeUniqueCount.length  '+creativeUniqueCount.length)
+
+
+            creativeList = new Object();
+            for (var ln = 0; ln < creativeUniqueCount.length; ln++) {
+                sN = creativeUniqueCount[ln];
+                creativeImpressionsSUM = creativeImpressions[sN].reduce(reducer);
+                creativeClicksSUM = creativeClicks[sN].reduce(reducer);
+                creativeCompleteSUM = creativeComplete[sN].reduce(reducer);
+                creativeCtrSUM = parseFloat((creativeClicksSUM / creativeImpressionsSUM) * 100).toFixed(2);
+                creativeCtrComplete = parseFloat((creativeCompleteSUM / creativeImpressionsSUM) * 100).toFixed(
+                    2
+                );
+
+                var itemCreatives = {
+                    creative: sN,
+                    impressions: creativeImpressionsSUM,
+                    clicks: creativeClicksSUM,
+                    ctr: creativeCtrSUM,
+                    complete: creativeCompleteSUM,
+                    ctrComplete: creativeCtrComplete,
+                    // viewable_impressions: creativeViewableImpressionsSUM
+                };
+                creativeList[ln] = itemCreatives;
+
+                // console.log('-----------------')
+            }
+
+
+        }
+    }*/
+
+
+    //  console.log('-----------------')
     // Fais le calcul
     impressionsSUM = impressions.reduce(reducer);
     clicksSUM = clicks.reduce(reducer);
     ctrSUM = eval((clicksSUM / impressionsSUM) * 100).toFixed(2);
     completeSUM = complete.reduce(reducer);
-    //  viewable_impressionsSUM = viewable_impressions.reduce(reducer);
 
     ctrComplete = eval((completeSUM / impressionsSUM) * 100).toFixed(2);
 
     resultDateReport = {
         formatKey: formatSearch,
-        // insertions : insertions, sites_rename : sites_rename, sites : sites,
-        // siteUniqueCount : siteUniqueCount, siteUnique : siteUnique, siteImpressions :
-        // siteImpressions, siteClicks : siteClicks, siteComplete : siteComplete,
         siteList: siteList,
-        // impressions : impressions,
+        //  creativeList:creativeList,
         impressions: impressions.reduce(reducer),
-        // clicks : clicks,
         clicks: clicks.reduce(reducer),
         ctr: ctrSUM,
-        // complete : complete,
         complete: completeSUM,
         ctrComplete: ctrComplete,
-        //  viewable_impressions: viewable_impressionsSUM
 
     };
+
 
     return resultDateReport;
 }

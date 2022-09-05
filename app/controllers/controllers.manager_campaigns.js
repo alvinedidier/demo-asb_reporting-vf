@@ -5,6 +5,7 @@ const dbApi = require("../config/config.api");
 const axios = require('axios');
 var crypto = require('crypto');
 const excel = require('node-excel-export');
+var nodeoutlook = require('nodejs-nodemailer-outlook');
 
 // const request = require('request'); const bodyParser =
 // require('body-parser');
@@ -51,6 +52,7 @@ const ModelCreatives = require("../models/models.creatives");
 const ModelEpilotCampaigns = require("../models/models.epilot_campaigns");
 const ModelEpilotInsertions = require("../models/models.epilot_insertions");
 const ModelUsers = require("../models/models.users");
+const ModelFormatsGroups = require("../models/models.formats_groups");
 
 const TEXT_REGEX = /^.{1,51}$/
 
@@ -208,9 +210,9 @@ exports.index = async (req, res) => {
 
         data.moment = moment;
 
-        console.log('dateNow :', dateNow)
+        /*console.log('dateNow :', dateNow)
         console.log('dateTomorrow :', dateTomorrow)
-        console.log('date5Days :', date5Days, ' - ', data.campaigns_nextdays.length)
+        console.log('date5Days :', date5Days, ' - ', data.campaigns_nextdays.length)*/
 
         res.render('manager/campaigns/index.ejs', data);
     } catch (error) {
@@ -378,14 +380,9 @@ exports.export = async (req, res) => {
                 displayName: 'DERNIERE MAJ',
                 headerStyle: styles.headerDark,
                 width: 200, // <- width in pixels
-                cellStyle: styles.cellNone,
-
-            },
-
-
+                cellStyle: styles.cellNone
+            }
         };
-
-
 
         const dataset_global = []
 
@@ -394,7 +391,7 @@ exports.export = async (req, res) => {
 
                 dataset_global.push({
                     id: data.campaigns[i].campaign_id,
-                    annonceurs:data.campaigns[i].advertiser.advertiser_name,
+                    annonceurs: data.campaigns[i].advertiser.advertiser_name,
                     noms: data.campaigns[i].campaign_name,
                     archives: data.campaigns[i].campaign_archived,
                     maj: data.campaigns[i].updated_at,
@@ -432,7 +429,6 @@ exports.export = async (req, res) => {
 
         return res.send(report);
 
-   
     } catch (error) {
         console.log(error);
         var statusCoded = error.response;
@@ -449,6 +445,9 @@ exports.view = async (req, res) => {
         var insertionsIds = new Array();
         data.insertions = new Array();
         data.creatives = new Array();
+        data.epilot_insertions = new Array();
+        data.commercial = new Array();
+
 
         var campaign_id = req.params.id;
         var campaign = await ModelCampaigns
@@ -465,12 +464,14 @@ exports.view = async (req, res) => {
                 }]
             })
             .then(async function (campaign) {
+                // console.log(campaign)
                 if (!campaign) {
-                    return res
-                        .status(404)
-                        .render("manager/error.ejs", {
-                            statusCoded: 404
-                        });
+                    return res.redirect(`/extension-chrome/campaign?campaign_id=${campaign_id}`)
+                    /*  return res
+                          .status(404)
+                          .render("manager/error.ejs", {
+                              statusCoded: 404
+                          });*/
                 }
 
                 // Créer le fil d'ariane
@@ -489,17 +490,43 @@ exports.view = async (req, res) => {
 
                 // Récupére les données des campagnes epilot
                 var epilot_campaign = await ModelEpilotCampaigns.findOne({
-                    attributes: ['epilot_campaign_volume', 'epilot_campaign_budget_net'],
                     where: {
                         campaign_id: campaign_id
                     }
                 });
 
-                //test si epilot_campaign existe
+                // Teste si epilot_campaign existe
                 if (!Utilities.empty(epilot_campaign)) {
+                    //  console.log(epilot_campaign.user_id)
+
+                    data.commercial = await ModelUsers.findOne({
+                        attributes: ['user_id', 'user_email', 'user_firstname'],
+                        where: {
+                            user_id: epilot_campaign.user_id
+                        }
+                    })
+
+
                     data.epilot_campaign = epilot_campaign;
+
+                    // Récupére les données des insertions epilot
+                    var epilot_insertions = await ModelEpilotInsertions.findAll({
+                        where: {
+                            epilot_campaign_id: epilot_campaign.epilot_campaign_id
+                        },
+                        include: [{
+                            model: ModelFormatsGroups
+                        }]
+                    });
+
+                    if (!Utilities.empty(epilot_insertions)) {
+                        data.epilot_insertions = epilot_insertions;
+                    } else {
+                        data.epilot_insertions = '';
+                    }
+
                 } else {
-                    data.epilot_campaign = 0;
+                    data.epilot_campaign = '';
                 }
 
                 // Récupére les données des insertions de la campagne
@@ -560,6 +587,7 @@ exports.view = async (req, res) => {
                 data_localStorage = localStorage.getItem('campaignID-' + campaign.campaign_id);
                 data.reporting = JSON.parse(data_localStorage);
 
+                // console.log(data)
                 res.render('manager/campaigns/view.ejs', data);
             });
 
@@ -628,7 +656,7 @@ exports.create_post = async (req, res) => {
             req.session.message = {
                 type: 'danger',
                 intro: 'Erreur',
-                message: 'Le nombre de caratère est limité à 50'
+                message: 'Le nombre de caractère est limité à 50'
             }
             return res.redirect('/manager/campaigns/create')
         }
@@ -730,7 +758,7 @@ exports.create_post = async (req, res) => {
                         req.session.message = {
                             type: 'success',
                             intro: 'Ok',
-                            message: 'La campagne a été crée dans SMARTADSERVEUR'
+                            message: 'La campagne a été créée dans SMARTADSERVEUR'
                         }
                         return res.redirect('/manager/campaigns/create');
                     }
@@ -739,7 +767,7 @@ exports.create_post = async (req, res) => {
                     req.session.message = {
                         type: 'danger',
                         intro: 'Erreur',
-                        message: 'Campagne est déjà utilisé'
+                        message: 'La campagne a été déjà utilisée'
                     }
                     return res.redirect('/manager/advertisers/create');
                 }
@@ -769,12 +797,51 @@ exports.repartitions = async (req, res) => {
     console.log('dateLastSunday : ',dateLastSunday);
 */
 
-        var dateLastMonday = "2021-08-01";
-        var dateLastSunday = "2021-08-08";
+        var dateLastMonday = "2022-01-08";
+        var dateLastSunday = "2040-12-31";
+
+        // Affiche les annonceurs
+        const advertiserExclus = new Array(
+            418935,
+            427952,
+            409707,
+            425912,
+            425914,
+            438979,
+            439470,
+            439506,
+            439511,
+            439512,
+            439513,
+            439514,
+            439515,
+            440117,
+            440118,
+            440121,
+            440122,
+            440124,
+            440126,
+            445117,
+            455371,
+            455384,
+            320778,
+            417243,
+            414097,
+            411820,
+            320778,
+            417716,
+            464149,
+            421871
+        );
 
         var campaigns = await ModelCampaigns
             .findAll({
                 where: {
+                    [Op.and]: [{
+                        campaign_name: {
+                            [Op.notLike]: '% PARR %'
+                        }
+                    }],
                     [Op.or]: [{
                         campaign_start_date: {
                             [Op.between]: [dateLastMonday, dateLastSunday]
@@ -789,7 +856,14 @@ exports.repartitions = async (req, res) => {
                     ['campaign_start_date', 'ASC']
                 ],
                 include: [{
-                    model: ModelAdvertisers
+                    model: ModelAdvertisers,
+                    where: {
+                        [Op.and]: [{
+                            advertiser_id: {
+                                [Op.notIn]: advertiserExclus
+                            }
+                        }]
+                    }
                 }]
             })
             .then(async function (campaigns) {
@@ -813,7 +887,7 @@ exports.repartitions = async (req, res) => {
 
                 // Attribue les données de la campagne
                 data.campaigns = campaigns;
-                console.log(campaigns)
+                //console.log(campaigns)
                 data.moment = moment;
                 data.utilities = Utilities;
 
@@ -825,5 +899,67 @@ exports.repartitions = async (req, res) => {
         var statusCoded = error.response;
         // res.render("manager/error.ejs", {statusCoded: statusCoded});
     }
+
+}
+
+exports.email = async (req, res) => {
+    const campaign_id = req.params.campaign
+    const user_id = req.params.user
+
+    //console.log(campaign_id)
+    // console.log(email)
+
+    await ModelCampaigns
+        .findOne({
+            attributes: ['campaign_id', 'campaign_name', 'campaign_crypt'],
+            where: {
+                campaign_id: campaign_id
+            },
+
+        })
+        .then(async function (campaign) {
+
+            var commercial = await ModelUsers.findOne({
+                attributes: ['user_id', 'user_email', 'user_firstname'],
+                where: {
+                    user_id: user_id
+                }
+            })
+
+            //  console.log(commercial.user_firstname)
+
+            const user_firstname = await commercial.user_firstname
+            const campaign_name = await campaign.campaign_name
+            const campaign_crypt = await campaign.campaign_crypt
+            const email = await commercial.user_email;
+            //const email = "oceane.sautron@antennereunion.fr"
+
+
+            console.log(user_firstname +'-'+  campaign_name  +'-'+campaign_crypt+'-'+email)
+
+
+            nodeoutlook.sendEmail({
+
+                auth: {
+                    user: "oceane.sautron@antennereunion.fr",
+                    pass: process.env.EMAIL_PASS
+                },
+                from: email,
+                to: 'adtraffic@antennereunion.fr,oceane.sautron@antennereunion.fr',
+                subject: 'Envoie du permalien de la campagne ' + campaign_name,
+                html: ' <head><style>font-family: Century Gothic;    font-size: large; </style></head>Bonjour ' +
+                    user_firstname + '<br><br>  Tu trouveras ci-dessous le permalien pour la campagne <b>"' +
+                    campaign_name + '"</b> : <a traget="_blank" href="https://reporting.antennesb.fr/r/' +
+                    campaign_crypt + '">https://reporting.antennesb.fr/r/' +
+                    campaign_crypt + '</a> <br><br> À dispo pour échanger <br><br> <div style="font-size: 11pt;font-family: Calibri,sans-serif;"><img src="https://reporting.antennesb.fr/public/admin/photos/logo.png" width="79px" height="48px"><br><br><p><strong>L\'équipe Adtraffic</strong><br><small>Antenne Solutions Business<br><br> 2 rue Emile Hugot - Technopole de La Réunion<br> 97490 Sainte-Clotilde<br> Fixe : 0262 48 47 54<br> Fax : 0262 48 28 01 <br> Mobile : 0692 05 15 90<br> <a href="mailto:adtraffic@antennereunion.fr">adtraffic@antennereunion.fr</a></small></p></div>',
+
+                onError: (e) => console.log(e),
+                onSuccess: (i) => {
+                    return res.json(`Le permalien est envoyé`)
+                }
+
+            })
+
+        })
 
 }

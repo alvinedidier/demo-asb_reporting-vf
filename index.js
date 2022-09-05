@@ -6,6 +6,7 @@ const cors = require('cors');
 var cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session')
 var fileUpload = require('express-fileupload');
+var runner = require("child_process");
 
 const db = require("./app/config/_config.database");
 
@@ -26,17 +27,22 @@ const advertisers_users = require('./app/models/models.advertisers_users');
 const agencies = require('./app/models/models.agencies');
 const formats = require('./app/models/models.formats');
 
-const groups_formats = require('./app/models/models.groups_formats');
-const groups_formats_types = require(
+const formats_groups = require('./app/models/models.formats_groups');
+const formats_groups_types = require(
     './app/models/models.formats_groups_types'
 )
-const formatstemplates = require("./app/models/models.formats_templates")
+const formatstemplates = require("./app/models/models.formats_templates");
+const formatssites = require("./app/models/models.formats_sites");
 const insertions = require('./app/models/models.insertions');
 const templates = require('./app/models/models.templates');
 const insertions_templates = require('./app/models/models.insertions_templates');
 const creatives = require('./app/models/models.creatives');
 const insertions_status = require('./app/models/models.insertions_status');
 const insertions_priorities = require('./app/models/models.insertions_priorities');
+const creatives_types_formats = require('./app/models/models.creatives_types_formats');
+const creatives_types = require('./app/models/models.creatives_types');
+const campaigns_tv = require('./app/models/models.campaigns_tv');
+const advertisers_tv = require('./app/models/models.advertisers_tv');
 
 /* Mettre les relation ici */
 /*sites.belongsTo(countries);
@@ -80,24 +86,30 @@ advertisers.hasMany(advertisers_users, {
 });
 
 //un format posséde un ou plusieur group un group posséde un à plusieur format
-formats.hasMany(groups_formats_types, {
+formats.hasMany(formats_groups_types, {
     foreignKey: 'format_id',
     onDelete: 'cascade',
     hooks: true
 });
-groups_formats.hasMany(groups_formats_types, {
-    foreignKey: 'group_format_id',
+formats_groups.hasMany(formats_groups_types, {
+    foreignKey: 'format_group_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+formats_groups_types.belongsTo(formats, {
+    foreignKey: 'format_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+formats_groups_types.belongsTo(formats_groups, {
+    foreignKey: 'format_group_id',
     onDelete: 'cascade',
     hooks: true
 });
 
 // un format posséde un ou plusieurs templates : un template posséde un à plusieurs formats
-
-formatstemplates.belongsTo(templates, {
-    foreignKey: 'template_id',
-    onDelete: 'cascade',
-    hooks: true
-});
 
 templates.hasMany(formatstemplates, {
     foreignKey: 'template_id',
@@ -113,6 +125,56 @@ formatstemplates.belongsTo(formats, {
 
 formats.hasMany(formatstemplates, {
     foreignKey: 'format_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+// un format posséde un ou plusieurs sites : un site posséde un à plusieurs formats
+
+sites.hasMany(formatssites, {
+    foreignKey: 'site_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+formatssites.belongsTo(formats, {
+    foreignKey: 'format_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+formatssites.belongsTo(sites, {
+    foreignKey: 'site_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+formats.hasMany(formatssites, {
+    foreignKey: 'format_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+// un format_groups posséde un ou plusieurs creatives_types : un creatives_types posséde un à plusieurs format_groups
+formats_groups.hasMany(creatives_types_formats, {
+    foreignKey: 'format_group_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+creatives_types_formats.belongsTo(formats_groups, {
+    foreignKey: 'format_group_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+creatives_types_formats.belongsTo(creatives_types, {
+    foreignKey: 'creative_type_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+creatives_types.hasMany(creatives_types_formats, {
+    foreignKey: 'creative_type_id',
     onDelete: 'cascade',
     hooks: true
 });
@@ -140,7 +202,6 @@ campaigns.hasMany(campaigns_gam, {
   //  onDelete: 'cascade',
     hooks: true
 });
-
 
 campaigns.belongsTo(agencies, {
     foreignKey: 'agency_id',
@@ -266,12 +327,23 @@ epilot_insertions.belongsTo(users, {
     hooks: true
 });
 
-epilot_insertions.belongsTo(groups_formats, {
-    foreignKey: 'group_format_id',
+epilot_insertions.belongsTo(formats_groups, {
+    foreignKey: 'format_group_id',
     onDelete: 'cascade',
     hooks: true
 });
 
+campaigns_tv.belongsTo(users, {
+    foreignKey: 'user_id',
+    onDelete: 'cascade',
+    hooks: true
+});
+
+campaigns_tv.belongsTo(advertisers_tv, {
+    foreignKey: 'advertiser_tv_id',
+    onDelete: 'cascade',
+    hooks: true
+});
 
 db
     .sequelize
@@ -295,12 +367,19 @@ app.use(cookieParser());
 app.use(cookieSession({
     name: 'BI_antennesb',
     keys: ['asq4b4PR'],
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 2592000000 // 30 jour
 }))
 /**L'image à une limite min=50px max=2000px */
 app.use(fileUpload());
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static('files'));
+
+/*var phpScriptPath = "./api_google-manager/GetAllOrder.php";
+runner.exec("php " + phpScriptPath + " " , function(err, phpResponse, stderr) {
+ if(err) console.log(err); 
+console.log( phpResponse );
+});*/
 
 /**
  * @MidleWare
@@ -355,7 +434,6 @@ app.use('/forecast', forecast);
 // const reporting = require('./app/routes/routes.api_report');
 // app.use('/r/', reporting);
 
-
 // action liste campagne epilot
 const epilot = require('./app/routes/routes.api_epilot');
 app.use('/epilot', epilot);
@@ -378,6 +456,9 @@ app.use('/app', application);
 const reporting_rs = require('./app/routes/routes.reporting');
 app.use('/r/', reporting_rs);
 
+// Gestion du reporting DIGITAL 30j
+const reporting_30 = require('./app/routes/routes.reporting_30');
+app.use('/d/', reporting_30);
 
 // Gestion du reporting TV
 const reportingTV = require('./app/routes/routes.tv.reporting');
@@ -392,10 +473,15 @@ const automate = require('./app/routes/routes.automate');
 const { campaign } = require('./app/controllers/controllers.automate');
 app.use('/automate', automate);
 
+const extention_chrome = require('./app/routes/routes.plugin_chrome');
+app.use('/extension-chrome', extention_chrome);
+
+
+const api = require('./app/routes/routes.json')
+app.use('/api', api);
+
 // Le serveur ecoute sur le port 3022
 app.set("port", process.env.PORT || 3001);
-
-console.log('ENVIRONNEMENT : ',process.env.MY_VARIABLE)
 
 app.listen(app.get("port"), () => {
     console.log(`server on port ${app.get("port")}`);

@@ -1,39 +1,84 @@
-<table class="table table-striped table_sort">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Annonceur</th>
-            <th>Campagne</th>
-           <th>Commercial</th>
-            <th>Nature</th>
-            <th>Status</th>
-            <th>Date de début</th>
-            <th>Date de fin</th>
-            <th>Volume</th>
-            <th>Budget</th>
-            <th>CPM</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <% for (let i = 0; i < campaigns.length; i++) { %>
+<div class="table-responsive">
+    <table class="table table-striped table_sort">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Annonceur</th>
+                <th>Campagne</th>
+                <th>Commercial</th>
+                <th>Nature</th>
+                <th>Status</th>
+                <th>Date de début</th>
+                <th>Date de fin</th>
+                <th>Volume</th>
+                <th>Budget</th>
+                <th>CPM</th>
+                <th>% de remise</th>
+                <th>Mandataire</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (let i = 0; i < campaigns.length; i++) { %>
             <tr>
                 <td><%= campaigns[i].epilot_campaign_id %></td>
-                <td><% if(!utilities.empty(campaigns[i].advertiser_id)) { %><a href="/manager/advertisers/<%= campaigns[i].advertiser.advertiser_id %>" title="<%= campaigns[i].advertiser.advertiser_name %>"><%= campaigns[i].advertiser.advertiser_name %></a> <% } else { %> <%= campaigns[i].epilot_advertiser_name %> <% } %></td>
-                <td><% if(!utilities.empty(campaigns[i].campaign_id)) { %><a href="/manager/campaigns/<%= campaigns[i].campaign_id %>" title="<%= campaigns[i].epilot_campaign_name %>"><%= campaigns[i].epilot_campaign_name %></a> <% } else { %> <%= campaigns[i].epilot_campaign_name %> <% } %></td>
-                <td><% if(!utilities.empty(campaigns[i].user_id)) { %><a href="/manager/users/<%= campaigns[i].user.user_id %>" title=""><%= campaigns[i].user.user_firstname %> <%= campaigns[i].user.user_lastname %></a> <% } else { %> <%= campaigns[i].epilot_campaign_commercial %> <% } %></td>
-               
-                <td><%= campaigns[i].epilot_campaign_nature %></td>
-                <td><%= campaigns[i].epilot_campaign_status %></td>
+                <td><% if((!utilities.empty(campaigns[i].advertiser) || campaigns[i].advertiser !== null)) {%><a
+                        href="/manager/advertisers/<%= campaigns[i].advertiser.advertiser_id %>"
+                        title="<%= campaigns[i].advertiser.advertiser_name %>"><%= campaigns[i].advertiser.advertiser_name %></a>
+                    <% } else { %> <%= campaigns[i].epilot_advertiser_name %> <% } %></td>
+
+                <td><% if(!utilities.empty(campaigns[i].campaign_id)) { %>
+
+                    <% if(campaigns[i].campaign_id !==0){%>
+                    <a href="/manager/campaigns/<%=campaigns[i].campaign_id %> "
+                        title="<%= campaigns[i].epilot_campaign_name %>">
+
+                        <% }%>
+
+                    <%= campaigns[i].epilot_campaign_name %></a>
+                    <% } else { %> <%= campaigns[i].epilot_campaign_name %> <% } %></td>
+
+                <td><% if(!utilities.empty(campaigns[i].user_id)) { %><a
+                        href="/manager/users/<%= campaigns[i].user.user_id %>"
+                        title=""><%= campaigns[i].user.user_firstname %> <%= campaigns[i].user.user_lastname %></a>
+                    <% } else { %> <%= campaigns[i].epilot_campaign_commercial %> <% } %></td>
+
+                <td><% switch(campaigns[i].epilot_campaign_nature) {
+                    case 'CL': %><span class="badge bg-primary">CLASSIQUE</span><% break;
+                    case 'EXTWB': %><span class="badge bg-secondary">EXTENSION WEB</span><% break;
+                    case 'IN': %><span class="badge bg-dark">INSTREAM</span><% break;
+                    case 'FLS': %><span class="badge bg-dark bg-opacity-10">FULLSCREEN</span><% break;
+                    case 'PROD': %><span class="badge bg-info">PRODUCTION</span><% break;
+                    case 'HMOPS': %><span class="badge bg-danger bg-opacity-25">HORS MEDIA OPS</span><% break;  
+                    case 'DIGOPS': %><span class="badge bg-info bg-opacity-75">DIGITAL OPS</span><% break;
+                    case 'PRODOP': %><span class="badge bg-info bg-opacity-50">PRODUCTION OPS</span><% break;
+                    case 'ECD': %><span class="badge bg-info bg-opacity-10">ECHANGE DIGITAL</span><% break;        
+                   case 'MISS': %><span class="badge bg-danger bg-opacity-10">MISS REUNION</span><% break;        
+                   case 'GRCOMP': %><span class="badge bg-danger bg-opacity-10">GRACIEUX COMPENSATION</span><% break;        
+                   default: %><span class="badge bg-warning"> <%= campaigns[i].epilot_campaign_nature %></span>
+                    <% break; } %>
+
+                </td>
+                <td>
+                    <% switch(campaigns[i].epilot_campaign_status) {
+                    case 1: %><span class="badge bg-success">CONFIRMÉ</span><% break;
+                    case 2: %><span class="badge bg-warning">RÉSERVÉ</span><% break;
+                    case 3: %><span class="badge bg-warning">DEMANDE</span><% break;
+                    case 4: %><span class="badge bg-info">OPTION</span><% break;
+                    default: %><span class="badge bg-warning"> <%= campaigns[i].epilot_campaign_status %></span> <% break; 
+                    } %>
+                </td>
                 <td><%= campaigns[i].epilot_campaign_start_date %></td>
                 <td><%= campaigns[i].epilot_campaign_end_date %></td>
-                <td><%= campaigns[i].epilot_campaign_volume %></td>
-                <td><%= campaigns[i].epilot_campaign_budget_net %></td>
+                <td><%= utilities.numStr(campaigns[i].epilot_campaign_volume) %></td>
+                <td><%= utilities.numStr(campaigns[i].epilot_campaign_budget_net) %></td>
                 <td><%= campaigns[i].epilot_campaign_cpm_net %></td>
+                <td><%= campaigns[i].epilot_campaign_discount_rate %></td>
+                <td><%= campaigns[i].epilot_campaign_mandataire %></td>
                 <td>
-                    
                 </td>
-        <% } %>
+                <% } %>
             </tr>
         </tbody>
     </table>
+</div>

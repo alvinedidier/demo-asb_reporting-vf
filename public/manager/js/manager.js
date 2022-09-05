@@ -1,3 +1,8 @@
+/*var config = {
+    baseurl: "http://localhost:3001"
+};
+*/
+
 $(document).ready(function () {
 
     var dt = new Date();
@@ -33,7 +38,7 @@ $(document).ready(function () {
             search: "Rechercher&nbsp;:",
             lengthMenu: "Afficher _MENU_ &eacute;l&eacute;ments",
             info: "Affichage de l'&eacute;lement _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eac" +
-                    "ute;ments",
+                "ute;ments",
             infoEmpty: "Affichage de l'&eacute;lement 0 &agrave; 0 sur 0 &eacute;l&eacute;ments",
             infoFiltered: "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
             infoPostFix: "",
@@ -71,7 +76,7 @@ $(document).ready(function () {
             target = ' target="_blank"';
         }
         var toastHtml = '<div class="toast" aria-live="assertive" aria-atomic="true" style="z-index:999' +
-                '9;top:12px;right:12px;position:fixed">';
+            '9;top:12px;right:12px;position:fixed">';
         toastHtml += '<div class="toast-header">'
         toastHtml += '<strong class="mr-auto"><i class="fa fa-grav"></i> ' + title + '</strong>'
         toastHtml += '<small>' + time + '</small>'
@@ -81,7 +86,7 @@ $(document).ready(function () {
         toastHtml += '</div>'
         toastHtml += '<div class="toast-body">'
         toastHtml += '<div class="toast-message"><a href="' + url + '" ' + target + '>' +
-                message + '</a></div>'
+            message + '</a></div>'
         toastHtml += '</div>'
         toastHtml += '</div>'
 
@@ -107,13 +112,8 @@ $(document).ready(function () {
         $(".toast").toast('show');
     }
 
-    var config = {
-        baseurl: "https://reporting.antennesb.fr/"
-    };
-
-
     /*
-    $.getJSON(config.baseurl + 'automate/reports', function (data) {
+    $.getJSON(config.baseurl + '/automate/reports', function (data) {
 
         $.each(data, function (key, campaign) {
             var CurrentDate = (new Date().getTime() / 1000);
@@ -125,16 +125,16 @@ $(document).ready(function () {
             if (campaign.timestamp_expiration < CurrentDate) {
                 $.ajax({
                     type: 'GET',
-                    url: config.baseurl + 'r/report/' + campaign.campaign_crypt,
+                    url: config.baseurl + '/r/report/' + campaign.campaign_crypt,
                     dataType: 'html',
                     success: function (data) {
-                        console.log('Url : ' + config.baseurl + 'r/report/' + campaign.campaign_crypt)
+                        console.log('Url : ' + config.baseurl + '/r/report/' + campaign.campaign_crypt)
                         toastWidget(
                             'Génération d\'un rapport',
                             '',
                             'Le rapport <strong>' + campaign.campaign_name +
                                     '</strong> a bien été généré',
-                            config.baseurl + 'r/' + campaign.campaign_crypt
+                            config.baseurl + '/r/' + campaign.campaign_crypt
                         );
                     },
                     error: function () {
@@ -153,51 +153,49 @@ $(document).ready(function () {
 
     // Automatisations des éléments
     function automateAction(automate) {
-
         switch (automate) {
             case "campaign-update":
                 // Récupére les insertions
                 $.ajax({
                     type: 'GET',
-                    url: config.baseurl + 'automate/campaign',
+                    url: config.baseurl + '/automate/campaign',
                     dataType: 'json',
                     data: 'campaign_id=' + campaign_id,
                     success: function (data) {
                         toastWidget('Mise à jour de la campagne', '', data.message);
                         automateAction('campaign-insertions');
-                        automateAction('campaign-epilot');
-                        //  automateAction('campaign-report');
+                        //  automateAction('campaign-epilot');
+                        // automateAction('campaign-report');*/
                     },
                     error: function () {
-                        // swal("Erreur", "La g\351n\351ration automatique du mot de passe n'a pu
-                        // aboutir. R\351essayer ult\351rieurement.", "warning");
+                        swal("Erreur", "La g\351n\351ration automatique du mot de passe n'a pu aboutir. R\351essayer ult\351rieurement.", "warning");
                     },
                     timeout: 300000
                 });
                 break;
-            case "campaign-report":
-                // Récupére les insertions
-                $.ajax({
-                    type: 'GET',
-                    url: config.baseurl + 'automate/campaign/report',
-                    dataType: 'json',
-                    data: 'campaign_id=' + campaign_id,
-                    success: function (data) {
-                        toastWidget('Mise à jour du rapport', '', data.message);
-                        // automateAction('campaign-report');
-                    },
-                    error: function () {
-                        // swal("Erreur", "La g\351n\351ration automatique du mot de passe n'a pu
-                        // aboutir. R\351essayer ult\351rieurement.", "warning");
-                    },
-                    timeout: 300000
-                });
-                break;
+                /*    case "campaign-report":
+                        // Récupére les insertions
+                        $.ajax({
+                            type: 'GET',
+                            url: config.baseurl + '/automate/campaign/report',
+                            dataType: 'json',
+                            data: 'campaign_id=' + campaign_id,
+                            success: function (data) {
+                                toastWidget('Mise à jour du rapport', '', data.message);
+                                // automateAction('campaign-report');
+                            },
+                            error: function () {
+                                swal("Erreur", "La g\351n\351ration automatique du mot de passe n'a pu aboutir. R\351essayer ult\351rieurement.", "warning");
+                            },
+                            timeout: 300000
+                        });
+                        break;
+                        */
             case "campaign-insertions":
                 // Récupére les insertions
                 $.ajax({
                     type: 'GET',
-                    url: config.baseurl + 'automate/campaigns/insertions',
+                    url: config.baseurl + '/automate/campaigns/insertions',
                     dataType: 'json',
                     data: 'campaign_id=' + campaign_id,
                     success: function (data) {
@@ -205,17 +203,37 @@ $(document).ready(function () {
                         automateAction('campaign-creatives');
                     },
                     error: function () {
-                        // swal("Erreur", "La g\351n\351ration automatique du mot de passe n'a pu
-                        // aboutir. R\351essayer ult\351rieurement.", "warning");
+                        swal("Erreur", "La g\351n\351ration automatique du mot de passe n'a pu aboutir. R\351essayer ult\351rieurement.", "warning");
                     },
                     timeout: 300000
                 });
                 break;
+                /* case "campaign-insertions-epilot":
+                     // Récupére les insertions d'epilot
+                     $.ajax({
+                         type: 'GET',
+                         url: config.baseurl + '/automate/epilot/insertions',
+                         dataType: 'json',
+                         data: 'campaign_id=' + campaign_id,
+                         success: function (data) {
+                             toastWidget('Mise à jour des insertions', '', data.message);
+                             automateAction('campaign-creatives');
+                         },
+                         error: function () {
+                             swal("Erreur", "La g\351n\351ration automatique du mot de passe n'a pu aboutir. R\351essayer ult\351rieurement.", "warning");
+                         },
+                         timeout: 300000
+                     });
+                     break;*/
             case "campaign-creatives":
+                // $('div.alert-automate').attr('data-automate');
+                // var automateData = $('div.alert-automate').attr('data-automate');
+                // if(automateData == "campaign-creatives") {  alert('campaign-creatives');  }
+
                 // Récupére les creatives
                 $.ajax({
                     type: 'GET',
-                    url: config.baseurl + 'automate/campaigns/creatives',
+                    url: config.baseurl + '/automate/campaigns/creatives',
                     dataType: 'json',
                     data: 'campaign_id=' + campaign_id,
                     success: function (data) {
@@ -228,11 +246,11 @@ $(document).ready(function () {
                     timeout: 300000
                 });
                 break;
-            case "campaign-epilot":
+                /*   case "campaign-epilot":
                 // Réinitialise les données d'Epilot
                 $.ajax({
                     type: 'GET',
-                    url: config.baseurl + 'automate/epilot/campaigns',
+                    url: config.baseurl + '/automate/campaign/epilot/',
                     dataType: 'json',
                     success: function (data) {
                         toastWidget('Mise à jour des campagnes Epilot', '', data.message);
@@ -244,13 +262,13 @@ $(document).ready(function () {
                     timeout: 300000
                 });
                 break;
-
+*/
             case "advertiser-campaigns":
                 // Récupére les campagnes des annonceurs console.log(
                 // config.baseurl+'automate/advertisers/campaigns?advertiser='+id)
                 $.ajax({
                     type: 'GET',
-                    url: config.baseurl + 'automate/advertisers/campaigns',
+                    url: config.baseurl + '/automate/advertisers/campaigns',
                     dataType: 'json',
                     data: 'advertiser_id=' + advertiser_id,
                     success: function (data) {
@@ -271,12 +289,17 @@ $(document).ready(function () {
     var advertiser_id = $('div.card').attr('data-advertiser_id');
     var automateData = $('div.alert-automate').attr('data-automate');
 
-    if (campaign_id) {
-        automateAction(automateData);
-    }
+    if (campaign_id || advertiser_id) {
+        //   automateAction(automateData);
 
-    if (advertiser_id) {
-        automateAction(automateData);
+        var IDsAdsLoad = document.querySelectorAll("div[data-automate]");
+        if (IDsAdsLoad.length > 0) {
+            [].forEach.call(IDsAdsLoad, function (advertiseLoad) {
+                //  alert(advertiseLoad.dataset.automate)
+                automateAction(advertiseLoad.dataset.automate);
+            });
+        }
+
     }
 
     $('.btn-automate').click(function () {

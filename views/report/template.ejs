@@ -83,7 +83,7 @@
         <% if(reporting.campaign.campaign_end_date > reporting.reporting_start_date) { %>
         <div class="col-12 mb-5">
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <strong>Les statistiques de campagne sont mises à jour toutes les 2 heures.</strong>
+                <strong>Les statistiques de la campagne sont mises à jour toutes les 2 heures.</strong>
                 <% if(moment(reporting.reporting_end_date).format('DD/MM/YYYY à HH:mm') > moment().format('DD/MM/YYYY à HH:mm')) { %>
                 <p>La prochaine mise à jour de cette campagne se fera le <strong>
                         <%= moment(reporting.reporting_end_date).format('DD/MM/YYYY à HH:mm') %></strong></p>
@@ -177,9 +177,9 @@
         </div>
 
         <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
+            <h3 class="title text-left  ">
                 <i class="fas fa-chart-line"></i>
-                <strong>Par format</strong>
+                <strong >Par format</strong>
             </h3>
         </div>
         <div class="table-responsive-md">
@@ -187,7 +187,7 @@
             <table class="table">
                 <thead class="text-center thead-dark">
                     <tr>
-                        <th>Format</th>
+                        <th class="text-left">Format</th>
                         <th>Impressions</th>
                         <th>Clics</th>
                         <th>Taux de clics</th>
@@ -210,6 +210,15 @@
                         <td class="text-center"><%= reporting.interstitiel.ctr %>%</td>
                     </tr>
                     <% } %>
+
+                    <% if(reporting.interstitielvideo) { %>
+                        <tr>
+                            <td class="text-left">INTERSTITIEL VIDEO</td>
+                            <td><%= utilities.numStr(reporting.interstitielvideo.impressions) %></td>
+                            <td><%= utilities.numStr(reporting.interstitielvideo.clicks) %></td>
+                            <td class="text-center"><%= reporting.interstitielvideo.ctr %>%</td>
+                        </tr>
+                        <% } %>
                     <% if(reporting.instream) { %>
                     <tr>
                         <td class="text-left">INSTREAM</td>
@@ -244,6 +253,15 @@
 
                     </tr>
                     <% } %>
+                    <% if(reporting.rectangle) { %>
+                        <tr>
+                            <td class="text-left">RECTANGLE</td>
+                            <td><%= utilities.numStr(reporting.rectangle.impressions) %></td>
+                            <td><%= utilities.numStr(reporting.rectangle.clicks) %></td>
+                            <td class="text-center"><%= reporting.rectangle.ctr %>%</td>
+    
+                        </tr>
+                        <% } %>
                     <% if(reporting.logo) { %>
                     <tr>
                         <td class="text-left">LOGO</td>
@@ -393,6 +411,48 @@
         </div>
         <% } %>
 
+        <% if(reporting.interstitielvideo) { %>
+            <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
+                <h3 class="title">
+                    <i class="fas fa-chart-line"></i>
+                    <strong>INTERSTITIEL VIDEO/ par site</strong>
+                </h3>
+            </div>
+            <div class="table-responsive-md">
+    
+                <table class="table">
+                    <thead class="text-center thead-dark">
+                        <tr>
+                            <th class="text-left">Sites</th>
+                            <th>Impressions</th>
+                            <th>Clics</th>
+                            <th>Taux de clics</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <% for(i=0; i < Object.keys(reporting.interstitielvideo.siteList).length; i++) { %>
+                        <tr>
+                            <td class="text-left"><%= reporting.interstitielvideo.siteList[i].site %></td>
+                            <td><%= utilities.numStr(reporting.interstitielvideo.siteList[i].impressions) %></td>
+                            <td><%= utilities.numStr(reporting.interstitielvideo.siteList[i].clicks) %></td>
+                            <td><%= reporting.interstitielvideo.siteList[i].ctr %>%</td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                    <tfoot class="text-center table-dark">
+                        <tr>
+                            <td class="text-left">
+                                <strong>Total</strong>
+                            </td>
+                            <td><%= utilities.numStr(reporting.interstitielvideo.impressions) %></td>
+                            <td><%= utilities.numStr(reporting.interstitielvideo.clicks) %></td>
+                            <td><%= reporting.interstitielvideo.ctr %>%</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <% } %>
+
         <% if(reporting.instream) { %>
         <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
             <h3 class="title">
@@ -522,6 +582,47 @@
             </table>
         </div>
         <% } %>
+
+        <% if(reporting.rectangle) { %>
+            <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
+                <h3 class="title">
+                    <i class="fas fa-chart-line"></i>
+                    <strong>RECTANGLE / par site</strong>
+                </h3>
+            </div>
+            <div class="table-responsive-md">
+                <table class="table">
+                    <thead class="text-center thead-dark">
+                        <tr>
+                            <th class="text-left">Sites</th>
+                            <th>Impressions</th>
+                            <th>Clics</th>
+                            <th>Taux de clics</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <% for(i=0; i < Object.keys(reporting.rectangle.siteList).length; i++) { %>
+                        <tr>
+                            <td class="text-left"><%= reporting.rectangle.siteList[i].site %></td>
+                            <td><%= utilities.numStr(reporting.rectangle.siteList[i].impressions) %></td>
+                            <td><%= utilities.numStr(reporting.rectangle.siteList[i].clicks) %></td>
+                            <td><%= reporting.rectangle.siteList[i].ctr %>%</td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                    <tfoot class="text-center table-dark">
+                        <tr>
+                            <td class="text-left">
+                                <strong>Total</strong>
+                            </td>
+                            <td><%= utilities.numStr(reporting.rectangle.impressions) %></td>
+                            <td><%= utilities.numStr(reporting.rectangle.clicks) %></td>
+                            <td><%= reporting.rectangle.ctr %>%</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <% } %>
 
         <% if(reporting.rectanglevideo) { %>
         <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
@@ -814,6 +915,61 @@
             </table>
         </div>
         <% } %>
+
+
+
+
+        <% if(reporting.creative) { %>
+            <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
+                <h3 class="title">
+                    <i class="fas fa-chart-line"></i>
+                    <strong>Par créatives </strong>
+                </h3>
+            </div>
+            <div class="table-responsive-md">
+    
+                <table class="table">
+                    <thead class="text-center thead-dark">
+                        <tr>
+                            <th class="text-left">Creatives</th>
+                            <th>Impressions</th>
+                            <th>Clics</th>
+                            <th>Taux de clics</th>
+                            <% if((reporting.creatives.ctrComplete !=='0.00')) { %>
+                                <th>VTR</th>
+                            <% } %>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <% for(i=0; i < Object.keys(reporting.creative).length; i++) { %>
+                        <tr>
+                            <td class="text-left"><%= reporting.creative[i].creative %></td>
+                            <td><%= utilities.numStr(reporting.creative[i].impressions) %></td>
+                            <td><%= utilities.numStr(reporting.creative[i].clicks) %></td>
+                            <td><%= reporting.creative[i].ctr %>%</td>
+                            <% if((reporting.creatives.ctrComplete !=='0.00')) { %>
+                            <td><%= reporting.creative[i].ctrComplete %>%</td>
+                            <% } %>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                    <tfoot class="text-center table-dark">
+                        <tr>
+                            <td class="text-left">
+                                <strong>Total</strong>
+                            </td>
+                            <td><%= utilities.numStr(reporting.creatives.impressions) %></td>
+                            <td><%= utilities.numStr(reporting.creatives.clicks) %></td>
+                            <td><%= reporting.creatives.ctr %>%</td>
+                            <% if((reporting.creatives.ctrComplete !=='0.00')) { %>
+                                <td><%= reporting.creatives.ctrComplete %>%</td>
+                            <% } %>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <% } %>
+
 
      <div class="pt-5 pb-5 text-right"> <a href="/r/<%=reporting.campaign.campaign_crypt %>/export" class="btn btn-xs btn-success"> <i class="fas fa-file-excel"> </i> Télécharger le rapport <span class="small">(Format : Excel)</span></a> </div>
     </div>

@@ -1,8 +1,11 @@
 //BDD LOCALHOST
+const dotenv = require("dotenv");
+dotenv.config({path:"./config.env"})
 
 const Sequelize = require("sequelize");
 const sequelize = new Sequelize(process.env.DB,process.env.USER,process.env.PASSWORD, { // nom de la BDD, username, password
     host: process.env.HOST,
+   // port:8889,
     dialect: "mysql",
     operatorsAliases: true,
     logging: false,
@@ -15,7 +18,7 @@ const sequelize = new Sequelize(process.env.DB,process.env.USER,process.env.PASS
     pool: {
         max: 5,
         min: 0,
-        acquire: 30000,
+        acquire: 90000,
         idle: 10000
     }
 });

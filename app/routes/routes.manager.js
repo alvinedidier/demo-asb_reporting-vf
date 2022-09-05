@@ -9,11 +9,13 @@ const manager_gam = require("../controllers/controllers.manager_gam");
 const manager_insertions = require("../controllers/controllers.manager_insertions");
 const manager_agencies = require("../controllers/controllers.manager_agencies");
 const manager_advertisers = require("../controllers/controllers.manager_advertisers");
+const manager_formats = require("../controllers/controllers.manager_formats");
 const manager_sites = require("../controllers/controllers.manager_sites");
 const manager_users = require("../controllers/controllers.manager_users");
 const manager_forecast = require("../controllers/controllers.manager_forecast");
 const manager_search = require("../controllers/controllers.manager_search");
 const manager_charts = require("../controllers/controllers.manager_charts");
+const manager_campaigns_tv = require("../controllers/controllers.manager_campaigns_tv")
 
 /**
 * Middleware to know if user is connected
@@ -94,6 +96,15 @@ router.get('/campaigns/create', manager_campaigns.create);
 router.post('/campaigns/create', manager_campaigns.create_post);
 router.get('/campaigns/repartitions', manager_campaigns.repartitions);
 router.get("/campaigns/:id", manager_campaigns.view);
+router.get("/campaigns/:campaign/email/:user", manager_campaigns.email);
+
+
+router.get('/campaigns/tv/list', manager_campaigns_tv.list);
+router.get('/campaigns/tv/edit/:campaigntv', manager_campaigns_tv.edit);
+router.post('/campaigns/tv/edit/:campaigntv', manager_campaigns_tv.update);
+router.get('/campaigns/tv/export', manager_campaigns_tv.export);
+router.get('/campaigns/tv/:campaigntv', manager_campaigns_tv.view);
+
 
 router.get('/campaigns/epilot/list', manager_epilot.list);
 router.get('/campaigns/epilot/export', manager_epilot.export);
@@ -104,15 +115,24 @@ router.get('/campaigns/gam/export', manager_gam.export);
 router.get('/campaigns/epilot/insertions', manager_epilot.insertions);
 router.get('/campaigns/epilot/create', manager_epilot.create);
 router.post('/campaigns/epilot/import', manager_epilot.import);
-router.get('/campaigns/epilot/import', manager_epilot.import);
-
-
+//router.get('/campaigns/epilot/import', manager_epilot.import);
 router.get("/campaigns/:campaign_id/insertions/:insertion_id", manager_insertions.view);
+
+router.get("/formats", manager_formats.index);
+router.get("/formats/list", manager_formats.list);
+router.get("/formats/groups", manager_formats.groups);
+router.get("/formats/:id", manager_formats.view);
 
 router.get("/insertions", manager_insertions.index);
 router.get("/insertions/list", manager_insertions.list);
-router.get("/insertions/create/:id", manager_insertions.create);
+router.get("/insertions/create", manager_insertions.create);
+router.post("/insertions/create_post", manager_insertions.create_post);
+/*
+router.get("/insertions/create/", manager_insertions.create);
 router.post("/insertions/create", manager_insertions.create_post);
+
+router.get("/insertions/:id", manager_insertions.view);
+*/
 
 router.get("/creatives/create/:id", manager_insertions.create_creative);
 router.post("/creatives/create", manager_insertions.create_creative_post);
@@ -122,6 +142,7 @@ router.get("/search/import", manager_search.import);
 
 router.get("/charts", manager_charts.index);
 router.get("/charts/campaigns", manager_charts.campaigns);
+router.get("/charts/advertisers/", manager_charts.advertisers);
 router.get("/charts/advertisers/:advertiser_id", manager_charts.advertisers);
 router.get("/charts/campaign/report", manager_charts.campaignReport);
 
