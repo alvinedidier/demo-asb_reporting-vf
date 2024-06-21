@@ -1,3 +1,7 @@
+const EventEmitter = require('events');
+const emitter = new EventEmitter();
+emitter.setMaxListeners(2000); // Augmentez la limite si nécessaire
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();

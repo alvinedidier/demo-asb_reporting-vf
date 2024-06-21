@@ -150,7 +150,7 @@
                         <th>Taux de clics</th>
                         <th>Visiteurs Uniques</th>
                         <th>Répétition</th>
-                        <% if(utilities.empty(reporting.campaign.ctrComplete)) { %>
+                        <% if(reporting.campaign.ctrComplete) { %>
                         <th>VTR</th>
                         <% } %>
                     </tr>
@@ -168,7 +168,7 @@
                         <td> - </td>
                         <% }%>
 
-                        <% if(utilities.empty(reporting.campaign.ctrComplete)) { %>
+                        <% if(reporting.campaign.ctrComplete) { %>
                         <td><%= reporting.campaign.ctrComplete %>%</td>
                         <% } %>
                     </tr>

@@ -22,12 +22,12 @@
   },
   "homepage": "https://github.com/alvinedidier/asb_report_node#readme",
   "dependencies": {
-    "@azure/msal-node": "^1.5.0",
+    "@azure/msal-node": "^1.18.4",
     "@fast-csv/format": "^4.3.5",
     "@fast-csv/parse": "^4.3.6",
     "algoliasearch": "^4.12.0",
     "async": "^3.2.2",
-    "axios": "^0.21.4",
+    "axios": "^1.7.2",
     "bcrypt": "^5.0.1",
     "brcypt": "^1.0.1",
     "cookie-parser": "^1.4.6",
@@ -45,7 +45,7 @@
     "log4js": "^6.3.0",
     "mkdirp": "^1.0.4",
     "mysql": "^2.18.1",
-    "mysql2": "^2.3.3",
+    "mysql2": "^3.10.0",
     "needle": "^3.1.0",
     "node-cache": "^5.1.2",
     "node-excel-export": "^1.4.4",
@@ -57,7 +57,7 @@
     "puppeteer": "^13.2.0",
     "puppeteer-core": "^13.3.2",
     "request": "^2.88.2",
-    "sequelize": "^5.22.4",
+    "sequelize": "^6.37.3",
     "validator": "^13.7.0"
   }
 }

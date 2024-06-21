@@ -2,6 +2,10 @@
 const https = require('https');
 const http = require('http');
 const dbApi = require("../config/config.api");
+
+const dotenv = require("dotenv");
+
+
 const axios = require(`axios`);
 var crypto = require('crypto');
 const needle = require("needle");
@@ -316,6 +320,7 @@ exports.advertiser = async (req, res) => {
 }
 
 exports.advertisersCampaigns = async (req, res) => {
+
     try {
         let advertiser_id = req.query.advertiser_id;
 

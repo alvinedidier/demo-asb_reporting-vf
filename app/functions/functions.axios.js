@@ -1,5 +1,6 @@
 const axios = require(`axios`);
-const dbApi = require("../config/config.api");
+// const dbApi = require("../config/config.api");
+require('dotenv').config()
 const Utilities = require('../functions/functions.utilities');
 /**
  * Requête API FORECAST
@@ -21,8 +22,8 @@ exports.getForecastData = async (method, urlForecast, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: dbApi.SMART_login,
-        password: dbApi.SMART_password
+        username: process.env.SMART_LOG,
+        password: process.env.SMART_PASS
       }
     });
 
@@ -35,8 +36,8 @@ exports.getForecastData = async (method, urlForecast, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: dbApi.SMART_login,
-        password: dbApi.SMART_password
+        username: process.env.SMART_LOG,
+        password: process.env.SMART_PASS
       },
       data
     });
@@ -56,8 +57,8 @@ exports.getReportingData = async (method, urlReporting, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: dbApi.SMART_login,
-        password: dbApi.SMART_password
+        username: process.env.SMART_LOG,
+        password: process.env.SMART_PASS
       },
       data: data
     }).catch(function (error) {
@@ -97,8 +98,8 @@ exports.getReportingData = async (method, urlReporting, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: dbApi.SMART_login,
-        password: dbApi.SMART_password
+        username: process.env.SMART_LOG,
+        password: process.env.SMART_PASS
       }
     })
 
@@ -192,8 +193,8 @@ exports.getManageData = async (method) => {
           "Content-type": "Application/json"
         },
         auth: {
-          username: dbApi.SMART_login,
-          password: dbApi.SMART_password
+          username: process.env.SMART_LOG,
+          password: process.env.SMART_PASS
         },
 
       })
@@ -251,8 +252,8 @@ exports.postManage = async (method, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: dbApi.SMART_login,
-        password: dbApi.SMART_password
+        username: process.env.SMART_LOG,
+        password: process.env.SMART_PASS
       },
       data
     })
@@ -300,8 +301,8 @@ exports.copyManage = async (method, data = null, id) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: dbApi.SMART_login,
-        password: dbApi.SMART_password
+        username: process.env.SMART_LOG,
+        password: process.env.SMART_PASS
       },
       data
     })
@@ -333,8 +334,8 @@ exports.getManage = async (url_location, id) => {
       "Content-type": "Application/json"
     },
     auth: {
-      username: dbApi.SMART_login,
-      password: dbApi.SMART_password
+      username: process.env.SMART_LOG,
+      password: process.env.SMART_PASS
     },
   })
 
@@ -373,8 +374,8 @@ exports.getManageCopy = async (method, id) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: dbApi.SMART_login,
-        password: dbApi.SMART_password
+        username: process.env.SMART_LOG,
+        password: process.env.SMART_PASS
       },
     })
 
@@ -427,8 +428,8 @@ exports.putManage = async (method, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: dbApi.SMART_login,
-        password: dbApi.SMART_password
+        username: process.env.SMART_LOG,
+        password: process.env.SMART_PASS
       },
       data
     })
@@ -602,8 +603,8 @@ exports.RequestForecastGlobal = async function requestForecast(startDate, endDat
       "Content-type": "Application/json"
     },
     auth: {
-      username: dbApi.SMART_login,
-      password: dbApi.SMART_password
+      username: process.env.SMART_LOG,
+      password: process.env.SMART_PASS
     },
     data: RequestForecastGlobal
   });

@@ -47,7 +47,7 @@ const msal = require('@azure/msal-node');
 // Initialise les identifiants de connexion à l'api
 const dotenv = require("dotenv");
 dotenv.config({path:"./config.env"})
-
+/*
 // Configuration pour se connecter via Microsoft Azure
 const config = {
   auth: {
@@ -68,7 +68,7 @@ const config = {
 
 // Create msal application object
 const cca = new msal.ConfidentialClientApplication(config);
-
+*/
 exports.home_page = async (req, res) => {
   res.render('landing_page.ejs');
 }

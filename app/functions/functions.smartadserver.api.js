@@ -1,4 +1,6 @@
-const dbApi = require("../config/config.api");
+// const dbApi = require("../config/config.api");
+
+require('dotenv').config()
 const ModelInsertions = require("../models/models.insertions");
 /**
  * Fonction pour l'affichage des données pour le front
@@ -12,7 +14,8 @@ exports.config = function (method, params = '') {
             var configApiUrl = 'https://manage.smartadserverapis.com/2044/agencies/';
             break;
         case 'advertisers':
-            var configApiUrl = 'https://manage.smartadserverapis.com/2044/advertisers/';
+            // var configApiUrl = 'https://manage.smartadserverapis.com/2044/advertisers/';
+            var configApiUrl = 'https://manage.smartadserverapis.com/Advertisers';
             break;
         case 'advertiser':
             advertiser_id = params.advertiser_id;
@@ -21,11 +24,12 @@ exports.config = function (method, params = '') {
             break;
         case 'advertisersCampaigns':
             advertiser_id = params.advertiser_id;
-            var configApiUrl = 'https://manage.smartadserverapis.com/2044/advertisers/' +
-                advertiser_id + '/campaigns/';
+            // var configApiUrl = 'https://manage.smartadserverapis.com/2044/advertisers/' +  advertiser_id + '/campaigns/';
+            var configApiUrl = 'https://manage.smartadserverapis.com/Advertisers/' +  advertiser_id + '/campaigns';
             break;
         case 'campaigns':
-            var configApiUrl = 'https://manage.smartadserverapis.com/2044/campaigns/';
+            // var configApiUrl = 'https://manage.smartadserverapis.com/2044/campaigns/';
+            var configApiUrl = 'https://manage.smartadserverapis.com/Campaigns/';
             break;
         case 'campaign':
             campaign_id = params.campaign_id;
@@ -93,8 +97,8 @@ exports.config = function (method, params = '') {
             "Content-Type": "application/json"
         },
         auth: {
-            username: dbApi.SMART_login,
-            password: dbApi.SMART_password
+            username: process.env.SMART_LOG,
+            password: process.env.SMART_PASS
         }
         /*
         //condition config

@@ -339,7 +339,6 @@ exports.report = async (req, res) => {
                             }, {
                                 "SiteName": {}
                             },
-
                             {
                                 "Impressions": {}
                             }, {
@@ -458,7 +457,6 @@ exports.report = async (req, res) => {
                             }
                         }
 
-
                         // twoLink - Récupére la taskID de la requête reporting
                         let twoLinkTaskId = localStorageTasks.getItem(
                             cacheStorageID + '-twoLink-' + cacheStorageIDHour
@@ -529,8 +527,7 @@ exports.report = async (req, res) => {
                                                     `https://reporting.smartadserverapis.com/2044/reports/${taskId}/file`,
                                                     ''
                                                 );
-                                                /*log_reporting.info("Data global crée : "+taskId);*/
-
+                                               
                                                 // save la data requête 1 dans le local storage
                                                 dataLSTaskGlobal = {
                                                     'datafile': dataFile.data
@@ -585,8 +582,6 @@ exports.report = async (req, res) => {
                                     // On récupére le dataLSTaskGlobal
                                     const objDefault = JSON.parse(dataLSTaskGlobal);
                                     var dataSplitGlobal = objDefault.datafile;
-
-
                                     //   console.log(dataSplitGlobal)
 
                                     // Permet de faire l'addition
@@ -613,7 +608,6 @@ exports.report = async (req, res) => {
                                     const ViewableImpressions = [];
                                     const ImageCreative = [];
 
-
                                     const dataList = new Object();
                                     const dataListCreative = new Array()
 
@@ -621,15 +615,11 @@ exports.report = async (req, res) => {
                                     if (dataSplitGlobal && (dataSplitGlobal.length > 0)) {
                                         var numberLine = dataSplitGlobal.length;
 
-
-
-
                                         if (numberLine > 1) {
                                             for (i = 1; i < numberLine; i++) {
 
                                                 // split push les données dans chaque colone
                                                 line = dataSplitGlobal[i].split(';');
-
 
                                                 if (!Utilities.empty(line[0])) {
                                                     insertion_type = line[5];
@@ -653,11 +643,10 @@ exports.report = async (req, res) => {
                                                         'site_id': line[8],
                                                         'site_name': line[9],
                                                         'image_creative': line[15],
-
                                                         // 'impressions': parseInt(line[10]),
                                                         'click_rate': parseInt(line[11]),
                                                         'clicks': parseInt(line[12]),
-                                                        //'complete': parseInt(line[13]),
+                                                        // 'complete': parseInt(line[13]),
                                                         // 'viewable_impressions': parseInt(line[14])
                                                     }
 
@@ -666,32 +655,23 @@ exports.report = async (req, res) => {
                                                     } else {
                                                         //  dataList[i]['impressions'] = parseInt(line[10]);
                                                         dataList[i]['impressions'] = parseInt(line[10]);
-
                                                     }
                                                     if (insertion_type.match(/PREROLL|MIDROLL{1}/igm)) {
                                                         dataList[i]['complete'] = parseInt(line[13]);
-
                                                     } else {
                                                         dataList[i]['complete'] = 0;
-
                                                     }
-
-
 
                                                     //regex qui regroupe les insertions creatives (PREROLL - DAILYMOTION - CORDONS BLEUS)
                                                     var regex_string = insertion_type.match(/(.*)-(.*)- (?:.(?!-))+$/igm)
 
                                                     if (regex_string) {
-
-
                                                         const string_crea = (regex_string[0]).split('- ')
                                                         var lastElement = string_crea.slice(-1);
-
 
                                                         //si dans le nom de l'insertion il se termine par 'POSITION' on ne crée pas dataObjCreatives 
                                                         if (!(lastElement[0]).match(/POSITION{1}/gim)) {
                                                            
-
                                                             var dataObjCreatives = {
                                                                 'creative': lastElement[0],
                                                                 'insertion_name': line[5],
@@ -711,14 +691,10 @@ exports.report = async (req, res) => {
                                                         }
                                                     }
 
-
                                                 }
                                             }
                                         }
                                     }
-
-
-
 
                                     var formatObjects = new Object();
                                     if (dataList && (Object.keys(dataList).length > 0)) {
@@ -759,8 +735,6 @@ exports.report = async (req, res) => {
                                         var siteM6 = new Array();
                                         var siteDAILYMOTION = new Array();
 
-
-
                                         var creaGrandAngleDesktop = new Array();
                                         var creaGrandAngleTab = new Array();
                                         var creaGrandAngleMobile = new Array();
@@ -771,19 +745,17 @@ exports.report = async (req, res) => {
                                         var creaInterstitielMobile = new Array();
                                         var creaInterstitielMobileApp = new Array();
 
-
                                         for (var index = 1; index <= Object.keys(dataList).length; index++) {
                                             var insertion_name = dataList[index].insertion_name;
                                             var site_id = dataList[index].site_id;
                                             var site_name = dataList[index].site_name;
                                             var image_crea = dataList[index].image_creative;
 
-                                            /*console.log(insertion_name)
-                                            console.log(site_name)
-                                          
-                                            console.log("---------------")*/
-
-
+                                            /*
+                                            console.log(insertion_name)
+                                            console.log(site_name)                                          
+                                            console.log("---------------")
+                                            */
 
                                             // Créer les tableaux des formats
                                             switch (true) {
@@ -812,7 +784,7 @@ exports.report = async (req, res) => {
 
                                                     break;
 
-                                                case (/PREROLL|MIDROLL{1}/igm).test(insertion_name):
+                                                case (/PREROLL|MIDROLL|INSTREAM{1}/igm).test(insertion_name):
                                                     formatInstream.push(index);
 
                                                     break;
@@ -822,7 +794,6 @@ exports.report = async (req, res) => {
                                                         formatRectangleVideo.push(index);
                                                     } else {
                                                         formatRectangle.push(index);
-
                                                     }
                                                     break;
 
@@ -1126,40 +1097,25 @@ exports.report = async (req, res) => {
                                                 const data_admanager = admanager.data
                                                 // test si le localstorage admanager existe 
                                                 if (!Utilities.empty(data_admanager)) {
-
-                                                    // console.log(data_admanager)
+                                                    console.log("formatObjects : ",formatObjects)
 
                                                     if (!Utilities.empty(formatObjects.interstitiel)) {
-
                                                         var key_i = Object.keys(formatObjects.interstitiel.siteList).length
-
                                                         formatObjects.interstitiel.siteList[key_i] = data_admanager.interstitiel.siteList
-
                                                         var sommeInterstitiel = formatObjects.interstitiel.impressions + data_admanager.interstitiel.impressions
-
                                                         var sommeclicksInterstitiel = formatObjects.interstitiel.clicks + data_admanager.interstitiel.clicks
-
-
                                                         formatObjects.interstitiel.impressions = sommeInterstitiel
                                                         formatObjects.interstitiel.clicks = sommeclicksInterstitiel
-
                                                     }
 
                                                     if (!Utilities.empty(formatObjects.masthead)) {
-
                                                         var key_m = Object.keys(formatObjects.masthead.siteList).length
-
                                                         formatObjects.masthead.siteList[key_m] = data_admanager.masthead.siteList
-
                                                         var sommemasthead = formatObjects.masthead.impressions + data_admanager.masthead.impressions
                                                         var sommeclicksmasthead = formatObjects.masthead.clicks + data_admanager.masthead.clicks
-
                                                         formatObjects.masthead.impressions = sommemasthead
                                                         formatObjects.masthead.clicks = sommeclicksmasthead
-
-
                                                     }
-
 
                                                     //Push les impression,click,ctr total (admanager + smart)
                                                     var impression = formatObjects.campaign.impressions + data_admanager.campaign.impressions
@@ -1172,22 +1128,15 @@ exports.report = async (req, res) => {
                                                         2
                                                     );
                                                     formatObjects.campaign.ctr = ctr
-
                                                 }
                                             } else {
                                                 admanager = null;
                                             }
 
-
                                         } else {
                                             admanager = null;
                                         }
-
-
-
-
                                     }
-
 
                                     if (!Utilities.empty(dataListCreative)) {
                                         const ImpressionCrea = []
@@ -1200,18 +1149,13 @@ exports.report = async (req, res) => {
                                             ? (r[o.creative].impressions += o.impressions, r[o.creative].clicks += o.clicks, r[o.creative].ctr = parseFloat((r[o.creative].clicks / r[o.creative].impressions) * 100).toFixed(2),
                                                 r[o.creative].complete += o.complete,
                                                 r[o.creative].ctrComplete = parseFloat((r[o.creative].complete / r[o.creative].impressions) * 100).toFixed(2)
-
                                             )
                                             : (r[o.creative] = { ...o }), r), {}));
-
-
 
                                         for (let i = 0; i < groupCreatives.length; i++) {
                                             ImpressionCrea.push(groupCreatives[i].impressions)
                                             ClicksCrea.push(groupCreatives[i].clicks)
                                             CompleteCrea.push(groupCreatives[i].complete)
-
-
                                         }
 
                                         if ((ImpressionCrea.length > 0) || (ClicCrea.length > 0) || (CompleteCrea.length > 0)) {
@@ -1235,9 +1179,7 @@ exports.report = async (req, res) => {
                                             }
                                         }
                                         formatObjects.creative = groupCreatives
-
                                     }
-
 
                                     formatObjects.reporting_start_date = moment().format('YYYY-MM-DD HH:m:s');
                                     formatObjects.reporting_end_date = moment()
@@ -1256,7 +1198,6 @@ exports.report = async (req, res) => {
                                     localStorage.setItem(cacheStorageID, JSON.stringify(formatObjects));
                                     res.redirect('/r/' + campaign_crypt);
                                     console.log(formatObjects)
-
                                 }
 
                             }, time);

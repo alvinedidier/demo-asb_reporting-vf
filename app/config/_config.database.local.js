@@ -4,7 +4,8 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize("asb_report", "root", "", {
     host: "localhost",
     dialect: "mysql",
-    operatorsAliases: true,
+   // operatorsAliases: true,
+   // operatorsAliases: {}, // Nouvelle méthode
     logging: false,
     dialectOptions: {
         useUTC: false, //for reading from database
