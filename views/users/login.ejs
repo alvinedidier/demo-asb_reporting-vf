@@ -21,8 +21,7 @@
                         <div class="col-md-8">
                             <div class="mb-4">
                                 <h3>Se connecter</h3>
-                                <p class="mb-4">Connectez-vous à la plateforme via le formulaire ci-dessous ou via votre
-                                    compte Office 365.</p>
+                                <p class="mb-4">Connectez-vous à la plateforme via le formulaire ci-dessous.</p>
                             </div>
                             <form action="/login" method="post">
                                 <%- include("../manager/inc/message.ejs") -%>
@@ -38,15 +37,6 @@
                                 </div>
 
                                 <input type="submit" value="Connectez-vous" class="btn btn-block btn-primary" />
-
-                                <span class="d-block text-left my-4 text-muted">&mdash; ou connectez-vous avec
-                                    &mdash;</span>
-                                  
-                                        <a href="/login/microsoft" title="Connectez-vous via Office365" class="btn btn-block btn-warning">
-                                            Connectez-vous via Office365
-                                        </a>
-                                    
-
                             </form>
                         </div>
                     </div>

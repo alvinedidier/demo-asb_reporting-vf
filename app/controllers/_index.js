@@ -7,7 +7,7 @@ var cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session')
 var fileUpload = require('express-fileupload');
 
-const db = require("./app/config/_config.database");
+const db = require("./app/config/config.database");
 
 const epilot_campaigns = require('./app/models/models.epilot_campaigns');;
 const countries = require('./app/models/models.countries');

@@ -21,9 +21,10 @@ const fileGetContents = require('file-get-contents');
 
 const {Op} = require("sequelize");
 
+const logger = require('../utils/logger');
 process.on('unhandledRejection', error => {
     // Will print "unhandledRejection err is not defined"
-    console.log('unhandledRejection', error.message);
+    logger.error(`unhandledRejection : ${error.message}`);
 });
 
 const {QueryTypes} = require('sequelize');

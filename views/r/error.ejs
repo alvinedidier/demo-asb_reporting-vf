@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur - Campagne Non Trouvée</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f8ff;
+        }
+        .error-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .error-header {
+            background: linear-gradient(45deg, #0056b3, #007bff);
+            height: 100px;
+            position: relative;
+        }
+        .logo-container {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .error-icon {
+            font-size: 3rem;
+            color: #0056b3;
+        }
+        .btn-custom {
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-outline-custom {
+            color: #0056b3;
+            border-color: #0056b3;
+        }
+        .btn-outline-custom:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        .btn-custom-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        .btn-custom-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card mx-auto error-card" style="max-width: 500px;">
+            <div class="error-header">
+                <div class="logo-container">
+                    <img src="https://antennesb.fr/wp-content/uploads/2023/09/cropped-ARSB-LOGO_RVB-1-151x93.png" alt="Logo ARSB" style="max-width: 60px; max-height: 60px;">
+                </div>
+            </div>
+            <div class="card-body text-center pt-5">
+                <i class="bi bi-exclamation-triangle-fill error-icon mb-4"></i>
+                <h3 class="card-title mb-4" style="color: #0056b3;">Oups ! Campagne introuvable</h3>
+                <p class="card-text mb-4">Nous n'avons pas pu localiser la campagne que vous recherchez. Voici ce que vous pouvez faire :</p>
+                <div class="text-start mb-4">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item bg-transparent">
+                            <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                            Vérifiez que l'URL de la campagne est correcte
+                        </li>
+                        <li class="list-group-item bg-transparent">
+                            <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                            Essayez de vider le cache de votre navigateur et de recharger la page
+                        </li>
+                    </ul>
+                </div>
+                <p class="card-text mb-4">Si le problème persiste, n'hésitez pas à contacter notre équipe de support.</p>
+                <div class="d-grid gap-3">
+                    <button class="btn btn-outline-custom btn-custom" type="button">
+                        <i class="bi bi-house-door-fill me-2"></i>
+                        Retour à l'accueil
+                    </button>
+                    <button class="btn btn-custom-primary btn-custom" type="button">
+                        <i class="bi bi-envelope-fill me-2"></i>
+                        Contacter le support
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

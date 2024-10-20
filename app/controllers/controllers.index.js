@@ -4,27 +4,22 @@ const dbApi = require("../config/config.api");
 const request = require('request');
 // Initialise le module
 const bodyParser = require('body-parser');
-
 const bcrypt = require('bcrypt');
 const validator = require('validator');
-
 const axios = require(`axios`);
-
-//const asyncly = require('async');
-
 const fileGetContents = require('file-get-contents');
 
 // Initiliase le module axios
-//const axios = require(`axios`);
 const moment = require('moment');
 moment.locale('fr');
 const {
   Op
 } = require("sequelize");
 
+const logger = require('../utils/logger');
 process.on('unhandledRejection', error => {
   // Will print "unhandledRejection err is not defined"
-  console.log('unhandledRejection', error.message);
+  logger.error(`unhandledRejection : ${error.message}`);
 });
 
 const {
@@ -47,28 +42,7 @@ const msal = require('@azure/msal-node');
 // Initialise les identifiants de connexion à l'api
 const dotenv = require("dotenv");
 dotenv.config({path:"./config.env"})
-/*
-// Configuration pour se connecter via Microsoft Azure
-const config = {
-  auth: {
-    clientId: process.env.MICROSOFT_CLIENTID,
-    authority: process.env.MICROSOFT_AUTHORITY,
-    clientSecret: process.env.MICROSOFT_CLIENTSECRET
-  },
-  system: {
-      loggerOptions: {
-          loggerCallback(loglevel, message, containsPii) {
-              console.log(message);
-          },
-          piiLoggingEnabled: false,
-          logLevel: msal.LogLevel.Verbose,
-      }
-  }
-};
 
-// Create msal application object
-const cca = new msal.ConfidentialClientApplication(config);
-*/
 exports.home_page = async (req, res) => {
   res.render('landing_page.ejs');
 }
@@ -261,106 +235,11 @@ exports.login_add = async (req, res) => {
         }
         return res.redirect('/login');
       }
-
     })
-
   } catch (error) {
     console.log(error);
     res.redirect('/login');
   }
-
-}
-
-exports.login_microsoft = async (req, res) => {    
-  const authCodeUrlParameters = {
-    scopes: ["user.read"],
-    redirectUri: process.env.MICROSOFT_REDIRECT
-  };
-
-    // get url to sign user in and consent to scopes needed for application
-    cca.getAuthCodeUrl(authCodeUrlParameters).then((response) => {
-      res.redirect(response);
-  }).catch((error) => console.log(JSON.stringify(error)));
-
-}
-
-exports.login_microsoft_redirect = async (req, res) => {
-  
-  const tokenRequest = {
-      code: req.query.code,
-      scopes: ["user.read"],
-      redirectUri: process.env.MICROSOFT_REDIRECT,
-  };
-
-  cca.acquireTokenByCode(tokenRequest).then((response) => {
-     // console.log("\nResponse: \n:", response);
-     // res.json(response.account.username);
-
-      // Récupére l'adresse email
-      const user_email = response.account.username;
-
-      try {
-        // verifie si l'adresse mail existe
-        if (user_email == '') {
-          req.session.message = { type: 'danger', message: 'Ton adresse email ou ton mot passe est incorrect.' }
-          return res.redirect('/login');
-        }
-    
-        // verifie si le email est présent dans la base
-        ModelUsers.findOne({
-          where: {
-            user_email: user_email
-          }
-        }).then(async function (user) {
-          // si email trouvé
-          if (user) {
-            console.log('OK USER : ',user)
-
-            // Date et l'heure de la connexion
-            const now = new Date();
-            const date_now = now.getTime();
-            const updated_at = moment(date_now).format('YYYY-MM-DDTHH:m:00');
-
-            // use session for user connected
-            req.session.user = user;
-            var nbr_log = req.session.user.user_log + 1
-
-            ModelUsers.update({
-              updated_at: updated_at,
-              user_log: nbr_log
-            }, {
-              where: {
-                user_id: user.user_id
-              }
-            }).then(function() {
-              if(req.session.user.user_role === 1) { 
-                // Si c'est un administrateur....
-                res.redirect('/manager'); 
-              } else {
-                // Sinon
-                res.redirect('/forecast');
-              }
-            })
-
-          } else {
-            req.session.message = {
-              type: 'danger',
-              message: 'Ton adresse email ou ton mot passe est incorrect.'
-            }
-            return res.redirect('/login');
-          }
-    
-        })
-    
-      } catch (error) {
-        console.log(error);
-        res.redirect('/login');
-      }
-
-  }).catch((error) => {
-      console.log(error);
-      res.status(500).send(error);
-  });
 }
 
 exports.logout = async (req, res) => {

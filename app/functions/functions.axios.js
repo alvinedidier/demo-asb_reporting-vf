@@ -1,3 +1,7 @@
+/*
+* Name : function.axios.js
+*/
+
 const axios = require(`axios`);
 // const dbApi = require("../config/config.api");
 require('dotenv').config()
@@ -22,8 +26,8 @@ exports.getForecastData = async (method, urlForecast, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: process.env.SMART_LOG,
-        password: process.env.SMART_PASS
+        username: process.env.SMARTADSERVER_LOGIN,
+        password: process.env.SMARTADSERVER_PASSWORD
       }
     });
 
@@ -36,8 +40,8 @@ exports.getForecastData = async (method, urlForecast, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: process.env.SMART_LOG,
-        password: process.env.SMART_PASS
+        username: process.env.SMARTADSERVER_LOGIN,
+        password: process.env.SMARTADSERVER_PASSWORD
       },
       data
     });
@@ -57,8 +61,8 @@ exports.getReportingData = async (method, urlReporting, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: process.env.SMART_LOG,
-        password: process.env.SMART_PASS
+        username: process.env.SMARTADSERVER_LOGIN,
+        password: process.env.SMARTADSERVER_PASSWORD
       },
       data: data
     }).catch(function (error) {
@@ -98,17 +102,14 @@ exports.getReportingData = async (method, urlReporting, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: process.env.SMART_LOG,
-        password: process.env.SMART_PASS
+        username: process.env.SMARTADSERVER_LOGIN,
+        password: process.env.SMARTADSERVER_PASSWORD
       }
     })
 
-
   }
 
-
   return return_data
-
 
 }
 
@@ -145,7 +146,6 @@ exports.dataFormatingForForecast = async (dataArrayFromReq) => {
       FormatName.push(line[11]);
     }
   }
-
 
   var sommeImpressions = 0
   var sommeOccupied = 0
@@ -193,12 +193,11 @@ exports.getManageData = async (method) => {
           "Content-type": "Application/json"
         },
         auth: {
-          username: process.env.SMART_LOG,
-          password: process.env.SMART_PASS
+          username: process.env.SMARTADSERVER_LOGIN,
+          password: process.env.SMARTADSERVER_PASSWORD
         },
 
       })
-
 
     }
 
@@ -211,8 +210,6 @@ exports.getManageData = async (method) => {
   }
 
 }
-
-
 
 exports.postManage = async (method, data = null) => {
 
@@ -252,12 +249,11 @@ exports.postManage = async (method, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: process.env.SMART_LOG,
-        password: process.env.SMART_PASS
+        username: process.env.SMARTADSERVER_LOGIN,
+        password: process.env.SMARTADSERVER_PASSWORD
       },
       data
     })
-
 
     return test;
   } catch (error) {
@@ -267,17 +263,13 @@ exports.postManage = async (method, data = null) => {
 
   }
 
-
 }
-
 
 exports.copyManage = async (method, data = null, id) => {
 
   try {
 
     var test;
-
-
 
     switch (method) {
 
@@ -301,12 +293,11 @@ exports.copyManage = async (method, data = null, id) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: process.env.SMART_LOG,
-        password: process.env.SMART_PASS
+        username: process.env.SMARTADSERVER_LOGIN,
+        password: process.env.SMARTADSERVER_PASSWORD
       },
       data
     })
-
 
     return test;
   } catch (error) {
@@ -318,13 +309,11 @@ exports.copyManage = async (method, data = null, id) => {
 
 }
 
-
 exports.getManage = async (url_location, id) => {
 
   var test;
 
   console.log('url_location' + url_location)
-
 
   test = await axios({
     method: 'GET',
@@ -334,15 +323,13 @@ exports.getManage = async (url_location, id) => {
       "Content-type": "Application/json"
     },
     auth: {
-      username: process.env.SMART_LOG,
-      password: process.env.SMART_PASS
+      username: process.env.SMARTADSERVER_LOGIN,
+      password: process.env.SMARTADSERVER_PASSWORD
     },
   })
 
-
   return test;
 }
-
 
 exports.getManageCopy = async (method, id) => {
 
@@ -374,11 +361,10 @@ exports.getManageCopy = async (method, id) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: process.env.SMART_LOG,
-        password: process.env.SMART_PASS
+        username: process.env.SMARTADSERVER_LOGIN,
+        password: process.env.SMARTADSERVER_PASSWORD
       },
     })
-
 
     return test;
   } catch (error) {
@@ -386,7 +372,6 @@ exports.getManageCopy = async (method, id) => {
      log_err.error('Erreur GET API créative : ' + id + '-' + error.response.status + " - " + error.response.statusText);
      log_err.error(error.response.data.Message);*/
   }
-
 
 }
 
@@ -428,12 +413,11 @@ exports.putManage = async (method, data = null) => {
         "Content-type": "Application/json"
       },
       auth: {
-        username: process.env.SMART_LOG,
-        password: process.env.SMART_PASS
+        username: process.env.SMARTADSERVER_LOGIN,
+        password: process.env.SMARTADSERVER_PASSWORD
       },
       data
     })
-
 
     return test;
   } catch (error) {
@@ -442,9 +426,7 @@ exports.putManage = async (method, data = null) => {
      log_err.error(error.response.status + " - " + error.response.statusText);
      log_err.error(error.response.data.Message);*/
 
-
   }
-
 
 }
 
@@ -472,7 +454,6 @@ exports.getAdManager = async (campaign_id) => {
 
   }
 
-
   /*test = await axios({
      method: 'GET',
      url: 'https://reporting.antennesb.fr/api_google-manager/data/json/campaignID-'+campaign_id+ '.json',
@@ -487,10 +468,7 @@ exports.getAdManager = async (campaign_id) => {
 
    return test*/
 
-
-
 }
-
 
 //fonction qui génère la requete global du forecast , prévision sur les 5prochains jours
 exports.RequestForecastGlobal = async function requestForecast(startDate, endDate) {
@@ -603,12 +581,11 @@ exports.RequestForecastGlobal = async function requestForecast(startDate, endDat
       "Content-type": "Application/json"
     },
     auth: {
-      username: process.env.SMART_LOG,
-      password: process.env.SMART_PASS
+      username: process.env.SMARTADSERVER_LOGIN,
+      password: process.env.SMARTADSERVER_PASSWORD
     },
     data: RequestForecastGlobal
   });
-
 
   return sendRequest
 }

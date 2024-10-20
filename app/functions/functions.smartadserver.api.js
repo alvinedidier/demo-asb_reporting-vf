@@ -97,8 +97,8 @@ exports.config = function (method, params = '') {
             "Content-Type": "application/json"
         },
         auth: {
-            username: process.env.SMART_LOG,
-            password: process.env.SMART_PASS
+            username: process.env.SMARTADSERVER_LOGIN,
+            password: process.env.SMARTADSERVER_PASSWORD
         }
         /*
         //condition config

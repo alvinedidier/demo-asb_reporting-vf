@@ -4,9 +4,10 @@ const {
 } = require("sequelize");
 
 // const excel = require('node-excel-export');
+const logger = require('../utils/logger');
 process.on('unhandledRejection', error => {
     // Will print "unhandledRejection err is not defined"
-    console.log('unhandledRejection', error.message);
+    logger.error(`unhandledRejection : ${error.message}`);
 });
 var LocalStorage = require('node-localstorage').LocalStorage;
 localStorage = new LocalStorage('data/reporting/');

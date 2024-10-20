@@ -1,0 +1,42 @@
+
+    <div class="row p-3 mt-5 ml-2 mr-2 bg-body-tertiary" id="table_uu">
+      <h3 class="title">
+        <i class="fas fa-chart-line"></i>
+        <strong><%= title %> / par site</strong>
+      </h3>
+    </div>
+    <div class="table-responsive-md">
+      <table class="table table-striped table-hover">
+        <thead class="text-center thead-asb-100">
+          <tr>
+            <th class="text-left">Sites</th>
+            <th>Impressions</th>
+            <th>Clics</th>
+            <th>Taux de clics</th>
+            <% if(reportingData[formatname].ctrComplete > 0) { %> <th>VTR</th> <% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(i = 0; i < Object.keys(reportingData[formatname].siteList).length; i++) { %>
+          <tr>
+            <td class="text-left"><%= reportingData[formatname].siteList[i].site %></td>
+            <td class="text-center"><%= utilities.numStr(reportingData[formatname].siteList[i].impressions) %></td>
+            <td class="text-center"><%= utilities.numStr(reportingData[formatname].siteList[i].clicks) %></td>
+            <td class="text-center"><%= reportingData[formatname].siteList[i].ctr %> %</td>
+            <% if(reportingData[formatname].siteList[i].ctrComplete > 0) { %>  <td class="text-center"><%= reportingData[formatname].siteList[i].ctrComplete %>%</td> <% } %>
+          </tr>
+          <% } %>
+        </tbody>
+        <tfoot class="fw-bold">
+          <tr>
+            <td class="text-left"><strong>Total</strong></td>
+            <td class="text-center"><%= utilities.numStr(reportingData[formatname].impressions) %></td>
+            <td class="text-center"><%= utilities.numStr(reportingData[formatname].clicks) %></td>
+            <td class="text-center"><%= reportingData[formatname].ctr %> %</td>
+            <% if(reportingData[formatname].ctrComplete > 0) { %>  <td class="text-center"><%= reportingData[formatname].ctrComplete %> %</td> <% } %>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  

@@ -3,6 +3,6 @@ const dotenv = require("dotenv");
 dotenv.config({path:"./config.env"})
 
 module.exports = {
-  SMART_login: process.env.SMART_LOG,
-  SMART_password: process.env.SMART_PASS
+  SMART_login: process.env.SMARTADSERVER_LOGIN,
+  SMART_password: process.env.SMARTADSERVER_PASSWORD
 };

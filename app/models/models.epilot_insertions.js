@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
-
-const sequelize = require('../config/_config.database').sequelize;
+const sequelize = require('../config/config.database').sequelize;
 
 const EpilotInsertions = sequelize.define('epilot_insertions', {
     epilot_insertion_id: {

@@ -1,7 +1,12 @@
 const Utilities = require('../functions/functions.utilities');
 const AxiosFunction = require('../functions/functions.axios');
-const log4js = require("log4js");
-const moment = require('moment');
+
+const { differenceInDays, isAfter, isBefore, parseISO, format } = require('date-fns');
+const { fr: frLocale } = require('date-fns/locale');
+
+const LocalStorage = require('node-localstorage').LocalStorage;
+const localStorage = new LocalStorage('data/reporting/');
+const localStorageTasks = new LocalStorage('data/taskID/');
 
 /*
 * Teste si la valeur est vide
@@ -94,7 +99,6 @@ exports.getDateTimeFromTimestamp = function (unixTimeStamp) {
         )
     ).slice(-2) + '/' + date.getFullYear();
 }
-
 
 //Function to get difference between 2 arrays
 //For every element of arrayA check if present in arrayB, if not, push in result array
@@ -189,7 +193,6 @@ exports.RequestReportDate = async function RequestReport(startDate, endDate, cam
         requestReporting
     );
 
-
     if (firstLink) {
         if (firstLink.status == 201) {
             return firstLink.data.taskId
@@ -199,32 +202,7 @@ exports.RequestReportDate = async function RequestReport(startDate, endDate, cam
         return firstLink = null;
     }
 
-
-
     // r
-}
-
-
-exports.logs = async function (level) {
-
-    log4js.configure({
-        appenders: {
-            asb: {
-                type: "file",
-                filename: "./log/log-" + moment().format('YYYYMMDD') + ".log"
-
-            }
-        },
-        categories: {
-            default: {
-                appenders: ["asb"],
-                level: level
-            }
-        }
-    });
-
-    const logger = log4js.getLogger("asb");
-    return logger;
 }
 
 //Fonction qui regroupe les obj qui on le même item
@@ -237,7 +215,6 @@ exports.groupBy = (array, key) => {
         return  result;
     }, {}); // empty object is the initial value for result object
 
-
     /*Object.keys(campaignNameGroup).forEach(key => {
 
            console.log(key)
@@ -246,8 +223,6 @@ exports.groupBy = (array, key) => {
 
            console.log(campaignNameGroup[key][0].campaign_name)
 
-
-
           Object.keys(campaignNameGroup[key]).forEach(element => {
 
               //console.log(campaignNameGroup[key][element].campaign_id)
@@ -255,7 +230,63 @@ exports.groupBy = (array, key) => {
 
           })
        
-
-           
        });*/
 };
+
+// Fonction pour gérer l'absence de campagne
+exports.handleCampaignNotFound = function (res, statusCode, campaigncrypt) {
+    return res.status(statusCode).render("error.ejs", {
+        statusCoded: statusCode,
+        campaigncrypt: campaigncrypt,
+    });
+};
+
+// Fonction pour gérer le cache
+exports.manageCache = function (cacheStorageID, data = null) {
+    if (data) {
+        localStorage.setItem(cacheStorageID, JSON.stringify(data));
+    } else {
+        localStorage.removeItem(cacheStorageID);
+        localStorageTasks.removeItem(`${cacheStorageID}-taskGlobal`);
+        localStorageTasks.removeItem(`${cacheStorageID}-taskGlobalVU`);
+    }
+};
+
+// Fonction utilitaire pour récupérer les données du cache
+exports.getReportingDataFromCache = function (cacheStorageID) {
+    try {
+      const reportingDataStorage = localStorage.getItem(cacheStorageID);
+      return reportingDataStorage ? JSON.parse(reportingDataStorage) : null;
+    } catch (error) {
+      logger.error(`Erreur lors de la récupération des données du cache: ${error.message}`);
+      return null;
+    }
+  };
+  
+  // Fonction pour vérifier et mettre à jour le cache
+  exports.checkAndUpdateCache = async function(cacheStorageID, campaigncrypt) {
+    let data_localStorage = localStorage.getItem(cacheStorageID);
+  
+    if (data_localStorage) {
+      const reportingData = JSON.parse(data_localStorage);
+      
+      // Remplacement de moment par date-fns pour obtenir la date actuelle
+      const reporting_requete_date = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+      
+      // Conversion des dates si reportingData.reporting_end_date est au format ISO
+      const reportingEndDate = reportingData.reporting_end_date ? parseISO(reportingData.reporting_end_date) : null;
+  
+      // Comparaison de la date actuelle avec la date de fin du rapport
+      if (reportingEndDate && isBefore(new Date(reporting_requete_date), reportingEndDate)) {
+        return reportingData;
+      } else {
+        // Cache expiré, supprimer et régénérer
+        localStorage.removeItem(cacheStorageID);
+        localStorageTasks.removeItem(`${cacheStorageID}-taskGlobal`);
+        localStorageTasks.removeItem(`${cacheStorageID}-taskGlobalVU`);
+        return null;
+      }
+    }
+  
+    return null;
+  };

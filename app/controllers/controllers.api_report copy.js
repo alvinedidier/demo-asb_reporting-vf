@@ -6,9 +6,10 @@ localStorage_tasks = new LocalStorage('./taskID');
 const {Op} = require("sequelize");
 // const excel = require('node-excel-export');
 
+const logger = require('../utils/logger');
 process.on('unhandledRejection', error => {
     // Will print "unhandledRejection err is not defined"
-    console.log('unhandledRejection', error.message);
+    logger.error(`unhandledRejection : ${error.message}`);
 });
 
 const {QueryTypes} = require('sequelize');

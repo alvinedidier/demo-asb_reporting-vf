@@ -1,10 +1,9 @@
 const EventEmitter = require('events');
 const emitter = new EventEmitter();
-emitter.setMaxListeners(2000); // Augmentez la limite si nécessaire
+emitter.setMaxListeners(20); // Augmentez la limite si nécessaire
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const app = express();
 const path = require('path');
 const cors = require('cors');
 var cookieParser = require('cookie-parser');
@@ -12,7 +11,49 @@ const cookieSession = require('cookie-session')
 var fileUpload = require('express-fileupload');
 var runner = require("child_process");
 
-const db = require("./app/config/_config.database");
+const rateLimit = require('express-rate-limit');
+const { validationResult } = require('express-validator');
+const morgan = require('morgan');
+const winston = require('winston');
+
+const app = express();
+
+// Configuration de Winston
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.printf(({ timestamp, level, message }) => {
+        return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+      })
+    ),
+    transports: [
+      new winston.transports.Console(),
+      new winston.transports.File({ filename: 'data/logs/error.log', level: 'error' }),
+      new winston.transports.File({ filename: 'data/logs/combined.log' })
+    ],
+  });
+  
+  // Intégration de Morgan avec Winston
+  app.use(morgan('combined', {
+    stream: {
+      write: (message) => logger.info(message.trim()),
+    },
+  }));
+
+// Sécurité avec helmet pour définir les headers HTTP sécurisés
+const helmet = require('helmet');
+app.use(helmet());
+
+// Limitation du nombre de requêtes pour éviter les attaques de type force brute
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limite chaque IP à 100 requêtes par fenêtre de 15 minutes
+  message: 'Trop de requêtes, veuillez réessayer plus tard.'
+});
+app.use(limiter);
+
+const db = require("./app/config/config.database");
 
 const epilot_campaigns = require('./app/models/models.epilot_campaigns');
 const epilot_insertions = require('./app/models/models.epilot_insertions');
@@ -52,7 +93,7 @@ const advertisers_tv = require('./app/models/models.advertisers_tv');
 /*sites.belongsTo(countries);
 countries.hasMany(sites);*/
 
-//un pack contien un site un site peut appartenir un à plusieur pack
+//un pack contient un site un site peut appartenir un à ou plusierus pack
 packs.hasMany(packs_sites, {
     foreignKey: 'pack_id',
     onDelete: 'cascade',
@@ -358,23 +399,21 @@ Sequelize = db.Sequelize;
 // Déclare le nom de domaine et le port du site const hostname = '127.0.0.1';
 // const port = '3000';
 
-//
 /** view engine setup*/
-
 app.use(cors());
 app.use(bodyParser.json());
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
-app.use(cors());
 app.use(cookieParser());
 app.use(cookieSession({
     name: 'BI_antennesb',
     keys: ['asq4b4PR'],
-    maxAge: 2592000000 // 30 jour
+    maxAge: 2592000000 // 30 jours
 }))
 /**L'image à une limite min=50px max=2000px */
 app.use(fileUpload());
+
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('files'));
@@ -437,7 +476,7 @@ app.use('/forecast', forecast);
 // action admin reporting
 // const reporting = require('./app/routes/routes.api_report');
 // app.use('/r/', reporting);
-
+/*
 // action liste campagne epilot
 const epilot = require('./app/routes/routes.api_epilot');
 app.use('/epilot', epilot);
@@ -452,10 +491,15 @@ app.use('/alerts', alerts);
 
 const tests = require('./app/routes/routes.tests');
 app.use('/test', tests);
-
+*/
 const application = require('./app/routes/routes.application');
 app.use('/app', application);
 
+// Gestion du reporting DIGITAL pour ARSB
+const report_arsb = require('./app/routes/routes.report.arsb');
+app.use('/r/', report_arsb);
+
+/*
 // Gestion du reporting DIGITAL
 const reporting_rs = require('./app/routes/routes.reporting');
 app.use('/r/', reporting_rs);
@@ -463,6 +507,7 @@ app.use('/r/', reporting_rs);
 // Gestion du reporting DIGITAL 30j
 const reporting_30 = require('./app/routes/routes.reporting_30');
 app.use('/d/', reporting_30);
+*/
 
 // Gestion du reporting TV
 const reportingTV = require('./app/routes/routes.tv.reporting');
@@ -480,10 +525,15 @@ app.use('/automate', automate);
 const extention_chrome = require('./app/routes/routes.plugin_chrome');
 app.use('/extension-chrome', extention_chrome);
 
-
 const api = require('./app/routes/routes.json')
 app.use('/api', api);
 
+// Middleware de gestion des erreurs
+app.use((err, req, res, next) => {
+    logger.error(`Erreur: ${err.message}`);
+    res.status(500).send('Une erreur interne est survenue');
+  });
+  
 // Le serveur ecoute sur le port 3022
 app.set("port", process.env.PORT || 3001);
 

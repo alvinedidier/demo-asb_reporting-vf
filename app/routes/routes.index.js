@@ -4,8 +4,6 @@ const Sequelize = require('sequelize');
 const index = require("../controllers/controllers.index");
 
 router.get("/login", index.login);
-router.get("/login/microsoft", index.login_microsoft);
-router.get("/login/microsoft/redirect", index.login_microsoft_redirect);
 
 router.get("/signup", index.signup);
 router.post("/signup/add", index.signup_add);

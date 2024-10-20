@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
-
-const sequelize = require('../config/_config.database').sequelize;
+const sequelize = require('../config/config.database').sequelize;
 
 const EpilotCampaigns = sequelize.define('epilot_campaigns', {
     epilot_campaign_id: {

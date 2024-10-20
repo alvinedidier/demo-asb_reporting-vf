@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
-
-const sequelize = require('../config/_config.database').sequelize;
+const sequelize = require('../config/config.database').sequelize;
 
 const advertisersUsers = sequelize.define('advertisers_users', {
     advertisers_users_id: {

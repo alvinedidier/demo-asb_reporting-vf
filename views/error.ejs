@@ -1,93 +1,61 @@
 <!DOCTYPE html>
 <html lang="fr">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Page Erreur</title>
-        <link
-            rel="icon"
-            type="image/png"
-            href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-32x32.png"
-            sizes="32x32"/>
-        <link
-            rel="icon"
-            type="image/png"
-            href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-192x192.png"
-            sizes="192x192"/>
-        <link
-            rel="apple-touch-icon"
-            type="image/png"
-            href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-180x180.png"/>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-            integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
-            crossorigin="anonymous">
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-        <style>
-            body {
-
-                font-family: Century Gothic, Verdana, Geneva, Tahoma, sans-serif;
-            }
-
-            hr {
-                margin-top: 10px;
-                border-color: #ddd;
-            }
-        </style>
-    </head>
-
-    <body>
-        <div class="row p-3 m-5">
-            <div class="col-md-3">
-                <a href="https://antennesb.fr/">
-                    <img src="/admin/photos/logo.png" alt="logo_antenne"/></a>
-
-            </div>
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Erreur 404 - Antenne Solutions Business</title>
+    <link rel="icon" type="image/png" href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-32x32.png" sizes="32x32"/>
+    <link rel="icon" type="image/png" href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-192x192.png" sizes="192x192"/>
+    <link rel="apple-touch-icon" type="image/png" href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-180x180.png"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+    <header class="bg-white shadow-sm">
+        <div class="container py-4">
+            <a href="https://antennesb.fr/" class="d-block w-25">
+                <img src="/admin/photos/logo.png" alt="Antenne Solutions Business" class="img-fluid">
+            </a>
         </div>
+    </header>
 
-        <div class="container  d-flex justify-content-center">
-
-            <div class="row">
-
-                <div class="col-lg-6  p-0">
-
-                    <img src="/admin/photos/error.jpg" class="card-img" alt="..." id="img_signup">
-
-                </div>
-
-                <div class="page-wrap d-flex flex-row align-items-center">
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-md-12 text-center">
-                                <h1 class="display-1 d-block">Oups !</h1>
-
-                                <h2 class="text-left">Erreur
-                                    <%=statusCoded%></h2>
-                                <div class="mb-4 lead">Désolé, la page que vous cherchez est introuvable.
-                                </div>
-                                <a
-                                    type="button"
-                                    href="mailto:adtraffic@antennereunion.fr"
-                                    class="btn btn-warning text-white">Contactez nous</a>
-                            </div>
+    <main class="flex-grow-1 d-flex align-items-center justify-content-center">
+        <div class="container">
+            <div class="card shadow-lg">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="/admin/photos/error.jpg" alt="Erreur 404" class="img-fluid">
+                    </div>
+                    <div class="col-md-8 d-flex flex-column justify-content-center p-4">
+                        <h1 class="display-1 fw-bold text-primary mb-3 text-center text-md-start">Oups !</h1>
+                        <h2 class="h3 fw-bold text-dark mb-2 text-center text-md-start">Erreur <%= statusCoded %></h2>
+                        <p class="fs-5 text-muted mb-4 text-center text-md-start">Désolé, la page que vous cherchez est introuvable.</p>
+                        <div class="text-center text-md-start">
+                            <a href="mailto:adtraffic@antennereunion.fr" class="btn btn-primary d-inline-flex align-items-center">
+                                <svg class="me-2" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                Contactez-nous
+                            </a>
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </div>
+    </main>
 
-    </body>
+    <footer class="bg-white mt-auto py-4">
+        <div class="container">
+            <p class="text-center text-muted small">&copy; 2024 Antenne Solutions Business. Tous droits réservés.</p>
+        </div>
+    </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
 </html>

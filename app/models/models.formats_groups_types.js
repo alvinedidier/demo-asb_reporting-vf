@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
-
-const sequelize = require('../config/_config.database').sequelize;
+const sequelize = require('../config/config.database').sequelize;
 
 const FormatsGroupsTypes = sequelize.define('formats_groups_types', {
     format_group_type_id: {

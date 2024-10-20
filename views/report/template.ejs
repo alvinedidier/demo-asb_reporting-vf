@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex">
     <meta name="googlebot" content="noindex">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" rel="stylesheet" />
     <script>
         (function (w, d, s, l, i) {
@@ -42,13 +41,21 @@
 
     <style>
         body {
-            background: #eee;
+            background: #fff;
             font-family: Century Gothic, Verdana, Geneva, Tahoma, sans-serif;
         }
 
-        #reporting-board {
+       /* #reporting-board {
             background: #fff;
-        }
+        }*/
+
+        .bg-asb {
+  --bs-bg-opacity: 1;
+  background-color: rgba(#1d2f6a, var(--bs-bg-opacity)) !important;
+}
+
+        .thead-asb tr {background-color: #1d2f6a!important; color:#fff!important}
+        .thead-asb-100 {background-color: #284192!important; color:#fff!important}
 
         hr {
             margin-top: 10px;
@@ -78,15 +85,15 @@
     </noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <div class="container p-3 mt-2 mb-2 shadow-lg rounded" id="reporting-board">
+    <div class="container p-3 mt-2 mb-2" id="reporting-board">
 
         <% if(reporting.campaign.campaign_end_date > reporting.reporting_start_date) { %>
         <div class="col-12 mb-5">
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <strong>Les statistiques de la campagne sont mises à jour toutes les 2 heures.</strong>
-                <% if(moment(reporting.reporting_end_date).format('DD/MM/YYYY à HH:mm') > moment().format('DD/MM/YYYY à HH:mm')) { %>
+                <% if(reporting.reporting_end_date) { %>
                 <p>La prochaine mise à jour de cette campagne se fera le <strong>
-                        <%= moment(reporting.reporting_end_date).format('DD/MM/YYYY à HH:mm') %></strong></p>
+                        <%= reporting.reporting_end_date %></strong></p>
                 <% } %>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -111,7 +118,7 @@
                     <li class="list-group-item">
                         <strong>Date de génération</strong>
                         :
-                        <%= moment(reporting.reporting_start_date).format('DD/MM/YYYY - HH:mm'); %></li>
+                        <%= reporting.reporting_start_date %></li>
                     <li class="list-group-item">
                         <strong>Annonceur</strong>
                         :
@@ -123,9 +130,9 @@
                     <li class="list-group-item">
                         <strong>Période de diffusion</strong>
                         : Du
-                        <%= moment(reporting.campaign.campaign_start_date).format('DD/MM/YYYY') %>
+                        <%= reporting.campaign.campaign_start_date %>
                         au
-                        <%= moment(reporting.campaign.campaign_end_date).format('DD/MM/YYYY') %>
+                        <%= reporting.campaign.campaign_end_date %>
                     </li>
 
 
@@ -142,9 +149,9 @@
 
         <div class="table-responsive-md">
 
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr class="text-center">
+            <table class="table table-striped table-hover">
+                <thead class="text-center thead-asb">
+                    <tr class="">
                         <th>Impressions</th>
                         <th>Clics</th>
                         <th>Taux de clics</th>
@@ -155,21 +162,21 @@
                         <% } %>
                     </tr>
                 </thead>
-                <tbody class="text-center">
+                <tbody>
                     <tr>
-                        <td><%= utilities.numStr(reporting.campaign.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.campaign.clicks) %></td>
-                        <td><%= reporting.campaign.ctr %>%</td>
+                        <td class="text-center"><%= utilities.numStr(reporting.campaign.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.campaign.clicks) %></td>
+                        <td class="text-center"><%= reporting.campaign.ctr %>%</td>
                         <% if(reporting.campaign.vu > 0) { %>
-                        <td><%= utilities.numStr(reporting.campaign.vu) %></td>
-                        <td><%= reporting.campaign.repetition %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.campaign.vu) %></td>
+                        <td class="text-center"><%= reporting.campaign.repetition %></td>
                         <% } else{%>
                         <td> - </td>
                         <td> - </td>
                         <% }%>
 
                         <% if(reporting.campaign.ctrComplete) { %>
-                        <td><%= reporting.campaign.ctrComplete %>%</td>
+                        <td class="text-center"><%= reporting.campaign.ctrComplete %>%</td>
                         <% } %>
                     </tr>
                 </tbody>
@@ -184,8 +191,8 @@
         </div>
         <div class="table-responsive-md">
 
-            <table class="table">
-                <thead class="text-center thead-dark">
+            <table class="table table-striped table-hover">
+                <thead class="text-center thead-asb-100">
                     <tr>
                         <th class="text-left">Format</th>
                         <th>Impressions</th>
@@ -193,20 +200,20 @@
                         <th>Taux de clics</th>
                     </tr>
                 </thead>
-                <tbody class="text-center">
+                <tbody>
                     <% if(reporting.habillage) { %>
                     <tr>
                         <td class="text-left">HABILLAGE</td>
-                        <td><%= utilities.numStr(reporting.habillage.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.habillage.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.habillage.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.habillage.clicks) %></td>
                         <td class="text-center"><%= reporting.habillage.ctr %>%</td>
                     </tr>
                     <% } %>
                     <% if(reporting.interstitiel) { %>
                     <tr>
                         <td class="text-left">INTERSTITIEL</td>
-                        <td><%= utilities.numStr(reporting.interstitiel.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.interstitiel.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.interstitiel.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.interstitiel.clicks) %></td>
                         <td class="text-center"><%= reporting.interstitiel.ctr %>%</td>
                     </tr>
                     <% } %>
@@ -214,32 +221,32 @@
                     <% if(reporting.interstitielvideo) { %>
                         <tr>
                             <td class="text-left">INTERSTITIEL VIDEO</td>
-                            <td><%= utilities.numStr(reporting.interstitielvideo.impressions) %></td>
-                            <td><%= utilities.numStr(reporting.interstitielvideo.clicks) %></td>
+                            <td class="text-center"><%= utilities.numStr(reporting.interstitielvideo.impressions) %></td>
+                            <td class="text-center"><%= utilities.numStr(reporting.interstitielvideo.clicks) %></td>
                             <td class="text-center"><%= reporting.interstitielvideo.ctr %>%</td>
                         </tr>
                         <% } %>
                     <% if(reporting.instream) { %>
                     <tr>
                         <td class="text-left">INSTREAM</td>
-                        <td><%= utilities.numStr(reporting.instream.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.instream.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.instream.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.instream.clicks) %></td>
                         <td class="text-center"><%= reporting.instream.ctr %>%</td>
                     </tr>
                     <% } %>
                     <% if(reporting.masthead) { %>
                     <tr>
                         <td class="text-left">MASTHEAD</td>
-                        <td><%= utilities.numStr(reporting.masthead.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.masthead.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.masthead.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.masthead.clicks) %></td>
                         <td class="text-center"><%= reporting.masthead.ctr %>%</td>
                     </tr>
                     <% } %>
                     <% if(reporting.grandangle) { %>
                     <tr>
                         <td class="text-left">GRAND ANGLE</td>
-                        <td><%= utilities.numStr(reporting.grandangle.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.grandangle.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.grandangle.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.grandangle.clicks) %></td>
                         <td class="text-center"><%= reporting.grandangle.ctr %>%</td>
 
                     </tr>
@@ -247,8 +254,8 @@
                     <% if(reporting.rectanglevideo) { %>
                     <tr>
                         <td class="text-left">RECTANGLE VIDEO</td>
-                        <td><%= utilities.numStr(reporting.rectanglevideo.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.rectanglevideo.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.rectanglevideo.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.rectanglevideo.clicks) %></td>
                         <td class="text-center"><%= reporting.rectanglevideo.ctr %>%</td>
 
                     </tr>
@@ -256,8 +263,8 @@
                     <% if(reporting.rectangle) { %>
                         <tr>
                             <td class="text-left">RECTANGLE</td>
-                            <td><%= utilities.numStr(reporting.rectangle.impressions) %></td>
-                            <td><%= utilities.numStr(reporting.rectangle.clicks) %></td>
+                            <td class="text-center"><%= utilities.numStr(reporting.rectangle.impressions) %></td>
+                            <td class="text-center"><%= utilities.numStr(reporting.rectangle.clicks) %></td>
                             <td class="text-center"><%= reporting.rectangle.ctr %>%</td>
     
                         </tr>
@@ -265,16 +272,16 @@
                     <% if(reporting.logo) { %>
                     <tr>
                         <td class="text-left">LOGO</td>
-                        <td><%= utilities.numStr(reporting.logo.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.logo.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.logo.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.logo.clicks) %></td>
                         <td class="text-center"><%= reporting.logo.ctr %>%</td>
                     </tr>
                     <% } %>
                     <% if(reporting.native) { %>
                     <tr>
                         <td class="text-left">NATIVE</td>
-                        <td><%= utilities.numStr(reporting.native.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.native.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.native.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.native.clicks) %></td>
                         <td class="text-center"><%= reporting.native.ctr %>%</td>
                         
                     </tr>
@@ -282,24 +289,24 @@
                     <% if(reporting.slider) { %>
                     <tr>
                         <td class="text-left">SLIDER</td>
-                        <td><%= utilities.numStr(reporting.slider.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.slider.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.slider.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.slider.clicks) %></td>
                         <td class="text-center"><%= reporting.slider.ctr %>%</td>
                     </tr>
                     <% } %>
                     <% if(reporting.mea) { %>
                     <tr>
                         <td class="text-left">MEA</td>
-                        <td><%= utilities.numStr(reporting.mea.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.mea.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.mea.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.mea.clicks) %></td>
                         <td class="text-center"><%= reporting.mea.ctr %>%</td>
                     </tr>
                     <% } %>
                     <% if(reporting.slidervideo) { %>
                     <tr>
                         <td class="text-left">SLIDER VIDEO</td>
-                        <td><%= utilities.numStr(reporting.slidervideo.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.slidervideo.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.slidervideo.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.slidervideo.clicks) %></td>
                         <td class="text-center"><%= reporting.slidervideo.ctr %>%</td>
 
                     </tr>
@@ -309,615 +316,33 @@
                     <tr>
                         <td class="text-left">CLIC COMMAND</td>
                         <td>-</td>
-                        <td><%= utilities.numStr(reporting.clickcommand.clicks) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.clickcommand.clicks) %></td>
                         <td>-</td>
                     </tr>
                     <% } %>
 
                 </tbody>
-                <tfoot class="text-center table-dark">
+                <tfoot class="fw-bold">
                     <tr>
                         <td class="text-left"><strong>Total</strong>
-                        <td><%= utilities.numStr(reporting.campaign.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.campaign.clicks) %></td>
-                        <td><%= reporting.campaign.ctr %>%</td>
+                        <td class="text-center"><%= utilities.numStr(reporting.campaign.impressions) %></td>
+                        <td class="text-center"><%= utilities.numStr(reporting.campaign.clicks) %></td>
+                        <td class="text-center"><%= reporting.campaign.ctr %>%</td>
 
                     </tr>
                 </tfoot>
             </table>
         </div>
 
-        <% if(reporting.habillage) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>HABILLAGE / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
+        <!-- Affichage des formats disponibles -->
 
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.habillage.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.habillage.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.habillage.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.habillage.siteList[i].clicks) %></td>
-                        <td><%= reporting.habillage.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.habillage.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.habillage.clicks) %></td>
-                        <td><%= reporting.habillage.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
+        <% if(availableFormats) { %>
+            <% availableFormats.forEach(function(format) { %>
+                <%- include('tableHelper', { reportingData: reporting, title: format.title, formatname: format.name }) %>
+            <% }) %>
         <% } %>
-
-        <% if(reporting.interstitiel) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>INTERSTITIEL / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.interstitiel.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.interstitiel.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.interstitiel.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.interstitiel.siteList[i].clicks) %></td>
-                        <td><%= reporting.interstitiel.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.interstitiel.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.interstitiel.clicks) %></td>
-                        <td><%= reporting.interstitiel.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.interstitielvideo) { %>
-            <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-                <h3 class="title">
-                    <i class="fas fa-chart-line"></i>
-                    <strong>INTERSTITIEL VIDEO/ par site</strong>
-                </h3>
-            </div>
-            <div class="table-responsive-md">
-    
-                <table class="table">
-                    <thead class="text-center thead-dark">
-                        <tr>
-                            <th class="text-left">Sites</th>
-                            <th>Impressions</th>
-                            <th>Clics</th>
-                            <th>Taux de clics</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        <% for(i=0; i < Object.keys(reporting.interstitielvideo.siteList).length; i++) { %>
-                        <tr>
-                            <td class="text-left"><%= reporting.interstitielvideo.siteList[i].site %></td>
-                            <td><%= utilities.numStr(reporting.interstitielvideo.siteList[i].impressions) %></td>
-                            <td><%= utilities.numStr(reporting.interstitielvideo.siteList[i].clicks) %></td>
-                            <td><%= reporting.interstitielvideo.siteList[i].ctr %>%</td>
-                        </tr>
-                        <% } %>
-                    </tbody>
-                    <tfoot class="text-center table-dark">
-                        <tr>
-                            <td class="text-left">
-                                <strong>Total</strong>
-                            </td>
-                            <td><%= utilities.numStr(reporting.interstitielvideo.impressions) %></td>
-                            <td><%= utilities.numStr(reporting.interstitielvideo.clicks) %></td>
-                            <td><%= reporting.interstitielvideo.ctr %>%</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-            <% } %>
-
-        <% if(reporting.instream) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>INSTREAM / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                        <th>VTR</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.instream.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.instream.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.instream.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.instream.siteList[i].clicks) %></td>
-                        <td><%= reporting.instream.siteList[i].ctr %>%</td>
-                        <td><%= reporting.instream.siteList[i].ctrComplete %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.instream.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.instream.clicks) %></td>
-                        <td><%= reporting.instream.ctr %>%</td>
-                        <td><%= reporting.instream.ctrComplete %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.masthead) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>MASTHEAD / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.masthead.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.masthead.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.masthead.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.masthead.siteList[i].clicks) %></td>
-                        <td><%= reporting.masthead.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.masthead.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.masthead.clicks) %></td>
-                        <td><%= reporting.masthead.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.grandangle) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>GRAND ANGLE / par site</strong>
-            </h3>
-        </div>
-
-        <div class="table-responsive-md">
-
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.grandangle.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.grandangle.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.grandangle.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.grandangle.siteList[i].clicks) %></td>
-                        <td><%= reporting.grandangle.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.grandangle.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.grandangle.clicks) %></td>
-                        <td><%= reporting.grandangle.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.rectangle) { %>
-            <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-                <h3 class="title">
-                    <i class="fas fa-chart-line"></i>
-                    <strong>RECTANGLE / par site</strong>
-                </h3>
-            </div>
-            <div class="table-responsive-md">
-                <table class="table">
-                    <thead class="text-center thead-dark">
-                        <tr>
-                            <th class="text-left">Sites</th>
-                            <th>Impressions</th>
-                            <th>Clics</th>
-                            <th>Taux de clics</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        <% for(i=0; i < Object.keys(reporting.rectangle.siteList).length; i++) { %>
-                        <tr>
-                            <td class="text-left"><%= reporting.rectangle.siteList[i].site %></td>
-                            <td><%= utilities.numStr(reporting.rectangle.siteList[i].impressions) %></td>
-                            <td><%= utilities.numStr(reporting.rectangle.siteList[i].clicks) %></td>
-                            <td><%= reporting.rectangle.siteList[i].ctr %>%</td>
-                        </tr>
-                        <% } %>
-                    </tbody>
-                    <tfoot class="text-center table-dark">
-                        <tr>
-                            <td class="text-left">
-                                <strong>Total</strong>
-                            </td>
-                            <td><%= utilities.numStr(reporting.rectangle.impressions) %></td>
-                            <td><%= utilities.numStr(reporting.rectangle.clicks) %></td>
-                            <td><%= reporting.rectangle.ctr %>%</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-            <% } %>
-
-        <% if(reporting.rectanglevideo) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>RECTANGLE VIDEO / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.rectanglevideo.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.rectanglevideo.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.rectanglevideo.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.rectanglevideo.siteList[i].clicks) %></td>
-                        <td><%= reporting.rectanglevideo.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.rectanglevideo.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.rectanglevideo.clicks) %></td>
-                        <td><%= reporting.rectanglevideo.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-
-        <% if(reporting.native) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>NATIVE / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.native.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.native.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.native.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.native.siteList[i].clicks) %></td>
-                        <td><%= reporting.native.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.native.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.native.clicks) %></td>
-                        <td><%= reporting.native.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.slider) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>SLIDER / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.slider.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.slider.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.slider.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.slider.siteList[i].clicks) %></td>
-                        <td><%= reporting.slider.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.slider.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.slider.clicks) %></td>
-                        <td><%= reporting.slider.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.mea) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>MISE EN AVANT / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.mea.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.mea.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.mea.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.mea.siteList[i].clicks) %></td>
-                        <td><%= reporting.mea.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.mea.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.mea.clicks) %></td>
-                        <td><%= reporting.mea.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.slidervideo) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>SLIDER VIDEO / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.slidervideo.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.slidervideo.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.slidervideo.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.slidervideo.siteList[i].clicks) %></td>
-                        <td><%= reporting.slidervideo.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.slidervideo.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.slidervideo.clicks) %></td>
-                        <td><%= reporting.slidervideo.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.logo) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>LOGO / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.logo.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.logo.siteList[i].site %></td>
-                        <td><%= utilities.numStr(reporting.logo.siteList[i].impressions) %></td>
-                        <td><%= utilities.numStr(reporting.logo.siteList[i].clicks) %></td>
-                        <td><%= reporting.logo.siteList[i].ctr %>%</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td><%= utilities.numStr(reporting.logo.impressions) %></td>
-                        <td><%= utilities.numStr(reporting.logo.clicks) %></td>
-                        <td><%= reporting.logo.ctr %>%</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-        <% if(reporting.clickcommand) { %>
-        <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
-            <h3 class="title">
-                <i class="fas fa-chart-line"></i>
-                <strong>CLICK COMMAND / par site</strong>
-            </h3>
-        </div>
-        <div class="table-responsive-md">
-            <table class="table">
-                <thead class="text-center thead-dark">
-                    <tr>
-                        <th class="text-left">Sites</th>
-                        <th>Impressions</th>
-                        <th>Clics</th>
-                        <th>Taux de clics</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center">
-                    <% for(i=0; i < Object.keys(reporting.clickcommand.siteList).length; i++) { %>
-                    <tr>
-                        <td class="text-left"><%= reporting.clickcommand.siteList[i].site %></td>
-                        <td>-</td>
-                        <td><%= utilities.numStr(reporting.clickcommand.siteList[i].clicks) %></td>
-                        <td>-</td>
-                    </tr>
-                    <% } %>
-                </tbody>
-                <tfoot class="text-center table-dark">
-                    <tr>
-                        <td class="text-left">
-                            <strong>Total</strong>
-                        </td>
-                        <td>-</td>
-                        <td><%= utilities.numStr(reporting.clickcommand.clicks) %></td>
-                        <td>-</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        <% } %>
-
-
-
+        
+        
 
         <% if(reporting.creative) { %>
             <div class="row p-3 mt-5 ml-2 mr-2" id="table_uu">
@@ -928,8 +353,8 @@
             </div>
             <div class="table-responsive-md">
     
-                <table class="table">
-                    <thead class="text-center thead-dark">
+                <table class="table table-striped table-hover">
+                    <thead class="text-center thead-asb-100">
                         <tr>
                             <th class="text-left">Creatives</th>
                             <th>Impressions</th>
@@ -940,29 +365,29 @@
                             <% } %>
                         </tr>
                     </thead>
-                    <tbody class="text-center">
+                    <tbody>
                         <% for(i=0; i < Object.keys(reporting.creative).length; i++) { %>
                         <tr>
                             <td class="text-left"><%= reporting.creative[i].creative %></td>
-                            <td><%= utilities.numStr(reporting.creative[i].impressions) %></td>
-                            <td><%= utilities.numStr(reporting.creative[i].clicks) %></td>
-                            <td><%= reporting.creative[i].ctr %>%</td>
+                            <td class="text-center"><%= utilities.numStr(reporting.creative[i].impressions) %></td>
+                            <td class="text-center"><%= utilities.numStr(reporting.creative[i].clicks) %></td>
+                            <td class="text-center"><%= reporting.creative[i].ctr %>%</td>
                             <% if((reporting.creatives.ctrComplete !=='0.00')) { %>
-                            <td><%= reporting.creative[i].ctrComplete %>%</td>
+                            <td class="text-center"><%= reporting.creative[i].ctrComplete %>%</td>
                             <% } %>
                         </tr>
                         <% } %>
                     </tbody>
-                    <tfoot class="text-center table-dark">
+                    <tfoot class="fw-bold">
                         <tr>
                             <td class="text-left">
                                 <strong>Total</strong>
                             </td>
-                            <td><%= utilities.numStr(reporting.creatives.impressions) %></td>
-                            <td><%= utilities.numStr(reporting.creatives.clicks) %></td>
-                            <td><%= reporting.creatives.ctr %>%</td>
+                            <td class="text-center"><%= utilities.numStr(reporting.creatives.impressions) %></td>
+                            <td class="text-center"><%= utilities.numStr(reporting.creatives.clicks) %></td>
+                            <td class="text-center"><%= reporting.creatives.ctr %>%</td>
                             <% if((reporting.creatives.ctrComplete !=='0.00')) { %>
-                                <td><%= reporting.creatives.ctrComplete %>%</td>
+                                <td class="text-center"><%= reporting.creatives.ctrComplete %>%</td>
                             <% } %>
                         </tr>
                     </tfoot>
