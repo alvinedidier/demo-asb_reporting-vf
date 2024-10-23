@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const emitter = new EventEmitter();
-emitter.setMaxListeners(20); // Augmentez la limite si nécessaire
+emitter.setMaxListeners(2000); // Augmentez la limite si nécessaire
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -44,15 +44,15 @@ const logger = winston.createLogger({
 // Sécurité avec helmet pour définir les headers HTTP sécurisés
 const helmet = require('helmet');
 app.use(helmet());
-
+/*
 // Limitation du nombre de requêtes pour éviter les attaques de type force brute
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limite chaque IP à 100 requêtes par fenêtre de 15 minutes
+  max: 1000, // Limite chaque IP à 100 requêtes par fenêtre de 15 minutes
   message: 'Trop de requêtes, veuillez réessayer plus tard.'
 });
 app.use(limiter);
-
+*/
 const db = require("./app/config/config.database");
 
 const epilot_campaigns = require('./app/models/models.epilot_campaigns');
@@ -496,7 +496,7 @@ const application = require('./app/routes/routes.application');
 app.use('/app', application);
 
 // Gestion du reporting DIGITAL pour ARSB
-const report_arsb = require('./app/routes/routes.report.arsb');
+const report_arsb = require('./app/routes/routes.arsb.report');
 app.use('/r/', report_arsb);
 
 /*
@@ -518,8 +518,8 @@ const manager = require('./app/routes/routes.manager');
 app.use('/manager', manager);
 
 // Automatise la récupération de donnée
-const automate = require('./app/routes/routes.automate');
-const { campaign } = require('./app/controllers/controllers.automate');
+const automate = require('./app/routes/routes.arsb.automate');
+const { campaign } = require('./app/controllers/controllers.arsb.automate');
 app.use('/automate', automate);
 
 const extention_chrome = require('./app/routes/routes.plugin_chrome');

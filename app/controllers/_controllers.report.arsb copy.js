@@ -2,7 +2,8 @@
 const excel = require('node-excel-export');
 const { Op, and, QueryTypes } = require('sequelize');
 const logger = require('../utils/logger');
-const { differenceInDays, isAfter, isBefore, parseISO } = require('date-fns');
+const { differenceInDays, isAfter, isBefore, parseISO, format } = require('date-fns');
+const { fr: frLocale } = require('date-fns/locale');
 
 const { check, query } = require('express-validator');
 

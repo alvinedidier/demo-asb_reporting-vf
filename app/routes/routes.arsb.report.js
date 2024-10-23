@@ -1,8 +1,8 @@
-const { check, param, validationResult } = require('express-validator');
+const { validateParam } = require('../utils/validationRoute');
 const router = require("express").Router();
 const Sequelize = require('sequelize');
 const report = require("../controllers/controllers.report.arsb");
-
+/*
 // Middleware de validation des paramètres
 const validateCampaignCrypt = [
   param('campaigncrypt')
@@ -29,6 +29,11 @@ const validateCampaignId = [
     next();
   }
 ];
+*/
+
+// Utilisation de la fonction utilitaire pour valider les paramètres
+const validateCampaignCrypt = validateParam('campaigncrypt', 'string');
+const validateCampaignId = validateParam('campaignid', 'int');
 
 // Gestion du reporting de l'API
 router.get("/", (req, res) => res.status(403).render('error.ejs', {

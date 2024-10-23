@@ -62,7 +62,7 @@ const {
 } = require('ejs');
 const {
     insertions
-} = require('./controllers.automate');
+} = require('./_controllers.automate');
 
 exports.index = async (req, res) => {
     try {
@@ -244,9 +244,9 @@ exports.list = async (req, res) => {
         data.campaigns = await ModelCampaigns.findAll({
             include: [{
                 model: ModelAdvertisers
-            }, {
+            }/*, {
                 model: ModelInsertions
-            }]
+            }*/]
         }, {
             order: [
                 // Will escape title and validate DESC against a list of valid direction
@@ -254,7 +254,7 @@ exports.list = async (req, res) => {
                 ['campaign_id', 'DESC']
             ]
         });
-
+     
         data.moment = moment;
         res.render('manager/campaigns/list.ejs', data);
     } catch (error) {
@@ -449,7 +449,6 @@ exports.view = async (req, res) => {
         data.epilot_insertions = new Array();
         data.commercial = new Array();
 
-
         var campaign_id = req.params.id;
         var campaign = await ModelCampaigns
             .findOne({
@@ -467,12 +466,12 @@ exports.view = async (req, res) => {
             .then(async function (campaign) {
                 // console.log(campaign)
                 if (!campaign) {
-                    return res.redirect(`/extension-chrome/campaign?campaign_id=${campaign_id}`)
-                    /*  return res
+                   // return res.redirect(`/extension-chrome/campaign?campaign_id=${campaign_id}`)
+                     return res
                           .status(404)
                           .render("manager/error.ejs", {
                               statusCoded: 404
-                          });*/
+                          });
                 }
 
                 // Créer le fil d'ariane
@@ -506,7 +505,6 @@ exports.view = async (req, res) => {
                             user_id: epilot_campaign.user_id
                         }
                     })
-
 
                     data.epilot_campaign = epilot_campaign;
 
@@ -935,9 +933,7 @@ exports.email = async (req, res) => {
             const email = await commercial.user_email;
             //const email = "oceane.sautron@antennereunion.fr"
 
-
             console.log(user_firstname +'-'+  campaign_name  +'-'+campaign_crypt+'-'+email)
-
 
             nodeoutlook.sendEmail({
 

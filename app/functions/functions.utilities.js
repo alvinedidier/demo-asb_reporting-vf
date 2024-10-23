@@ -4,9 +4,13 @@ const AxiosFunction = require('../functions/functions.axios');
 const { differenceInDays, isAfter, isBefore, parseISO, format } = require('date-fns');
 const { fr: frLocale } = require('date-fns/locale');
 
+const currentDate = new Date(); // Obtenez la date actuelle
+const formattedDate = format(currentDate, 'yyyy/MM/dd/HH'); // Formater la date comme souhaité
+
 const LocalStorage = require('node-localstorage').LocalStorage;
 const localStorage = new LocalStorage('data/reporting/');
-const localStorageTasks = new LocalStorage('data/taskID/');
+const localStorageTasks = new LocalStorage(`data/taskID/${formattedDate}/`);
+const localStorageInstance = new LocalStorage(`data/instanceId/${formattedDate}/`);
 
 /*
 * Teste si la valeur est vide
@@ -234,11 +238,22 @@ exports.groupBy = (array, key) => {
 };
 
 // Fonction pour gérer l'absence de campagne
-exports.handleCampaignNotFound = function (res, statusCode, campaigncrypt) {
-    return res.status(statusCode).render("error.ejs", {
-        statusCoded: statusCode,
-        campaigncrypt: campaigncrypt,
-    });
+exports.handleCampaignNotFound = function (res, statusCode, message, responseType = 'html') {
+    
+     // Vérifier si le client attend une réponse JSON
+     if (res.req.accepts('json') || (responseType === 'json')) {
+        return res.status(statusCode).json({
+            status: 'error',
+            code: statusCode,
+            message: message || 'Campagne non trouvée.'
+        });
+    } else {
+        // Sinon, renvoyer une vue HTML (EJS)
+        return res.status(statusCode).render("error.ejs", {
+            statusCoded: statusCode,
+            message: message || 'Campagne non trouvée.'
+        });
+    }
 };
 
 // Fonction pour gérer le cache

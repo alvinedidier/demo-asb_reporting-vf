@@ -59,7 +59,7 @@ const {
 } = require('ejs');
 const {
     insertions
-} = require('./controllers.automate');
+} = require('./_controllers.automate');
 
 exports.index = async (req, res) => {
     try {

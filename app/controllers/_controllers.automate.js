@@ -5,7 +5,6 @@ const dbApi = require("../config/config.api");
 
 const dotenv = require("dotenv");
 
-
 const axios = require(`axios`);
 var crypto = require('crypto');
 const needle = require("needle");
@@ -635,7 +634,6 @@ exports.campaign = async (req, res) => {
                                     });
                                 }
 
-
                             });
 
                         } else {
@@ -997,7 +995,6 @@ exports.campaignReport = async (req, res) => {
                                 }
                             }
 
-
                             // twoLink - Récupére la taskID de la requête reporting
                             let twoLinkTaskId = localStorageTasks.getItem(
                                 cacheStorageID + '-twoLink-' + cacheStorageIDHour
@@ -1031,8 +1028,6 @@ exports.campaignReport = async (req, res) => {
                                 ' - twoLinkTaskId: ',
                                 twoLinkTaskId
                             );
-
-
 
                             if (firstLinkTaskId || twoLinkTaskId) {
                                 var taskId = firstLinkTaskId;
@@ -1126,8 +1121,6 @@ exports.campaignReport = async (req, res) => {
                                         // On récupére le dataLSTaskGlobal
                                         const objDefault = JSON.parse(dataLSTaskGlobal);
                                         var dataSplitGlobal = objDefault.datafile;
-
-
 
                                         // Permet de faire l'addition
                                         const reducer = (accumulator, currentValue) => accumulator + currentValue;
@@ -1256,8 +1249,6 @@ exports.campaignReport = async (req, res) => {
                                                 console.log(site_name)
                                                 console.log("---------------")*/
 
-
-
                                                 // Créer les tableaux des formats
                                                 if (insertion_name.match(/HABILLAGE{1}/igm)) {
                                                     formatHabillage.push(index);
@@ -1271,8 +1262,6 @@ exports.campaignReport = async (req, res) => {
 
                                                     }
                                                 }
-
-
 
                                                 if (insertion_name.match(/MASTHEAD{1}/igm)) {
                                                     formatMasthead.push(index);
@@ -1531,7 +1520,6 @@ exports.campaignReport = async (req, res) => {
 
                                                             var sommeclicksInterstitiel = formatObjects.interstitiel.clicks + data_admanager.interstitiel.clicks
 
-
                                                             formatObjects.interstitiel.impressions = sommeInterstitiel
                                                             formatObjects.interstitiel.clicks = sommeclicksInterstitiel
 
@@ -1549,9 +1537,7 @@ exports.campaignReport = async (req, res) => {
                                                             formatObjects.masthead.impressions = sommemasthead
                                                             formatObjects.masthead.clicks = sommeclicksmasthead
 
-
                                                         }
-
 
                                                         //Push les impression,click,ctr total (admanager + smart)
                                                         var impression = formatObjects.campaign.impressions + data_admanager.campaign.impressions
@@ -1570,16 +1556,11 @@ exports.campaignReport = async (req, res) => {
                                                     admanager = null;
                                                 }
 
-
                                             } else {
                                                 admanager = null;
                                             }
 
-
-
-
                                         }
-
 
                                         formatObjects.reporting_start_date = moment().format('YYYY-MM-DD HH:m:s');
                                         formatObjects.reporting_end_date = moment()
@@ -3126,7 +3107,6 @@ exports.creatives = async (req, res) => {
                                         result.item; // the model
                                         result.created; // bool, if a new item was created.
 
-
                                     });
 
                             }
@@ -3134,7 +3114,6 @@ exports.creatives = async (req, res) => {
 
                     }
                 });
-
 
             }
 
@@ -3302,7 +3281,6 @@ exports.insertions = async (req, res) => {
 
                             } 
                             
-
                         });
 
                     }
@@ -3323,7 +3301,6 @@ exports.insertions = async (req, res) => {
 exports.insertion = async (req, res) => {
     try {
         let insertion_id = req.query.insertion_id;
-
 
         if (insertion_id) {
             insertionObject = {
@@ -3456,7 +3433,6 @@ exports.insertion = async (req, res) => {
                 }
 
             }).then(async function () {
-
 
                 const insertion_id = insertionObject.insertion_id;
 
@@ -3677,9 +3653,7 @@ exports.reports = async (req, res) => {
                          }
                      });
  
- 
                      if ((!Utilities.empty(insertion_start_date)&& !Utilities.empty(insertion_end_date))) {
- 
  
                          if (insertion_start_date < campaign_start_date) {
                              campaign_start_date = insertion_start_date;
@@ -3781,16 +3755,11 @@ exports.campaignReportTv = async (req, res) => {
             files = fs.readdirSync(path_file)
             console.log(files)
 
-
-
             files.forEach(element => {
                 console.log(element);
 
-
-
                 // Le fichier doit être un fichier excel ou csv
                 if (element.match(/xlsx/g)) {
-
 
                     const alpha = Array.from(Array(26)).map((e, i) => i + 65);
                     const alphabet = alpha.map((x) => String.fromCharCode(x));
@@ -3815,11 +3784,7 @@ exports.campaignReportTv = async (req, res) => {
                                 // Récupére le nom de la feuille
                                 var worksheetName = worksheet.name;
 
-
-
-
                                 if (worksheetName.match(/[a-zA ](-){1}(?!Paramétrage tarifaire\b)/gi)) {
-
 
                                     const campaignName = worksheet.getCell('C3').value;
                                     const campaignPeriod = worksheet.getCell('C4').value;
@@ -3831,12 +3796,9 @@ exports.campaignReportTv = async (req, res) => {
                                     const campaignFormat = worksheet.getCell('H6').value;
                                     const campaignTarget = worksheet.getCell('C11').value;
 
-
-
                                     //recupère data cible filtrage du mot supprésion des accents et transforme en minuscule
                                     const strip_tags = campaignTarget.normalize('NFD').replace(/[\u0300-\u036f  _$&+,:;=?@#|'<>.^*()%!-]/g, "")
                                     const campaignLabel = strip_tags.toLowerCase();
-
 
                                     campaignObjects[worksheetName] = {
                                         'campaignLabel': campaignLabel,
@@ -3850,8 +3812,6 @@ exports.campaignReportTv = async (req, res) => {
                                         'campaignAdvertiser': campaignAdvertiser,
                                         'campaignFormat': campaignFormat
                                     }
-
-
 
                                     // Initialisation des tableaux
                                     dataLines = new Array();
@@ -4003,7 +3963,6 @@ exports.campaignReportTv = async (req, res) => {
                                             //console.log(IncreaseInLoadPerDayArray);
                                             timeSlotDiaryArray.push(timeSlotDiaryObject);
 
-
                                             // Mets des données des données des tranches horaires
                                             campaignObjects[worksheetName].campaigntimeSlotDiary = timeSlotDiaryArray;
 
@@ -4039,7 +3998,6 @@ exports.campaignReportTv = async (req, res) => {
                                             // Mets es données des données des tranches horaires
                                             campaignObjects[worksheetName].campaignNameDay = nameDayArray;
 
-
                                         }
 
                                     })
@@ -4049,13 +4007,9 @@ exports.campaignReportTv = async (req, res) => {
                                     localStorageTV.setItem('campaign_tv_ID-' + campaignLabel, JSON.stringify(campaignObjects));
                                     console.log(campaignObjects);
 
-
-
                                 }
 
                             });
-
-
 
                         });
 
@@ -4078,15 +4032,12 @@ exports.campaignReportTv = async (req, res) => {
     }
 }
 
-
 exports.forecast = async (req, res) => {
-
 
     const now = new Date();
     const cacheStorageNow = "forecast-global-" + moment().format('YYYYMMDD') + '.json';
     const date_start = moment().format('YYYY-MM-DDT00:00:00');
     const date_end = moment(now).add('5', 'd').format('YYYY-MM-DDT00:00:00');
-
 
     try {
 
@@ -4095,7 +4046,6 @@ exports.forecast = async (req, res) => {
         let postRequestForecast = await AxiosFunction.RequestForecastGlobal(date_start, date_end);
 
         if (postRequestForecast.headers.location) {
-
 
             headerlocation = postRequestForecast.headers.location;
             let insertionLink = await AxiosFunction.getForecastData('GET', headerlocation);
@@ -4125,16 +4075,11 @@ exports.forecast = async (req, res) => {
                         }
                     }).on('end', function () {
 
-
                         localStorageForecast.setItem(cacheStorageNow, JSON.stringify(results));
                         res.json({ message: 'LocalStorage forecast est généré' })
                     });
 
-
             }
-
-
-
 
         }
 
@@ -4145,15 +4090,9 @@ exports.forecast = async (req, res) => {
         });
     }
 
-
-
-
-
-
 }
 
 exports.delete_localStorageForecast = async (req, res) => {
-
 
     try {
 
@@ -4161,35 +4100,21 @@ exports.delete_localStorageForecast = async (req, res) => {
         
         res.json({ message: "Le localStorage forecast est supprimé " })
 
-        
-
-
     } catch (error) {
         console.log(error)
         return res.json({
             err: error
         });
     }
-
-
-
-
-
 
 }
 
 exports.delete_localStorageTask = async (req, res) => {
 
-
-
     try {
-
 
         localStorageTasks.clear();
         res.json({ message: "Le localStorage taskId a été vidé " })
-
-
-
 
     } catch (error) {
         console.log(error)
@@ -4197,10 +4122,5 @@ exports.delete_localStorageTask = async (req, res) => {
             err: error
         });
     }
-
-
-
-
-
 
 }

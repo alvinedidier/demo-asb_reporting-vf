@@ -69,7 +69,7 @@ const {
 } = require('ejs');
 const {
     insertions
-} = require('./controllers.automate');
+} = require('./_controllers.automate');
 const {
     types
 } = require('util');

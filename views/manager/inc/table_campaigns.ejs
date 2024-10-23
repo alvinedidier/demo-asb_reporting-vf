@@ -20,8 +20,11 @@
                     <a href="/manager/campaigns/<%= campaigns[i].campaign_id %>"
                         title="<%= campaigns[i].campaign_name %>"><%= campaigns[i].campaign_id %></td>
                 <td class="advertiser_name">
-                    <a href="/manager/advertisers/<%= campaigns[i].advertiser.advertiser_id %>"
-                        title="<%= campaigns[i].advertiser.advertiser_name %>"><%= campaigns[i].advertiser.advertiser_name %></a>
+                   <% if(campaigns[i].advertiser_id) { %> 
+                    <a href="/manager/advertisers/<%= campaigns[i].advertiser_id %>" title="<%= campaigns[i].advertiser.advertiser_name %>"><%= campaigns[i].advertiser.advertiser_name %></a>
+                   <% } else { %> 
+                    -
+                   <% } %>
                 </td>
                 <td class="campaign_name">
                     <a href="/manager/campaigns/<%= campaigns[i].campaign_id %>"
@@ -66,14 +69,11 @@
                 </td>
                 <td class="small"><%= moment(campaigns[i].updated_at).fromNow() %></td>
                 <td>
-                    <a href="https://manage.smartadserver.com/gestion/smartprog2.asp?CampagneID=<%= campaigns[i].campaign_id %>&AnnonceurID=<%= campaigns[i].advertiser_id %>"
+                    <a href="https://manage.smartadserver.com/n/campaign/<%= campaigns[i].campaign_id %>/insertion"
                         target="_blank" title="Accéder à la campagne sur SMARTADSERVER"><img
                             src="/assets/images/smartadserver.png" alt="Icône SMARTADSERVER" /></a>
                     &nbsp;
-                    <a href="/manager/campaigns/<%= campaigns[i].campaign_id %>/edit" target="_blank"
-                        title="Modifier cette campagne">
-                        <i class="icon feather icon-edit f-16 text-success"></i>
-                    </a>
+                    
                     <% if(campaigns.insertions && (campaigns[i].insertions.length === 0)) { %>
                     &nbsp;
                     <a href="/automate/campaigns/insertions?campaign_id=<%= campaigns[i].campaign_id %>"
