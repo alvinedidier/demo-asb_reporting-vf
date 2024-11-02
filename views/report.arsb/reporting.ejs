@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta name="googlebot" content="noindex">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                clifford: '#da373d',
+              }
+            }
+          }
+        }
+      </script>
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-KT6H7LH');
+    </script>
+    <title><%= reporting.campaign_name %> - <%= reporting.advertiser_name %>- Antenne Solutions Business</title>
+    <link rel="icon"
+        href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-32x32.png"
+        sizes="32x32" />
+    <style>
+        body {
+            background: #fff;
+            font-family: Century Gothic, Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        #reporting-board {
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KT6H7LH" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe>
+    </noscript>
+
+    <div class="container p-2 mt-2 mb-2" id="reporting-board">
+        <% if(reporting.campaign_end_date < reporting.reporting_dates.reporting_end_date) { %>
+        <!-- Alerte de mise à jour des statistiques -->
+        <div class="bg-red-500 text-white p-4 rounded-lg mb-4 relative" role="alert">
+            <strong>Les statistiques de cette campagne sont mises à jour toutes les 2 heures. (Prochaine MAJ :
+                <%= reporting.reporting_dates.reporting_end_date %> )</strong>
+            <button type="button" class="absolute top-0 right-0 mt-2 mr-4 text-white" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <% } %>
+
+        <!-- En-tête de la campagne -->
+        <div class="flex flex-col md:flex-row items-center p-6 m-5">
+            <div class="md:w-1/4">
+                <a href="https://antennesb.fr/">
+                    <img src="/admin/photos/logo.png" alt="logo_antenne" />
+                </a>
+            </div>
+            <div class="md:w-3/4 text-center md:text-left">
+                <h2 class="text-2xl font-bold"><%= reporting.campaign_name %></h2>
+            </div>
+        </div>
+
+        <!-- Informations principales de la campagne -->
+        <div class="flex flex-col m-5">
+            <div class="md:w-5/6">
+                <ul class="list-none">
+                    <li class="border-b border-gray-300 py-2">
+                        <strong>Date de génération du rapport de campagne</strong>:
+                        <%= reporting.reporting_dates.reporting_start_date %>
+                    </li>
+                    <li class="border-b border-gray-300 py-2">
+                        <strong>Nom de la campagne</strong>: <%= reporting.campaign_name %>
+                    </li>
+                    <li class="border-b border-gray-300 py-2">
+                        <strong>Annonceur</strong>: <%= reporting.advertiser_name %>
+                    </li>
+                    <li class="border-b border-gray-300 py-2">
+                        <strong>Période diffusion</strong>: Du <%= reporting.campaign_start_date_formatted %> au
+                        <%= reporting.campaign_end_date_formatted %>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="my-6" />
+
+        <!-- Bilan global de la campagne -->
+        <div class="m-5 p-3" id="table_uu">
+            <h3 class="text-xl font-bold mb-4">
+                <i class="fas fa-chart-line"></i>
+                Bilan global de la campagne
+            </h3>
+            <table class="table-auto w-full">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="p-2">Impressions</th>
+                        <th class="p-2">Clics</th>
+                        <th class="p-2">Taux de clics</th>
+                        <th class="p-2">Visiteurs uniques</th>
+                        <th class="p-2">Répétition</th>
+                        <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> 
+                        <th class="p-2">VTR</th>
+                        <% } %>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr>
+                        <td class="p-2"><%= reporting.globalMetrics.totalImpressions.toLocaleString('fr-FR') %></td>
+                        <td class="p-2"><%= reporting.globalMetrics.totalClics.toLocaleString('fr-FR') %></td>
+                        <td class="p-2"><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</td>
+                        <td class="p-2"><%= reporting.globalMetrics.uniqueVisitors.toLocaleString('fr-FR') %></td>
+                        <td class="p-2"><%= reporting.globalMetrics.repetition.toLocaleString('fr-FR') %></td>
+                        <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> 
+                        <td class="p-2"><%= reporting.globalMetrics.completionRateGlobal.toLocaleString('fr-FR') %>%</td> 
+                        <% } %>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Affichage par format -->
+        <div class="m-5 p-3" id="table_global_format">
+            <h3 class="text-xl font-bold mb-4">
+                <i class="fas fa-chart-line"></i>
+                Par Format
+            </h3>
+            <table class="table-auto w-full">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="p-2 text-left">Format</th>
+                        <th class="p-2 text-right">Impressions</th>
+                        <th class="p-2 text-right">Clics</th>
+                        <th class="p-2 text-right">Taux de clics</th>
+                        <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> 
+                        <th class="p-2 text-right">VTR</th>
+                        <% } %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let format in reporting.metrics.byFormat) { %>
+                    <tr>
+                        <td class="p-2"><%= format.toUpperCase() %></td>
+                        <td class="p-2 text-right"><%= reporting.metrics.byFormat[format].impressions.toLocaleString('fr-FR') %></td>
+                        <td class="p-2 text-right"><%= reporting.metrics.byFormat[format].clics.toLocaleString('fr-FR') %></td>
+                        <td class="p-2 text-right"><%= reporting.metrics.byFormat[format].ctr.toLocaleString('fr-FR') %>%</td>
+                        <% if(reporting.metrics.byFormat[format].vtr != "0.00") { %> 
+                        <td class="p-2 text-right"><%= reporting.metrics.byFormat[format].vtr.toLocaleString('fr-FR') %>%</td> 
+                        <% } else { %> 
+                        <td class="p-2 text-right">-</td> 
+                        <% } %>
+                    </tr>
+                    <% } %>
+                </tbody>
+                <tfoot class="bg-gray-900 text-white">
+                    <tr>
+                        <td class="p-2 font-bold">Total</td>
+                        <td class="p-2 text-right"><%= reporting.globalMetrics.totalImpressions.toLocaleString('fr-FR') %></td>
+                        <td class="p-2 text-right"><%= reporting.globalMetrics.totalClics.toLocaleString('fr-FR') %></td>
+                        <td class="p-2 text-right"><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</td>
+                        <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> 
+                        <td class="p-2 text-right"><%= reporting.globalMetrics.completionRateGlobal.toLocaleString('fr-FR') %>%</td> 
+                        <% } %>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <hr class="my-6" />
+
+        <!-- Affichage par site -->
+        <div class="m-5 p-3" id="table_by_site">
+            <h3 class="text-xl font-bold mb-4">
+                <i class="fas fa-chart-line"></i>
+                Par Site
+            </h3>
+            <table class="table-auto w-full">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="p-2 text-left">Site</th>
+                        <th class="p-2 text-right">Impressions</th>
+                        <th class="p-2 text-right">Clics</th>
+                        <th class="p-2 text-right">Taux de clics</th>
+                        <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> 
+                        <th class="p-2 text-right">VTR</th>
+                        <% } %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let site in reporting.metrics.bySite) { %>
+                    <tr>
+                        <td class="p-2"><%= site %></td>
+                        <td class="p-2 text-right"><%= reporting.metrics.bySite[site].impressions.toLocaleString('fr-FR') %></td>
+                        <td class="p-2 text-right"><%= reporting.metrics.bySite[site].clics.toLocaleString('fr-FR') %></td>
+                        <td class="p-2 text-right"><%= reporting.metrics.bySite[site].ctr.toLocaleString('fr-FR') %>%</td>
+                        <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> 
+                        <th class="p-2 text-right">VTR</th>
+                        <% } %>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="my-6" />
+    </div>
+</body>
+
+</html>

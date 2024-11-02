@@ -5,12 +5,12 @@ const { differenceInDays, isAfter, isBefore, parseISO, format } = require('date-
 const { fr: frLocale } = require('date-fns/locale');
 
 const currentDate = new Date(); // Obtenez la date actuelle
-const formattedDate = format(currentDate, 'yyyy/MM/dd/HH'); // Formater la date comme souhaité
+const formattedDate = format(currentDate, 'yyyy/MM/dd'); // Formater la date comme souhaité
 
 const LocalStorage = require('node-localstorage').LocalStorage;
 const localStorage = new LocalStorage('data/reporting/');
 const localStorageTasks = new LocalStorage(`data/taskID/${formattedDate}/`);
-const localStorageInstance = new LocalStorage(`data/instanceId/${formattedDate}/`);
+const localStorageInstance = new LocalStorage(`data/instanceIds/${formattedDate}/`);
 
 /*
 * Teste si la valeur est vide

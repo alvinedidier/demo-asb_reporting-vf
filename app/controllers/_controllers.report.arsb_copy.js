@@ -43,7 +43,7 @@ const formattedDate = format(currentDate, 'yyyy/MM/dd'); // Formater la date com
 
 const LocalStorage = require('node-localstorage').LocalStorage;
 const localStorage = new LocalStorage('data/reporting/');
-// const localStorageReportIds = new LocalStorage(`data/instanceIds/${formattedDate}/`);
+//const localStorageReportIds = new LocalStorage(`data/instanceIds/${formattedDate}/`);
 
 const {
   getAvailableFormats
@@ -98,9 +98,6 @@ exports.generate = async (req, res) => {
       logger.error(`Erreur lors de la récupération de la campagne avec le crypt: ${campaigncrypt}`);
       return Utilities.handleCampaignNotFound(res, 404, campaigncrypt);
     }
-    
-    // Récupére l'ID de la campagne
-    let campaignId = campaign.campaign_id; 
 
     // Gestion des dates avec date-fns
     const dateNow = new Date();
@@ -120,84 +117,36 @@ exports.generate = async (req, res) => {
 
     // Conditions basées sur la durée de diffusion
     if (campaignDates.duration <= 31) {
-      logger.info(`La campagne ${campaignId} est courte, récupération des Visiteurs Uniques (VU).`);
+      logger.info(`La campagne est courte, récupération des Visiteurs Uniques (VU).`);
       // Logique pour lancer l'instance de récupération des VU
     } else {
-      logger.info(`La campagne ${campaignId} dépasse 31 jours, pas de récupération des VU.`);
+      logger.info(`La campagne dépasse 31 jours, pas de récupération des VU.`);
     }
 
     if (campaignDates.remainingDays > 365) {
       logger.info(`Plus de 365 jours après la diffusion, prise de contact avec la régie recommandée.`);
     }
     if (campaignDates.remainingDays > 0) {
-      logger.info(`La campagne ${campaignId} est encore active, affichage du bilan si disponible.`);
+      logger.info(`La campagne est encore active, affichage du bilan si disponible.`);
     } else {
-      logger.info(`La campagne ${campaignId} est terminée, lancement des requêtes pour le rapport final.`);
+      logger.info(`La campagne est terminée, lancement des requêtes pour le rapport final.`);
     }
 
     if (campaignDates.daysBeforeStart > 0) {
-      logger.info(`La campagne ${campaignId} n'a pas encore commencé, lancement des requêtes.`);
+      logger.info(`La campagne n'a pas encore commencé, lancement des requêtes.`);
     } else {
-      logger.info(`La campagne ${campaignId} est en attente, message d'attente affiché.`);
+      logger.info(`La campagne est en attente, message d'attente affiché.`);
     }
 
-     // Récupére le cache de campaignID    
-     let reportingData = getCampaignId(campaignId);
-
-     if (reportingData) {
-      logger.info(`Affichage des données en cache pour la campagne ${campaignId}`);
-      
-      return res.render('report.arsb/reporting.ejs', {
-        campaignDates : campaignDates,
-        campaign : campaign,
-        reporting: reportingData
-      });
-      /*
-      // Obtenir les formats disponibles en fonction des données de reporting
-      const availableFormats = getAvailableFormats(reportingData);
-      
-      console.log('report/template.ejs'); process.exit(0);
-     
-      logger.info(`Affichage des données en cache pour la campagne: ${campaign.campaign_id}`);
-      return res.render('report/template.ejs', {
-        campaign,
-        campaignDates,
-        utilities: Utilities,
-        reporting: reportingData,
-        availableFormats: availableFormats
-      });
-      */
-    } else {
-      logger.info(`Génération du rapport pour la campagne: ${campaign.campaign_id}`);     
-      /*
-      console.log('report/generate.ejs'); process.exit(0);
-      return res.render('report/generate.ejs', {
-        campaign,
-        campaignDates
-      });
-      */
-    }
-
- /*
     // Gestion du cache
-    // const reportingData = Utilities.getReportingDataFromCache(cacheStorageID);
-    // Récupére le cache de campaignID
-    let cachedCampaignId = getCampaignId(campaign.campaign_id);
-    console.log(cachedCampaignId);
-    // console.log(cachedCampaignId.metrics.byFormat);
-
-    process.exit(0);
-
     const cacheStorageID = `campaignID-${campaign.campaign_id}`;
     const reportingData = Utilities.getReportingDataFromCache(cacheStorageID);
- 
+
     if (reportingData) {
 
       // Obtenir les formats disponibles en fonction des données de reporting
       const availableFormats = getAvailableFormats(reportingData);
-      
-      console.log('report/template.ejs'); process.exit(0);
-     
+
       logger.info(`Affichage des données en cache pour la campagne: ${campaign.campaign_id}`);
       return res.render('report/template.ejs', {
         campaign,
@@ -209,13 +158,12 @@ exports.generate = async (req, res) => {
     } else {
 
       logger.info(`Génération du rapport pour la campagne: ${campaign.campaign_id}`);
-      console.log('report/generate.ejs'); process.exit(0);
       return res.render('report/generate.ejs', {
         campaign,
         campaignDates
       });
     }
-    */
+
   } catch (error) {
     logger.error(`Erreur lors de la génération du rapport Generate : ${error.message}`);
     return Utilities.handleCampaignNotFound(res, 500, campaigncrypt);
@@ -284,15 +232,14 @@ exports.report = async (req, res) => {
 
     // Récupére le cache de campaignID
     let cachedCampaignId = getCampaignId(campaignId);
-
+   
     if (!cachedCampaignId) {
       // D'abord, vérifiez dans le cache si les instanceId existent déjà
       // Vérifier d'abord si les instanceId existent déjà dans le cache
       let cachedReportIds = getReportIds(campaignId);
-
+      
       // Récupération des ReportIds
       if (!cachedReportIds) {
-
         // Récupérer les reports pour le reporting de la campagne et la partie VU
         const reportId = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId);
         logger.info(`ReportID : ${reportId}`);
@@ -331,47 +278,77 @@ exports.report = async (req, res) => {
 
       // Récupére les instances pour cette campagne
       let cachedInstanceIds = getInstanceIds(campaignId);
+      console.log('cachedInstanceIds : ',cachedInstanceIds); process.exit(0)
+      if (!cachedReportIds || !cachedInstanceIds) {
+          logger.info(`Récupére reportId (${cachedReportIds.reportId}) et reportIdVU (${cachedReportIds.reportIdVU}) via le cache pour la campagne ${campaignId}`);
 
-      if (!cachedInstanceIds) {
-        logger.info(`Récupére reportId (${cachedReportIds.reportId}) et reportIdVU (${cachedReportIds.reportIdVU}) via le cache pour la campagne ${campaignId}`);
+          // Récupérer les détails du rapport à partir des instanceId et instanceIdVU
+          const instanceIdData = await ReportService.fetchReportDetails(cachedReportIds.reportId);
+          const instanceIdVUData = cachedReportIds.reportIdVU ?
+            await ReportService.fetchReportDetails(cachedReportIds.reportIdVU) :
+            null;
 
-        // Récupérer les détails du rapport à partir des instanceId et instanceIdVU
-        const instanceIdData = await ReportService.fetchReportDetails(cachedReportIds.reportId);
-        const instanceIdVUData = cachedReportIds.reportIdVU ?
-          await ReportService.fetchReportDetails(cachedReportIds.reportIdVU) :
-          null;
+          // Si vous avez besoin des données CSV à partir des instanceId et instanceIdVU
+          const reportCsvData = await ReportService.fetchCsvData(instanceIdData);
+          let reportCsvDataVU = null;
 
-        // Si vous avez besoin des données CSV à partir des instanceId et instanceIdVU
-        const instanceId = await ReportService.fetchCsvData(instanceIdData);
-        let instanceIdVU = null;
+          if (instanceIdVUData) {
+            reportCsvDataVU = await ReportService.fetchCsvData(instanceIdVUData);
+          }
 
-        if (instanceIdVUData) {
-          instanceIdVU = await ReportService.fetchCsvData(instanceIdVUData);
-        }
-
-        // Sauvegarde les données CSV
-        setInstanceIdsWithExpiry(campaignId, instanceId, instanceIdVU);
-        cachedInstanceIds = {
-          campaignId,
-          instanceId,
-          instanceIdVU
-        };
+          // Sauvegarde les données CSV
+          setInstanceIdsWithExpiry(campaignId, reportCsvData, reportCsvDataVU);
+          cachedInstanceIds = { campaignId, reportCsvData, reportCsvDataVU };
       }
 
-      // Affiche le rapport json    
-      const ReportBuildJsonTemplate = ReportBuildJson(campaignId, cachedInstanceIds.instanceId, cachedInstanceIds.instanceIdVU)
+      // Affiche le rapport json
+
+       const ReportBuildJsonTemplate = ReportBuildJson(campaignId, cachedInstanceIds.reportCsvData, cachedInstanceIds.reportCsvDataVU)
         .then(result => {
-          logger.info(`Affiche le résultat du rapport json de la campagne ${campaignId}`);
-          return res.json(result);
+          logger.info(JSON.stringify(result, null, 2));
         })
         .catch(error => {
-          logger.error(`Affiche erreur résultat du rapport json :`, error);
+          logger.error('Erreur ReportBuildJsonTemplate :', error.message);
+          console.log(error);
         });
-
-    } else {
-      logger.info(`Affiche le résultat du cache json de la campagne ${campaignId}`);
-      return res.json(cachedCampaignId);
+/*
+          setCampaignIdWithExpiry(campaignId, {
+              ReportBuildJsonTemplate
+            });
+      
+      return res.json({
+        cachedReportIds,
+        reportCsvData,
+        reportCsvDataVU,
+        ReportBuildJsonTemplate
+      });
+*/
     }
+
+    /*
+      // let cachedCampaignId2 = getCampaignId("2480960");
+      const storedData = JSON.parse(localStorage.getItem(`ReportIdDATA-2570084`));
+      csvData1Path = storedData.reportCsvData;
+      csvData2Path = storedData.reportCsvDataVU;
+      console.log("csvData2Path :"+csvData2Path);
+
+      const ReportBuildJsonTemplate = ReportBuildJson(campaignId, csvData1Path, csvData2Path)
+      .then(result => {
+      console.log(JSON.stringify(result, null, 2));
+      })
+      .catch(error => {
+      console.error('Erreur :', error.message);
+      });
+
+      localStorage.setItem(`campaignID-2570084`, JSON.stringify(ReportBuildJsonTemplate));
+
+      return ReportBuildJsonTemplate;
+    */
+    // const report = getCampaignId(campaignId);-${campaignId}
+    // const reportJson = await ReportService.formatReportData(reportCsvData, reportCsvDataVU);
+    // Retourner les résultats dans la réponse, y compris les données CSV
+    // console.log(report)
+    // return res.json({cachedInstanceIds, instanceIdData, instanceIdVUData});
 
   } catch (error) {
     logger.error(`Erreur lors de la génération du rapport Report : ${error.message}`);

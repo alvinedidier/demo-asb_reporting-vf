@@ -80,8 +80,8 @@ function getInstanceIds(campaignId) {
   }
 
   const {
-    reportId,
-    reportIdVU,
+    instanceId,
+    instanceIdVU,
     expiryTime
   } = JSON.parse(storedData);
   const now = Date.now();
@@ -120,21 +120,18 @@ function getCampaignId(campaignId) {
     return null; // Pas de données en cache
   }
 
-  const {
-    instanceId,
-    reportCsvData,
-    reportCsvDataVU
-  } = JSON.parse(storedData);
+  const { reportData, expiryTime } = JSON.parse(storedData);
   const now = Date.now();
 
-  // Si le cache est expiré
-  if (now > expiryTime) {
-    localStorage.removeItem(`campaignID-${campaignId}`); // Supprimer le cache expiré
+  // Vérifie si le cache a expiré et que la campagne est toujours en cours par rapport aux dates de reporting
+  // now > expiryTime && 
+  if (new Date(reportData.campaign_end_date) < new Date(reportData.reporting_dates.reporting_start_date)) {
+    localStorage.removeItem(`campaignID-${campaignId}`); // Supprime le cache expiré
     return null;
   }
 
-  // Sinon, retourner les instanceId et instanceIdVU
-  return storedData;
+  // Sinon, retourner les données de la campagne
+  return reportData;
 }
 
 module.exports = {

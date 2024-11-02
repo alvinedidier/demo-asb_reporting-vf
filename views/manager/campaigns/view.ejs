@@ -206,9 +206,10 @@
                 <% if(reporting) { %>
                 <div class="row">
                     <div class="col-md-7 col-sm-12">
+                        <%# include("../inc/table_campaigns_report.ejs") #%>
 
-                        <%- include("../inc/table_campaigns_report.ejs") -%>
-
+                        <div class="alert alert-success" role="alert">Le bilan de campagne existe</div>
+                       
                     </div>
                     <div class="col-md-5">
                         <div id="chart-campaignreport"></div>
