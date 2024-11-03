@@ -1328,9 +1328,7 @@ exports.export_excel = async (req, res) => {
                             fgColor: {
                                 rgb: 'FF000000'
                             }
-
                         },
-
                         font: {
                             color: {
                                 rgb: 'FFFFFFFF'
@@ -1341,14 +1339,10 @@ exports.export_excel = async (req, res) => {
                         }
                     },
                     cellNone: {
-
                         numFmt: "0",
-
                     },
-
                     cellTc: {
                         numFmt: "0",
-
                     }
                 };
 

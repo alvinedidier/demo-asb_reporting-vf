@@ -244,13 +244,9 @@ exports.list = async (req, res) => {
         data.campaigns = await ModelCampaigns.findAll({
             include: [{
                 model: ModelAdvertisers
-            }/*, {
-                model: ModelInsertions
-            }*/]
-        }, {
+            }],
             order: [
-                // Will escape title and validate DESC against a list of valid direction
-                // parameters
+                // Tri les résultats par `campaign_id` dans l'ordre décroissant
                 ['campaign_id', 'DESC']
             ]
         });

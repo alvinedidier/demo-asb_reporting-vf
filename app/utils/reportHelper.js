@@ -99,7 +99,16 @@ const formats = [{
     {
         name: 'inreadvideo',
         title: 'INREAD VIDEO'
-    }
+    },
+    {
+        name: 'billboard',
+        title: 'BILLBOARD'
+    },
+ {
+        name: 'preroll',
+        title: 'PREROLL'
+    },
+    
 ];
 
 // Fonction pour créer un stream à partir d'une chaîne de caractères
@@ -136,60 +145,16 @@ function buildFormatData(csvData, formatName) {
     // Structure des données groupées
     let groupedInsertions = {};
 
-    console.log(csvData);
-    process.exit(0)
-
     formats.forEach((format) => {
         const regex = new RegExp(format.title, 'i');
         if (regex.test(insertionName)) {
-            if (!groupedInsertions[format.name]) {
-                groupedInsertions[format.name] = [];
+            if (!groupedInsertions[format.title]) {
+                groupedInsertions[format.title] = [];
             }
-            groupedInsertions[format.name].push(row);
+            groupedInsertions[format.title].push(row);
         }
     });
 
-    /*  let siteList = {};
-      let formatData = {
-          Impressions: 0,
-          Clicks: 0,
-          VideoComplete: 0 // Ajout pour compter les complétions totales
-      };
-
-      csvData.forEach((row, index) => {
-          const site = row.AppOrSiteName;
-          console.log("Site : " + site); process.exit(0);
-          const impressions = parseInt(row.Impressions) || 0;
-          const clicks = parseInt(row.Clics) || 0;
-          const complete = parseInt(row.VideoComplete) || 0;
-          const format = row.FormatName.toLowerCase();
-
-          // Vérifier si le format correspond au format en cours d'analyse
-          if (format === formatName.toLowerCase()) {
-              const ctr = calculateCtr(clicks, impressions);
-              const ctrComplete = calculateCtr(complete, impressions); // Calcul du CTR complet
-
-              siteList[index] = {
-                  site,
-                  impressions,
-                  clicks,
-                  ctr,
-                  complete,
-                  ctrComplete // Ajouter le CTR complet pour chaque site
-              };
-
-              // Accumuler les valeurs pour le format
-              formatData.Impressions += impressions;
-              formatData.Clicks += clicks;
-              formatData.VideoComplete += complete; // Additionner les complétions
-          }
-      });
-
-      return {
-          siteList,
-          formatData
-      };
-      */
 }
 
 // Fonction principale pour construire le JSON final
@@ -249,9 +214,9 @@ async function ReportBuildJson(campaignId, csvData1String, csvData2String) {
                 globalMetrics,
                 metrics: {
                     byFormat: metricsByFormat,
-                    byCreatives: metricsByCreatives,
                     bySite: metricsBySite,
-                    byFormatAndSite: metricsByFormatAndSite
+                    byFormatAndSite: metricsByFormatAndSite,
+                    byCreatives: metricsByCreatives
                 },
                 reporting_dates: {
                     reporting_start_date: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
@@ -508,13 +473,13 @@ function regrouperParFormatEtSiteAvecMetrics(results) {
             }
 
             // Initialiser le format dans le résultat s'il n'existe pas
-            if (!resultat[formatTrouve.name]) {
-                resultat[formatTrouve.name] = {};
+            if (!resultat[formatTrouve.title]) {
+                resultat[formatTrouve.title] = {};
             }
 
             // Initialiser le site sous le format dans le résultat s'il n'existe pas
-            if (!resultat[formatTrouve.name][siteName]) {
-                resultat[formatTrouve.name][siteName] = {
+            if (!resultat[formatTrouve.title][siteName]) {
+                resultat[formatTrouve.title][siteName] = {
                     impressions: 0,
                     clics: 0,
                     completions: 0,
@@ -524,7 +489,7 @@ function regrouperParFormatEtSiteAvecMetrics(results) {
             }
 
             // Ajouter les valeurs au site sous le format approprié
-            const data = resultat[formatTrouve.name][siteName];
+            const data = resultat[formatTrouve.title][siteName];
             data.impressions += impressions;
             data.clics += clics;
             data.completions += videoComplete;
@@ -569,8 +534,8 @@ function regrouperParFormat(data) {
 
         if (formatTrouve) {
             // Initialiser le format dans le résultat s'il n'existe pas encore
-            if (!resultat[formatTrouve.name]) {
-                resultat[formatTrouve.name] = {
+            if (!resultat[formatTrouve.title]) {
+                resultat[formatTrouve.title] = {
                     impressions: 0,
                     clics: 0,
                     completions: 0,
@@ -580,7 +545,7 @@ function regrouperParFormat(data) {
             }
 
             // Ajouter les valeurs au format approprié
-            const result = resultat[formatTrouve.name];
+            const result = resultat[formatTrouve.title];
             result.impressions += impressions;
             result.clics += clics;
             result.completions += videoComplete;
@@ -640,7 +605,6 @@ function regrouperParCreatives(data) {
     return resultat;
 }
 
-// Fonction pour regrouper et calculer les métriques par site
 // Fonction pour regrouper et calculer les métriques par site
 function regrouperParSite(data) {
     const resultat = {};

@@ -26,14 +26,14 @@
     </script>
     <title><%= reporting.campaign_name %> - <%= reporting.advertiser_name %>- Antenne Solutions Business</title>
     <link rel="icon"
-        href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-32x32.png"
+        href="/assets/images/adweb-logo.png"
         sizes="32x32" />
         <link rel="stylesheet" type="text/css"
         href="/assets/css/reporting.css">
 
 </head>
 
-<body class="asb">
+<body class="adweb">
     <!-- Google Tag Manager (noscript) -->
     <noscript>
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KT6H7LH" height="0" width="0"
@@ -58,8 +58,8 @@
         <!-- En-tête de la campagne -->
         <div class="row p-3 m-5">
             <div class="col-md-3">
-                <a href="https://antennesb.fr/">
-                    <img src="/assets/images/logo.png" alt="Logo ASB" />
+                <a href="https://www.adweb-outremer.re" target="_blank">
+                    <img src="/assets/images/adweb-logo.png" alt="Logo ADWEB" />
                 </a>
             </div>
             <div class="col-md-9">
@@ -102,7 +102,7 @@
 
         <!-- Bilan global de la campagne -->
         <div class="row p-3 m-5" id="table_uu">
-            <h3 class="title text-asb">
+            <h3 class="title text-adweb">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="#112f82" xmlns="http://www.w3.org/2000/svg"
                     transform="rotate(0 0 0) scale(-1, 1) translate(-0, 0)">
                     <path
@@ -125,7 +125,7 @@
                 <strong>Bilan global de la campagne</strong>
             </h3>
             <table class="table table-stripe table-hover">
-                <thead class="text-center table-asb">
+                <thead class="text-center table-adweb">
                     <tr>
                         <th scope="col">Impressions</th>
                         <th scope="col">Clics</th>
@@ -167,7 +167,7 @@
         <!-- Affichage par format -->
         <% if (reporting.metrics.byFormat && Object.keys(reporting.metrics.byFormat).length > 0) { %>
             <div class="row p-3 m-5" id="table_global_format">
-                <h3 class="title text-asb">
+                <h3 class="title text-adweb">
                     <svg width="40" height="40" viewBox="0 0 25 24" fill="#112f82" xmlns="http://www.w3.org/2000/svg"
                         transform="rotate(0 0 0) scale(-1, 1) translate(-0, 0)">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -178,7 +178,7 @@
                     <strong>Formats</strong>
                 </h3>
                 <table class="table" id="table_campaigns">
-                    <thead class="text-left table-asb">
+                    <thead class="text-left table-adweb">
                         <tr>
                             <th scope="col">Format</th>
                             <th scope="col" class="text-right">Impressions</th>
@@ -228,7 +228,7 @@
        
             <% for (let format in reporting.metrics.byFormatAndSite) { %>
            <div class="row p-3 m-5">
-            <h4 class="title text-asb">
+            <h4 class="title text-adweb">
                 <svg width="40" height="40" viewBox="0 0 25 24" fill="#112f82" xmlns="http://www.w3.org/2000/svg"
                     transform="rotate(0 0 0)">
                     <path
@@ -242,7 +242,7 @@
                 <%= format %> par site
             </h4>
             <table class="table table-stripe table-hover md-4">
-                <thead class="text-left table-asb">
+                <thead class="text-left table-adweb">
                     <tr>
                         <th scope="col">Site</th>
                         <th scope="col" class="text-right">Impressions</th>
@@ -290,7 +290,7 @@
         <% if (reporting.metrics.byCreatives && Object.keys(reporting.metrics.byCreatives).length > 0) { %>
 
         <div class="row p-3 m-5" id="table_by_creative">
-            <h3 class="title text-asb">
+            <h3 class="title text-adweb">
                 <svg width="40" height="40" viewBox="0 0 25 24" fill="#112f82" xmlns="http://www.w3.org/2000/svg"
                     transform="rotate(0 0 0) scale(-1, 1) translate(-0, 0) scale(1, -1) translate(0, -0)">
                     <path
@@ -304,7 +304,7 @@
                 <strong>Créatives</strong>
             </h3>
             <table class="table table-stripe table-hover">
-                <thead class="text-left table-asb">
+                <thead class="text-left table-adweb">
                     <tr>
                         <th scope="col">Créative</th>
                         <th scope="col" class="text-right">Impressions</th>

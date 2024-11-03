@@ -21,21 +21,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
     <link rel="stylesheet" type="text/css"
         href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <style>
-        .modal-open {
-            overflow: auto !important;
-        }
-
-        body {
-            background: #eee;
-            font-family: Century Gothic, Verdana, Geneva, Tahoma, sans-serif;
-        }
-
-        hr {
-            margin-top: 10px;
-            border-color: #ddd;
-        }
-    </style>
+        <link rel="stylesheet" type="text/css"
+        href="/assets/css/reporting.css">
     <!-- Google Tag Manager -->
     <script>
         (function (w, d, s, l, i) {
@@ -67,24 +54,81 @@
     </noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <div class="container  d-flex justify-content-center">
+    <noscript>
+      
+         <!-- Modal pour alerte JavaScript désactivé -->
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" id="no-js-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                
+                <h5 class="modal-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"
+                    xmlns="http://www.w3.org/2000/svg" transform="rotate(0 0 0)">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M2.5 6C2.5 4.75736 3.50736 3.75 4.75 3.75H19.25C20.4926 3.75 21.5 4.75736 21.5 6V16.5484C21.5 17.791 20.4926 18.7984 19.25 18.7984H7.635L3.75032 22.277C3.52993 22.4743 3.21411 22.5237 2.94401 22.403C2.67391 22.2823 2.5 22.0141 2.5 21.7182V6ZM4.75 5.25C4.33579 5.25 4 5.58579 4 6V20.0399L6.84795 17.4897C6.9855 17.3665 7.16364 17.2984 7.34827 17.2984H19.25C19.6642 17.2984 20 16.9626 20 16.5484V6C20 5.58579 19.6642 5.25 19.25 5.25H4.75Z"
+                        fill="#ffffff" />
+                </svg> 
+                    Alerte - JavaScript Désactivé
+                </h5>
+                </div>
+                <div class="modal-body">
+                    <p>JavaScript est désactivé dans votre navigateur. <br />Pour profiter pleinement de toutes les fonctionnalités de cette page, veuillez activer JavaScript.</p>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Arrière-plan pour bloquer les interactions -->
+    <div class="no-js-modal-backdrop"></div>
+    </noscript>
+
+
+
+    <div class="container d-flex justify-content-center">
 
         <div class="row">
 
             <!--section 1-->
 
-            <div class="card m-3 p-3">
-                <h2 class="card-title text-center">Rapport de campagne</h2>
+            <div class="card border border-0 m-3 p-3">
+                <div class="card-title text-center">
+                    <div class="d-flex justify-content-center">
+                        <img src="/assets/images/logo.png" class="card-img" style="width: 150px">
+                    </div>
+                </div>               
+                
                 <div class="card-body">
 
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top: 30px;">
-                        <strong>Attention : La campagne demandée n'existe pas pour le moment.</strong>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                    <% if (campaignDates.now <= campaignDates.start) { %>
+                    <div class="alert alert-info alert-dismissible fade show countdown" role="alert"
+                        style="margin-top: 30px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#58151c"
+                            xmlns="http://www.w3.org/2000/svg" transform="rotate(0 0 0)">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M2.5 6C2.5 4.75736 3.50736 3.75 4.75 3.75H19.25C20.4926 3.75 21.5 4.75736 21.5 6V16.5484C21.5 17.791 20.4926 18.7984 19.25 18.7984H7.635L3.75032 22.277C3.52993 22.4743 3.21411 22.5237 2.94401 22.403C2.67391 22.2823 2.5 22.0141 2.5 21.7182V6ZM4.75 5.25C4.33579 5.25 4 5.58579 4 6V20.0399L6.84795 17.4897C6.9855 17.3665 7.16364 17.2984 7.34827 17.2984H19.25C19.6642 17.2984 20 16.9626 20 16.5484V6C20 5.58579 19.6642 5.25 19.25 5.25H4.75Z"
+                                fill="#58151c" />
+                        </svg>
+                        Info : La campagne débutera dans : <strong><span id="countdown-timer"></span></strong>
                     </div>
+                    <% } %>
+                    <% if (campaignDates.daysBeforeStart <= -400) { %>
+                        <div class="alert alert-warning alert-dismissible fade show countdown" role="alert"
+                        style="margin-top: 30px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#58151c"
+                            xmlns="http://www.w3.org/2000/svg" transform="rotate(0 0 0)">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M2.5 6C2.5 4.75736 3.50736 3.75 4.75 3.75H19.25C20.4926 3.75 21.5 4.75736 21.5 6V16.5484C21.5 17.791 20.4926 18.7984 19.25 18.7984H7.635L3.75032 22.277C3.52993 22.4743 3.21411 22.5237 2.94401 22.403C2.67391 22.2823 2.5 22.0141 2.5 21.7182V6ZM4.75 5.25C4.33579 5.25 4 5.58579 4 6V20.0399L6.84795 17.4897C6.9855 17.3665 7.16364 17.2984 7.34827 17.2984H19.25C19.6642 17.2984 20 16.9626 20 16.5484V6C20 5.58579 19.6642 5.25 19.25 5.25H4.75Z"
+                                fill="#58151c" />
+                        </svg>
+                        Alerte : Cette campagne a plus d'un an. Veuillez contacter la régie pour procéder à sa génération.
+                    </div>
+                    <% } %>
+
+                    <h4 class="text-center">Rapport de la campagne</h4>
 
                     <ul class="list-group list-group-flush">
+                       
                         <li class="list-group-item">
                             <strong>Annonceur</strong>
                             :
@@ -99,6 +143,16 @@
                             <%= campaignDates.formatted_start_date %>
                             au
                             <%= campaignDates.formatted_end_date %></li>
+                            <% if ((campaignDates.now > campaignDates.start) && (campaignDates.daysBeforeStart >= -400)) { %>                        
+                            <li class="list-group-item">
+                            <div id="progress-container" class="progress mt-3">
+                                <div id="progress-bar" class="progress-asb progress-bar progress-bar-striped progress-bar-animated"
+                                    role="progressbar" style="width: 0%;height:30px" aria-valuenow="0" aria-valuemin="0"
+                                    aria-valuemax="100"></div>
+                            </div>
+                        </li>
+                        <% } %>
+                        <!-- 
                         <li class="list-group-item">
                             <a id="generate-button" type="button" href="javascript:void(0);"
                                 class="btn btn-danger btn-lg btn-block">
@@ -106,80 +160,101 @@
                                 Générer le rapport de campagne
                             </a>
                         </li>
-
+                        -->
                     </ul>
-                    <div id="progress-container" class="progress mt-3">
-                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated"
-                            role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
-                            aria-valuemax="100"></div>
-                    </div>
 
-                </div>
-                <div class="d-flex justify-content-center">
-                    <img src="/admin/photos/data_fiscal.jpg" class="card-img" style="width: 445px;">
-                </div>
+
+                </div>               
 
             </div>
-
-            <div></div>
 
         </div>
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Génération du rapport en cours !</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    Veuillez patienter, le rapport est en cours de traitement
-                    <div class="d-flex justify-content-center">
-                        <img src="http://pa1.narvii.com/7491/d8b2fb62d9bc8d6c042da4fd6ad5be92a8d97825r1-200-200_00.gif"
-                            alt="log" style="width:200px;height:200px;">
-                    </div>
-
-                </div>
-            </div>
+   
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                
+                <h5 class="modal-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff"
+                    xmlns="http://www.w3.org/2000/svg" transform="rotate(0 0 0)">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M2.5 6C2.5 4.75736 3.50736 3.75 4.75 3.75H19.25C20.4926 3.75 21.5 4.75736 21.5 6V16.5484C21.5 17.791 20.4926 18.7984 19.25 18.7984H7.635L3.75032 22.277C3.52993 22.4743 3.21411 22.5237 2.94401 22.403C2.67391 22.2823 2.5 22.0141 2.5 21.7182V6ZM4.75 5.25C4.33579 5.25 4 5.58579 4 6V20.0399L6.84795 17.4897C6.9855 17.3665 7.16364 17.2984 7.34827 17.2984H19.25C19.6642 17.2984 20 16.9626 20 16.5484V6C20 5.58579 19.6642 5.25 19.25 5.25H4.75Z"
+                        fill="#ffffff" />
+                </svg> 
+                    Alerte
+                </h5>
+           </div>
+          <div class="modal-body" id="modal-body-text">
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-alert" data-bs-dismiss="modal">Fermer</button>
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+ <!-- Bootstrap JS and Popper.js -->
+ <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
-    <script>
-        
-        function fetchReport() {
-            $.ajax({
-                method: "POST",
-                url: '/r/<%=campaign.campaign_crypt%>/report',
-                success: function (data) {
-                    window.location.href = '/r/<%=campaign.campaign_crypt%>';
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.error('Erreur lors de la génération du rapport:', textStatus, errorThrown);
-                }
-            });
+<script>
+    // Récupère la date de début de la campagne depuis le serveur
+    const campaignStartDate = new Date("<%= campaignDates.start %>").getTime();
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const timeLeft = campaignStartDate - now;
+
+        if (timeLeft > 0) {
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown-timer").innerHTML = `
+            ${days > 0 ? days + "j " : ""}
+            ${hours > 0 ? hours + "h " : ""}
+            ${minutes > 0 ? minutes + "min. " : ""}
+            ${seconds > 0 ? seconds + "sec." : ""}
+        `;
+        } else {
+            document.getElementById("countdown-timer").innerHTML = "La campagne a commencé !";
+            clearInterval(countdownInterval);
         }
+    }
 
-        
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchReport(); 
-           
-        
-        const progressBar = document.getElementById('progress-bar');
-        
+   
+    <% if ((campaignDates.now > campaignDates.start) && (campaignDates.daysBeforeStart >= -400)) { %>  
+    function fetchReport() {
+        $.ajax({
+            method: "POST",
+            url: '/r/<%=campaign.campaign_crypt%>/report',
+            success: function (data) {
+                window.location.href = '/r/<%=campaign.campaign_crypt%>';
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Erreur lors de la génération du rapport:', textStatus, errorThrown);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {            
+         fetchReport();
+       
+         const progressBar = document.getElementById('progress-bar');
         // Vérifier si la barre de progression existe
         if (!progressBar) {
             console.error("Élément 'progress-bar' non trouvé dans le DOM.");
             return;
         }
-        
+
         const totalDuration = 60000; // 1 minute en millisecondes
         let elapsedTime = 0;
         let progressPercentage = 0;
@@ -201,7 +276,7 @@
 
             // Limiter la progression maximale à 100%
             progressPercentage = Math.min(progressPercentage, 100);
-            
+
             // Mettre à jour la barre de progression
             progressBar.style.width = `${progressPercentage}%`;
             progressBar.setAttribute('aria-valuenow', progressPercentage);
@@ -209,7 +284,11 @@
 
             // Arrêter la progression lorsque le totalDuration ou 100% est atteint
             if (elapsedTime >= totalDuration || progressPercentage >= 100) {
-                alert("Le temps imparti est écoulé ou la progression est terminée.");
+                
+                document.getElementById("modal-body-text").innerHTML = "Une erreur est survenue lors de la génération de votre bilan de campagne. Veuillez actualiser la page. Si le problème persiste, contactez votre directeur/directrice de clientèle.";
+                var exampleModal = new bootstrap.Modal(document.getElementById('exampleModal'), {});
+                exampleModal.show();
+
             } else {
                 // Continuer la progression avec un délai aléatoire
                 setTimeout(updateProgress, getRandomDelay());
@@ -218,10 +297,13 @@
 
         // Démarrer la barre de progression
         updateProgress();
+        <% } else { %>
+             // Met à jour le compte à rebours toutes les secondes
+    const countdownInterval = setInterval(updateCountdown, 1000);
+
+<% } %>
     });
-</script>
-
-
+   
+</script>  
 </body>
-
 </html>

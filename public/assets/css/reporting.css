@@ -1,0 +1,83 @@
+body.asb {
+    background: #fff;
+    font-family: Century Gothic, Verdana, Geneva, Tahoma, sans-serif;
+}
+
+body.adweb {
+    background: #fafafa;
+    font-family: 'playfair display', Tahoma, sans-serif;
+}
+
+.table-asb, .bg-asb, .progress-asb {
+    background-color: #1d2b66;
+}
+
+.table-adweb, .bg-adweb, .progress-adweb {
+    background-color: #116dff;
+}
+
+.table-adweb {
+    --bs-table-color: #fafafa;
+    --bs-table-bg: #116dff;
+    --bs-table-border-color: #4d5154;
+    --bs-table-striped-bg: #2c3034;
+    --bs-table-striped-color: #fafafa;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #fafafa;
+    --bs-table-hover-bg: #323539;
+    --bs-table-hover-color: #fafafa;
+    color: var(--bs-table-color);
+    border-color: var(--bs-table-border-color);
+}
+
+.text-adweb {
+    color: #116dff
+}
+
+.table-asb {
+    --bs-table-color: #fff;
+    --bs-table-bg: #1d2b66;
+    --bs-table-border-color: #4d5154;
+    --bs-table-striped-bg: #2c3034;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #323539;
+    --bs-table-hover-color: #fff;
+    color: var(--bs-table-color);
+    border-color: var(--bs-table-border-color);
+}
+
+.text-asb {
+    color: #112f82
+}
+
+body.asb #reporting-board {
+    background: #fff;
+}
+
+body.adweb #reporting-board {
+    background: #fafafa;
+}
+
+.modal-open {
+    overflow: auto !important;
+}
+
+hr {
+    margin-top: 10px;
+    border-color: #ddd;
+}
+
+.progress {height: 2rem!important;}
+
+   /* Empêche le défilement en arrière-plan quand la modal est ouverte */
+   .no-js-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1040;
+}

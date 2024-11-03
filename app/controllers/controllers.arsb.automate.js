@@ -36,8 +36,9 @@ const {
 
 // Charge l'ensemble des functions de l'API
 const AxiosFunction = require('../functions/functions.axios');
-const SmartFunction = require("../functions/functions.smartadserver.api");
-const Utilities = require("../functions/functions.utilities");
+const SmartFunction = require('../functions/functions.smartadserver.api');
+const Utilities = require('../functions/functions.utilities');
+const ReportService = require('../services/reportWorkflowService');
 
 // Initialise les models const ModelSite = require("../models/models.sites");
 const ModelAgencies = require("../models/models.agencies");
@@ -75,6 +76,37 @@ const {
 const {
     mapApiFieldsToDb
 } = require('../utils/mappingHelper');
+
+const {
+    differenceInDays,
+    isAfter,
+    isBefore,
+    parseISO,
+    format
+} = require('date-fns');
+const {
+    fr: frLocale
+} = require('date-fns/locale');
+
+const LocalStorage = require('node-localstorage').LocalStorage;
+const localStorage = new LocalStorage('data/reporting/');
+// const localStorageReportIds = new LocalStorage(`data/instanceIds/${formattedDate}/`);
+
+const {
+  getAvailableFormats
+} = require('../utils/report'); // Importe la fonction du fichier utils/reports.js
+const {
+  getReportIds,
+  setReportIdsWithExpiry,
+  getInstanceIds,
+  setInstanceIdsWithExpiry,
+  getCampaignId,
+  setCampaignIdWithExpiry
+} = require('../utils/localStorageHelper'); // Import des fonctions de gestion du cache
+
+const {
+  ReportBuildJson
+} = require('../utils/reportHelper');
 
 exports.campaign = async (req, res) => {
     const campaignid = req.params.campaignid;
@@ -157,7 +189,7 @@ exports.campaign = async (req, res) => {
 
 exports.campaigns = async (req, res) => {
     try {
-       
+
         logger.info(`Récupération des données pour les campagnes`);
 
         // Construire l'URL de l'API pour récupérer toutes les campagnes
@@ -290,5 +322,102 @@ exports.advertiser = async (req, res) => {
     } catch (error) {
         logger.error(`Erreur lors de la récupération des données : ${error.message}`);
         return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données`, 'json');
+    }
+};
+
+exports.reporting = async (req, res) => {
+    try {
+
+        const dateNow = new Date();
+        const dateNowMysql = format(dateNow, 'yyyy-MM-dd');
+        const advertisersExclus = [
+            320778, 409707, 411820, 412328, 414097, 417243, 417716, 418935,
+            421871, 425912, 425914, 427952, 438979, 439470, 439506, 439511,
+            439512, 439513, 439514, 439515, 440117, 440118, 440121, 440122,
+            440124, 440126, 445117, 455371, 455384, 459132, 464862, 471802, 497328, 508227, 416446,417243
+          ];
+        const campaigns = await ModelCampaigns.findAll({
+            where: {
+                campaign_end_date: {
+                    [Op.gt]: dateNowMysql + ' 23:59:00'
+                },
+                advertiser_id: {
+                    [Op.notIn]: advertisersExclus
+                }
+            },
+            order: sequelize.literal('RAND()') // Ordre aléatoire
+        });
+
+        if (campaigns.length === 0) {
+            logger.error("Aucune campagne trouvée avec une date de fin après " + dateNowMysql + " 23:59:00");
+            return res.status(404).json({ message: "Aucune campagne trouvée" });
+        }
+
+        for (const campaign of campaigns) {
+            console.log("Nom de la campagne :", campaign.campaign_name, " | Annonceur : ", campaign.advertiser_id);
+
+             // Gestion des dates avec date-fns
+                const dateNow = new Date();
+                const campaignDates = {
+                now: dateNow,
+                start: parseISO(campaign.campaign_start_date),
+                end: parseISO(campaign.campaign_end_date),
+                duration: differenceInDays(parseISO(campaign.campaign_end_date), parseISO(campaign.campaign_start_date)),
+                formatted_start_date: format(parseISO(campaign.campaign_start_date), 'dd/MM/yyyy', {
+                    locale: frLocale
+                }),
+                formatted_end_date: format(parseISO(campaign.campaign_end_date), 'dd/MM/yyyy', {
+                    locale: frLocale
+                }),
+                remainingDays: differenceInDays(parseISO(campaign.campaign_end_date), dateNow),
+                daysBeforeStart: differenceInDays(parseISO(campaign.campaign_start_date), dateNow),
+                };
+
+            let campaignId = campaign.campaign_id;
+            let cachedCampaignId = getCampaignId(campaignId);
+
+            if (!cachedCampaignId) {
+                let cachedReportIds = getReportIds(campaignId);
+
+                if (!cachedReportIds) {
+                    const reportId = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId);
+                    if (!reportId) {
+                        logger.error(`Erreur: reportId non attribué pour la campagne ID: ${campaignId}`);
+                        continue;
+                    }
+
+                    let reportIdVU = "";
+                    if ((campaignDates.duration <= 31) && (campaignDates.daysBeforeStart >= -40) && (campaignDates.daysBeforeStart < 0)) {
+                        reportIdVU = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId, true);
+                        if (!reportIdVU) {
+                            logger.error(`Erreur: reportIdVU non attribué pour la campagne ID: ${campaignId}`);
+                            continue;
+                        }
+                    }
+
+                    setReportIdsWithExpiry(campaignId, reportId, reportIdVU);
+                    cachedReportIds = { reportId, reportIdVU };
+                }
+
+                let cachedInstanceIds = getInstanceIds(campaignId);
+                if (!cachedInstanceIds) {
+                    const instanceIdData = await ReportService.fetchReportDetails(cachedReportIds.reportId);
+                    const instanceIdVUData = cachedReportIds.reportIdVU ? await ReportService.fetchReportDetails(cachedReportIds.reportIdVU) : null;
+
+                    const instanceId = await ReportService.fetchCsvData(instanceIdData);
+                    let instanceIdVU = instanceIdVUData ? await ReportService.fetchCsvData(instanceIdVUData) : null;
+
+                    setInstanceIdsWithExpiry(campaignId, instanceId, instanceIdVU);
+                    cachedInstanceIds = { campaignId, instanceId, instanceIdVU };
+                }
+
+                const result = await ReportBuildJson(campaignId, cachedInstanceIds.instanceId, cachedInstanceIds.instanceIdVU);
+                logger.info(`Affiche le résultat du rapport json de la campagne ${campaignId}`);
+                return res.json(result);
+            }
+        }
+    } catch (error) {
+        logger.error(`Erreur lors de l'automatisation du reporting : ${error.message}`);
+        return Utilities.handleCampaignNotFound(res, 500, "Erreur lors de la récupération des données", 'json');
     }
 };

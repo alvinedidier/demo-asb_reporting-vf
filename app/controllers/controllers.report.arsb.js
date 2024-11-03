@@ -102,9 +102,20 @@ exports.generate = async (req, res) => {
     // Récupére l'ID de la campagne
     let campaignId = campaign.campaign_id;
 
+     // Suppression du cache
+     let mode = req.query.mode;
+     if (mode && (mode === 'delete')) {
+         // si le local storage expire; on supprime les precedents cache et les taskid                           
+         localStorage.removeItem('campaignID-' + campaignId+'.json');
+         logger.error(`Suppression du cache de la campagne : ${campaignId}`);
+         // Redirection vers le bilan
+         return res.redirect(`/r/${campaigncrypt}`);
+     }
+ 
     // Gestion des dates avec date-fns
     const dateNow = new Date();
     const campaignDates = {
+      now: dateNow,
       start: parseISO(campaign.campaign_start_date),
       end: parseISO(campaign.campaign_end_date),
       duration: differenceInDays(parseISO(campaign.campaign_end_date), parseISO(campaign.campaign_start_date)),
@@ -119,7 +130,7 @@ exports.generate = async (req, res) => {
     };
 
     // Conditions basées sur la durée de diffusion
-    if ((campaignDates.duration <= 31) && ((campaignDates.remainingDays <= 40) && (campaignDates.remainingDays > 0))) {
+    if ((campaignDates.duration <= 31) && (campaignDates.daysBeforeStart >= -40) && (campaignDates.daysBeforeStart < 0)) {
       logger.info(`La campagne ${campaignId} est courte, récupération des Visiteurs Uniques (VU).`);
       // Logique pour lancer l'instance de récupération des VU
     } else {
@@ -143,9 +154,21 @@ exports.generate = async (req, res) => {
 
     // Récupére le cache de campaignID    
     let reportingData = getCampaignId(campaignId);
-   
+
     if (reportingData) {
       logger.info(`Affichage des données en cache pour la campagne ${campaignId}`);
+
+      const advertiser_name = reportingData.advertiser_name;
+      
+      // Vérifier si advertiser_name commence par "ADWEB"
+      if (advertiser_name.startsWith("ADWEB")) {
+        // Afficher le template pour "ADWEB"
+        return res.render('report.arsb/reporting.adweb.ejs', {
+          campaignDates: campaignDates,
+          campaign: campaign,
+          reporting: reportingData
+        });
+      } 
 
       return res.render('report.arsb/reporting.ejs', {
         campaignDates: campaignDates,
@@ -213,6 +236,7 @@ exports.report = async (req, res) => {
     const campaignEndDate = parseISO(campaign.campaign_end_date);
 
     const campaignDates = {
+      now: dateNow,
       start: campaignStartDate,
       end: campaignEndDate,
       request_start_date: format(campaignStartDate, "yyyy-MM-dd'T'HH:mm:ss"),
@@ -230,7 +254,7 @@ exports.report = async (req, res) => {
 
     // Récupére le cache de campaignID
     let cachedCampaignId = getCampaignId(campaignId);
-   
+
     if (!cachedCampaignId) {
       // D'abord, vérifiez dans le cache si les instanceId existent déjà
       // Vérifier d'abord si les instanceId existent déjà dans le cache
@@ -251,9 +275,9 @@ exports.report = async (req, res) => {
 
         // Initialiser reportIdVU (Vide si non applicable)
         let reportIdVU = "";
-        console.log(campaignDates)
+
         // Si la campagne dure 31 jours ou moins, récupérer également le reportId VU
-        if ((campaignDates.duration <= 31) && ((campaignDates.remainingDays <= 40) && (campaignDates.remainingDays > 0))) {
+        if ((campaignDates.duration <= 31) && (campaignDates.daysBeforeStart >= -40) && (campaignDates.daysBeforeStart < 0)) {
           reportIdVU = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId, true);
           logger.info(`ReportIDVU : ${reportIdVU}`);
 
@@ -317,6 +341,322 @@ exports.report = async (req, res) => {
     } else {
       logger.info(`Affiche le résultat du cache json de la campagne ${campaignId}`);
       return res.json(cachedCampaignId);
+    }
+
+  } catch (error) {
+    logger.error(`Erreur lors de la génération du rapport Report : ${error.message}`);
+    return Utilities.handleCampaignNotFound(res, 500, "Erreur lors de la génération du rapport", "json");
+  }
+}
+
+exports.download = async (req, res) => {
+  const campaigncrypt = req.params.campaigncrypt;
+
+  try {
+
+    // Validation de l'entrée
+    if (!campaigncrypt || typeof campaigncrypt !== 'string') {
+      logger.warn('Paramètre campaigncrypt invalide');
+      return Utilities.handleCampaignNotFound(res, 400, campaigncrypt);
+    }
+
+    // Récupération de la campagne
+    const campaign = await ModelCampaigns.findOne({
+      attributes: [
+        'campaign_id',
+        'campaign_name',
+        'campaign_crypt',
+        'advertiser_id',
+        'campaign_start_date',
+        'campaign_end_date',
+      ],
+      where: {
+        campaign_crypt: campaigncrypt
+      },
+      include: [{
+        model: ModelAdvertisers,
+        model: ModelInsertions
+      }]
+    });
+
+    if (!campaign) {
+      logger.error(`Erreur lors de la récupération de la campagne avec le crypt: ${campaigncrypt}`);
+      return Utilities.handleCampaignNotFound(res, 404, campaigncrypt);
+    }
+
+    const campaignId = campaign.campaign_id;
+    // return res.json(campaignId);
+
+    // Récupére le cache de campaignID    
+    let reportingData = getCampaignId(campaignId);
+
+    if (reportingData) {
+
+      // Gestion des dates avec date-fns
+      let dateDownload = format(reportingData.reporting_dates.reporting_start_date, 'yyyyMMddHHmm', {
+        locale: frLocale
+      });
+      let campaignNameExcel = reportingData.campaign_name.replace(' ', '-');
+
+      // Définir les styles pour les feuilles
+      let styles = {
+        header: {
+          font: {
+            color: {
+              rgb: 'FFFFFF'
+            },
+            sz: 13,
+            bold: false,
+            underline: false
+          },
+          fill: {
+            fgColor: {
+              rgb: '1d2b66'
+            }
+          },
+        },
+        cell: {
+          font: {
+            color: {
+              rgb: '000000'
+            },
+            sz: 12
+          }
+        }
+      };
+
+      // Structure de la campagne générale
+      const campaignSpec = {
+        field: 'Campagne',
+        advertiser_name: {
+          displayName: 'Annonceur',
+          headerStyle: styles.header,
+          width: 300
+        },
+        campaign_name: {
+          displayName: 'Nom de la campagne',
+          headerStyle: styles.header,
+          width: 300
+        },
+        campaign_start_date_formatted: {
+          displayName: 'Date de début',
+          headerStyle: styles.header,
+          width: 150
+        },
+        campaign_end_date_formatted: {
+          displayName: 'Date de fin',
+          headerStyle: styles.header,
+          width: 150
+        },
+      };
+
+      const campaignSpecData = [{
+        advertiser_name: reportingData.advertiser_name,
+        campaign_name: reportingData.campaign_name,
+        campaign_start_date_formatted: reportingData.campaign_start_date_formatted,
+        campaign_end_date_formatted: reportingData.campaign_end_date_formatted,
+      }];
+
+      // Structure de "globalMetrics"
+      const globalMetricsSpec = {
+        totalImpressions: {
+          displayName: 'Impressions',
+          headerStyle: styles.header,
+          width: 150
+        },
+        totalClics: {
+          displayName: 'Clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        ctrGlobal: {
+          displayName: 'CTR Global',
+          headerStyle: styles.header,
+          width: 150
+        },
+        completionRateGlobal: {
+          displayName: 'Taux de complétion',
+          headerStyle: styles.header,
+          width: 150
+        },
+        uniqueVisitors: {
+          displayName: 'Visiteurs uniques',
+          headerStyle: styles.header,
+          width: 150
+        },
+        repetition: {
+          displayName: 'Répétition',
+          headerStyle: styles.header,
+          width: 150
+        },
+      };
+
+      const globalMetricsData = [{
+        totalImpressions: reportingData.globalMetrics.totalImpressions,
+        totalClics: reportingData.globalMetrics.totalClics,
+        ctrGlobal: reportingData.globalMetrics.ctrGlobal.replace('.', ',') + '%',
+        completionRateGlobal: reportingData.globalMetrics.completionRateGlobal.replace('.', ',') + '%',
+        uniqueVisitors: reportingData.globalMetrics.uniqueVisitors,
+        repetition: reportingData.globalMetrics.repetition.replace('.', ',')
+      }];
+
+      // Structure de "bySite" (Sites de diffusion de la campagne)
+      const bySiteSpec = {
+        site: {
+          displayName: 'Nom du site',
+          headerStyle: styles.header,
+          width: 150
+        },
+        impressions: {
+          displayName: 'Impressions',
+          headerStyle: styles.header,
+          width: 150
+        },
+        clics: {
+          displayName: 'Clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        ctr: {
+          displayName: 'Taux de clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        vtr: {
+          displayName: 'Taux de complétion',
+          headerStyle: styles.header,
+          width: 150
+        },
+      };
+
+      const bySiteData = Object.entries(reportingData.metrics.bySite).map(([siteName, values]) => ({
+        site: siteName, // Nom du site
+        impressions: values.impressions, // Formate les impressions en ajoutant un séparateur de milliers
+        clics: values.clics, // Formate les clics avec un séparateur de milliers
+        ctr: values.ctr.replace('.', ',') + '%', // Remplace le point décimal par une virgule
+        vtr: values.vtr.replace('.', ',') + '%' // Remplace le point décimal par une virgule
+      }));
+
+      // Structure de "byFormat" (Formats de campagne)
+      const byFormatSpec = {
+        format: {
+          displayName: 'Format',
+          headerStyle: styles.header,
+          width: 150
+        },
+        impressions: {
+          displayName: 'Impressions',
+          headerStyle: styles.header,
+          width: 150
+        },
+        clics: {
+          displayName: 'Clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        ctr: {
+          displayName: 'Taux de clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        vtr: {
+          displayName: 'Taux de complétion',
+          headerStyle: styles.header,
+          width: 150
+        },
+      };
+
+      const byFormatData = Object.entries(reportingData.metrics.byFormat).map(([formatName, values]) => ({
+        format: formatName, // Nom du site
+        impressions: values.impressions, // Formate les impressions en ajoutant un séparateur de milliers
+        clics: values.clics, // Formate les clics avec un séparateur de milliers
+        ctr: values.ctr.replace('.', ',') + '%', // Remplace le point décimal par une virgule
+        vtr: values.vtr.replace('.', ',') + '%' // Remplace le point décimal par une virgule
+      }));
+
+      // Structure de "byFormatAndSiteSpec" (Formats et par sites de campagne)
+      const byFormatAndSiteSpec = {
+        format: { displayName: 'Format', headerStyle: styles.header, width: 150 },
+        site: { displayName: 'Nom du site', headerStyle: styles.header, width: 150 },
+        impressions: { displayName: 'Impressions', headerStyle: styles.header, width: 150 },
+        clics: { displayName: 'Clics', headerStyle: styles.header, width: 150 },
+        ctr: { displayName: 'Taux de clics', headerStyle: styles.header, width: 150 },
+        vtr: { displayName: 'Taux de complétion', headerStyle: styles.header, width: 150 }
+      };
+
+      const byFormatAndSiteData = Object.entries(reportingData.metrics.byFormatAndSite).flatMap(([formatName, sites]) => 
+        Object.entries(sites).map(([siteName, values]) => ({
+          format: formatName,
+          site: siteName,
+          impressions: values.impressions,
+          clics: values.clics,
+          ctr: values.ctr.replace('.', ',') + '%',
+          vtr: values.vtr.replace('.', ',') + '%'
+        }))
+      );
+
+      // Structure de "byCreatives" (Creatives de campagne)
+      const byCreativesSpec = {
+        creative: {
+          displayName: 'Créative',
+          headerStyle: styles.header,
+          width: 150
+        },
+        impressions: {
+          displayName: 'Impressions',
+          headerStyle: styles.header,
+          width: 150
+        },
+        clics: {
+          displayName: 'Clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        ctr: {
+          displayName: 'Taux de clics',
+          headerStyle: styles.header,
+          width: 150
+        }
+      };
+
+      const byCreativesData = Object.entries(reportingData.metrics.byCreatives).map(([creativeName, values]) => ({
+        creative: creativeName, // Nom de la créative
+        impressions: values.impressions, // Formate les impressions en ajoutant un séparateur de milliers
+        clics: values.clics, // Formate les clics avec un séparateur de milliers
+        ctr: values.ctr.replace('.', ',') + '%', // Remplace le point décimal par une virgule
+      }));
+
+      // Construire l'export avec des feuilles pour chaque section
+      const report = excel.buildExport([{
+          name: 'Campagne',
+          specification: campaignSpec,
+          data: campaignSpecData
+        },
+        {
+          name: 'Données Globales',
+          specification: globalMetricsSpec,
+          data: globalMetricsData
+        },
+        {
+          name: 'Formats',
+          specification: byFormatSpec,
+          data: byFormatData
+        },
+        {
+          name: 'Créatives',
+          specification: byCreativesSpec,
+          data: byCreativesData
+        },
+        { name: 'Par formats et sites', specification: byFormatAndSiteSpec, data: byFormatAndSiteData }
+     
+      ]);
+
+       // rapport_antennesb-202105031152-ESPACE_DECO-67590.xls
+      res.attachment(`${dateDownload}-rapport_asb-${campaignNameExcel}.xlsx`);
+      return res.send(report);
+    } else {
+      logger.error(`Campagne non trouvé : ${campaignId}`);
+      return Utilities.handleCampaignNotFound(res, 500, "Erreur lors de la récupération du rapport");
     }
 
   } catch (error) {

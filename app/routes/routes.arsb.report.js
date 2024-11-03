@@ -115,6 +115,7 @@ router.get('/verify/:campaignid', validateCampaignId, async (req, res) => {
 
 router.get("/:campaigncrypt", validateCampaignCrypt, report.generate);
 router.post("/:campaigncrypt/report", validateCampaignCrypt, report.report);
+router.get("/:campaigncrypt/download", validateCampaignCrypt, report.download);
 
 /*
 //router.get("/report/:campaigncrypt", validateCampaignCrypt, report.report);

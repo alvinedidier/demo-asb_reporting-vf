@@ -3,18 +3,21 @@ const Sequelize = require('sequelize');
 
 const manager = require("../controllers/controllers.manager");
 const manager_campaigns = require("../controllers/controllers.manager_campaigns");
-const manager_epilot = require("../controllers/controllers.manager_epilot");
-const manager_gam = require("../controllers/controllers.manager_gam");
+//const manager_epilot = require("../controllers/controllers.manager_epilot");
+//const manager_gam = require("../controllers/controllers.manager_gam");
 
-const manager_insertions = require("../controllers/controllers.manager_insertions");
 const manager_agencies = require("../controllers/controllers.manager_agencies");
 const manager_advertisers = require("../controllers/controllers.manager_advertisers");
-const manager_formats = require("../controllers/controllers.manager_formats");
+
 const manager_sites = require("../controllers/controllers.manager_sites");
 const manager_users = require("../controllers/controllers.manager_users");
 const manager_forecast = require("../controllers/controllers.manager_forecast");
+/*
+const manager_insertions = require("../controllers/controllers.manager_insertions");
+const manager_formats = require("../controllers/controllers.manager_formats");
 const manager_search = require("../controllers/controllers.manager_search");
 const manager_charts = require("../controllers/controllers.manager_charts");
+*/
 const manager_campaigns_tv = require("../controllers/controllers.manager_campaigns_tv")
 
 /**
@@ -98,14 +101,13 @@ router.get('/campaigns/repartitions', manager_campaigns.repartitions);
 router.get("/campaigns/:id", manager_campaigns.view);
 router.get("/campaigns/:campaign/email/:user", manager_campaigns.email);
 
-
 router.get('/campaigns/tv/list', manager_campaigns_tv.list);
 router.get('/campaigns/tv/edit/:campaigntv', manager_campaigns_tv.edit);
 router.post('/campaigns/tv/edit/:campaigntv', manager_campaigns_tv.update);
 router.get('/campaigns/tv/export', manager_campaigns_tv.export);
 router.get('/campaigns/tv/:campaigntv', manager_campaigns_tv.view);
 
-
+/*
 router.get('/campaigns/epilot/list', manager_epilot.list);
 router.get('/campaigns/epilot/export', manager_epilot.export);
 
@@ -127,12 +129,11 @@ router.get("/insertions", manager_insertions.index);
 router.get("/insertions/list", manager_insertions.list);
 router.get("/insertions/create", manager_insertions.create);
 router.post("/insertions/create_post", manager_insertions.create_post);
-/*
+
 router.get("/insertions/create/", manager_insertions.create);
 router.post("/insertions/create", manager_insertions.create_post);
 
 router.get("/insertions/:id", manager_insertions.view);
-*/
 
 router.get("/creatives/create/:id", manager_insertions.create_creative);
 router.post("/creatives/create", manager_insertions.create_creative_post);
@@ -146,7 +147,6 @@ router.get("/charts/advertisers/", manager_charts.advertisers);
 router.get("/charts/advertisers/:advertiser_id", manager_charts.advertisers);
 router.get("/charts/campaign/report", manager_charts.campaignReport);
 
-/*
 router.post('/campaigns/epilot/create', checkSchema(ValidateCustom.campaignEpilotSchema), (req, res) => {
     // Validate incoming input
     const errors = validationResult(req);

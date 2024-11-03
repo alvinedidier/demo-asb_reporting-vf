@@ -402,7 +402,7 @@ Sequelize = db.Sequelize;
 app.use((req, res, next) => {
     res.setHeader("Content-Security-Policy", 
         "default-src 'self'; " +
-        "script-src 'self' https://www.googletagmanager.com https://ajax.googleapis.com 'unsafe-inline'; " +
+        "script-src 'self' https://www.googletagmanager.com https://ajax.googleapis.com https://cdn.jsdelivr.net/ 'unsafe-inline'; " +
         "style-src 'self' https://stackpath.bootstrapcdn.com https://cdnjs.cloudflare.com https://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net 'unsafe-inline'; " +
         "img-src 'self' https://antennesb.fr https://pa1.narvii.com;"
     );

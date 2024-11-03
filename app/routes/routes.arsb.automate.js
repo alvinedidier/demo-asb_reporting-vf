@@ -23,6 +23,8 @@ router.get("/campaigns", automate.campaigns);
 router.get("/campaign/:campaignid",validateCampaignId, automate.campaign);
 router.get("/advertiser/:advertiserid",validateAdvertisterId, automate.advertiser);
 
+router.post("/reporting", automate.reporting);
+
 // Endpoint pour générer le rapport et envoyer la progression
 
 /*
