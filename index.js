@@ -399,6 +399,16 @@ Sequelize = db.Sequelize;
 // Déclare le nom de domaine et le port du site const hostname = '127.0.0.1';
 // const port = '3000';
 
+app.use((req, res, next) => {
+    res.setHeader("Content-Security-Policy", 
+        "default-src 'self'; " +
+        "script-src 'self' https://www.googletagmanager.com https://ajax.googleapis.com 'unsafe-inline'; " +
+        "style-src 'self' https://stackpath.bootstrapcdn.com https://cdnjs.cloudflare.com https://maxcdn.bootstrapcdn.com https://cdn.jsdelivr.net 'unsafe-inline'; " +
+        "img-src 'self' https://antennesb.fr https://pa1.narvii.com;"
+    );
+    next();
+});
+
 /** view engine setup*/
 app.use(cors());
 app.use(bodyParser.json());

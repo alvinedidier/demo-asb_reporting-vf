@@ -1,16 +1,29 @@
 const { validateParam } = require('../utils/validationRoute');
 const router = require("express").Router();
 const Sequelize = require('sequelize');
+const ReportService = require('../services/reportWorkflowService'); // Supposons que vous avez un service de workflow
 
 const automate = require("../controllers/controllers.arsb.automate");
 
+const {
+    getReportIds,
+    setReportIdsWithExpiry,
+    getInstanceIds,
+    setInstanceIdsWithExpiry,
+    getCampaignId,
+    setCampaignIdWithExpiry
+  } = require('../utils/localStorageHelper'); // Import des fonctions de gestion du cache
+  
 // Utilisation de la fonction utilitaire pour valider les paramètres
 const validateCampaignCrypt = validateParam('campaigncrypt', 'string');
 const validateCampaignId = validateParam('campaignid', 'int');
 const validateAdvertisterId = validateParam('advertiserid', 'int');
 
+router.get("/campaigns", automate.campaigns);
 router.get("/campaign/:campaignid",validateCampaignId, automate.campaign);
 router.get("/advertiser/:advertiserid",validateAdvertisterId, automate.advertiser);
+
+// Endpoint pour générer le rapport et envoyer la progression
 
 /*
 router.get("/agencies", automate.agencies);
@@ -18,8 +31,6 @@ router.get("/advertisers", automate.advertisers);
 
 router.get("/advertisers/campaigns", automate.advertisersCampaigns);
 router.get("/advertiser", automate.advertiser);
-
-router.get("/campaigns", automate.campaigns);
 
 router.get("/campaign/report", automate.campaignReport);
 

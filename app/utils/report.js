@@ -38,7 +38,7 @@
   
   // Récupérer les deux reportId depuis le cache et vérifier l'expiration
   function getReportIds(campaignId) {
-    const storedData = localStorage.getItem(`reportIds-${campaignId}`);
+    const storedData = localStorage.getItem(`reportIds-${campaignId}.json`);
   
     if (!storedData) {
       return null; // Pas de données en cache
@@ -49,7 +49,7 @@
   
     // Si le cache est expiré
     if (now > expiryTime) {
-      localStorage.removeItem(`reportIds-${campaignId}`); // Supprimer le cache expiré
+      localStorage.removeItem(`reportIds-${campaignId}.json`); // Supprimer le cache expiré
       return null;
     }
   

@@ -133,11 +133,12 @@ exports.campaign = async (req, res) => {
             campaign_id: campaignid
         });
         const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
+
         if (dataInsertions) {
-            dataInsertions.forEach(async (insertion) => {
+            for (const insertion of dataInsertions) {
                 const insertionData = mapApiFieldsToDb(insertion, insertionFieldMapping);
                 await upsertEntity(ModelInsertions, insertionData, 'insertion_id');
-            });
+            }
         }
 
         // Envoyer les données en réponse
@@ -146,6 +147,94 @@ exports.campaign = async (req, res) => {
             campaign: campaignData,
             campaignData: dataCampaign,
             campaignInsertionsData: dataInsertions,
+        });
+
+    } catch (error) {
+        logger.error(`Erreur lors de la récupération des données : ${error.message}`);
+        return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données : ${error.message}`, 'json');
+    }
+};
+
+exports.campaigns = async (req, res) => {
+    try {
+       
+        logger.info(`Récupération des données pour les campagnes`);
+
+        // Construire l'URL de l'API pour récupérer toutes les campagnes
+        const apiUrl = apiBuilder.buildApiUrl('campaigns', {
+            campaignStatusId: '3'
+        });
+        if (!apiUrl) {
+            throw new Error('URL de l\'API introuvable.');
+        }
+
+        // Utilisation de la fonction utilitaire pour faire la requête GET avec retry
+        const dataCampaigns = await makeApiRequest('GET', apiUrl);
+
+        // Vérification si les données existent
+        if (!dataCampaigns) {
+            throw new Error('Données de campagne non trouvées');
+        }
+
+        // Boucle sur toutes les campagnes pour gérer chaque campagne
+        for (const dataCampaign of dataCampaigns) {
+            try {
+                // **Vérification du champ agencyId**
+                if (dataCampaign.agencyId && dataCampaign.agencyId !== 0) {
+                    // Gestion de l'agence
+                    const apiUrlAgency = apiBuilder.buildApiUrl('agency', {
+                        agency_id: dataCampaign.agencyId
+                    });
+                    const dataAgency = await makeApiRequest('GET', apiUrlAgency);
+
+                    // Mapper les données de l'agence
+                    const agencyData = mapApiFieldsToDb(dataAgency, agencyFieldMapping);
+                    await upsertEntity(ModelAgencies, agencyData, 'agency_id');
+                } else {
+                    logger.info(`Aucune agence associée ou agencyId invalide pour la campagne : ${dataCampaign.id}`);
+                }
+
+                // Gestion de l'annonceur
+                const apiUrlAdvertiser = apiBuilder.buildApiUrl('advertiser', {
+                    advertiser_id: dataCampaign.advertiserId
+                });
+                const dataAdvertiser = await makeApiRequest('GET', apiUrlAdvertiser);
+                // Mapper les données de campagne et d'insertion
+                const advertiserData = mapApiFieldsToDb(dataAdvertiser, advertiserFieldMapping);
+                await upsertEntity(ModelAdvertisers, advertiserData, 'advertiser_id');
+
+                // Génération d’un identifiant unique pour chaque campagne
+                const campaign_crypt = crypto.createHash('md5').update(dataCampaign.id.toString()).digest("hex");
+
+                // Mapper les données de campagne et d'insertion
+                const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
+                campaignData.campaign_crypt = campaign_crypt; // Généré manuellement
+                await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
+
+                // Gestion des insertions associées à la campagne
+                const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
+                    campaign_id: dataCampaign.id
+                });
+                const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
+
+                if (dataInsertions) {
+                    for (const insertion of dataInsertions) {
+                        const insertionData = mapApiFieldsToDb(insertion, insertionFieldMapping);
+                        await upsertEntity(ModelInsertions, insertionData, 'insertion_id');
+                    }
+                }
+
+                logger.info(`Campagne ${dataCampaign.id} récupérée et sauvegardée avec succès`);
+
+            } catch (innerError) {
+                // Gérer les erreurs spécifiques à une campagne particulière sans interrompre tout le processus
+                logger.error(`Erreur lors de la récupération des données pour la campagne ${dataCampaign.id} : ${innerError.message}`);
+            }
+        }
+
+        // Envoyer les données en réponse
+        return res.status(200).json({
+            message: 'Toutes les campagnes ont été récupérées et sauvegardées avec succès'
         });
 
     } catch (error) {

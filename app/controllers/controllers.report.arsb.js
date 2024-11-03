@@ -21,8 +21,8 @@ const ReportService = require('../services/reportWorkflowService');
 const ModelAdvertisers = require('../models/models.advertisers');
 const ModelCampaigns = require('../models/models.campaigns');
 const ModelInsertions = require('../models/models.insertions');
-/*
 
+/*
 const ModelFormats = require('../models/models.formats');
 const ModelSites = require('../models/models.sites');
 */
@@ -98,9 +98,9 @@ exports.generate = async (req, res) => {
       logger.error(`Erreur lors de la récupération de la campagne avec le crypt: ${campaigncrypt}`);
       return Utilities.handleCampaignNotFound(res, 404, campaigncrypt);
     }
-    
+
     // Récupére l'ID de la campagne
-    let campaignId = campaign.campaign_id; 
+    let campaignId = campaign.campaign_id;
 
     // Gestion des dates avec date-fns
     const dateNow = new Date();
@@ -119,11 +119,11 @@ exports.generate = async (req, res) => {
     };
 
     // Conditions basées sur la durée de diffusion
-    if (campaignDates.duration <= 31) {
+    if ((campaignDates.duration <= 31) && ((campaignDates.remainingDays <= 40) && (campaignDates.remainingDays > 0))) {
       logger.info(`La campagne ${campaignId} est courte, récupération des Visiteurs Uniques (VU).`);
       // Logique pour lancer l'instance de récupération des VU
     } else {
-      logger.info(`La campagne ${campaignId} dépasse 31 jours, pas de récupération des VU.`);
+      logger.info(`La campagne ${campaignId} dépasse 31 jours et il y a plus de 40 jours du début, pas de récupération des VU.`);
     }
 
     if (campaignDates.remainingDays > 365) {
@@ -141,81 +141,27 @@ exports.generate = async (req, res) => {
       logger.info(`La campagne ${campaignId} est en attente, message d'attente affiché.`);
     }
 
-     // Récupére le cache de campaignID    
-     let reportingData = getCampaignId(campaignId);
-
-     if (reportingData) {
+    // Récupére le cache de campaignID    
+    let reportingData = getCampaignId(campaignId);
+   
+    if (reportingData) {
       logger.info(`Affichage des données en cache pour la campagne ${campaignId}`);
-      
+
       return res.render('report.arsb/reporting.ejs', {
-        campaignDates : campaignDates,
-        campaign : campaign,
+        campaignDates: campaignDates,
+        campaign: campaign,
         reporting: reportingData
       });
-      /*
-      // Obtenir les formats disponibles en fonction des données de reporting
-      const availableFormats = getAvailableFormats(reportingData);
-      
-      console.log('report/template.ejs'); process.exit(0);
-     
-      logger.info(`Affichage des données en cache pour la campagne: ${campaign.campaign_id}`);
-      return res.render('report/template.ejs', {
-        campaign,
-        campaignDates,
-        utilities: Utilities,
-        reporting: reportingData,
-        availableFormats: availableFormats
-      });
-      */
+
     } else {
-      logger.info(`Génération du rapport pour la campagne: ${campaign.campaign_id}`);     
-      /*
-      console.log('report/generate.ejs'); process.exit(0);
-      return res.render('report/generate.ejs', {
-        campaign,
-        campaignDates
-      });
-      */
-    }
-
- /*
-    // Gestion du cache
-    // const reportingData = Utilities.getReportingDataFromCache(cacheStorageID);
-    // Récupére le cache de campaignID
-    let cachedCampaignId = getCampaignId(campaign.campaign_id);
-    console.log(cachedCampaignId);
-    // console.log(cachedCampaignId.metrics.byFormat);
-
-    process.exit(0);
-
-    const cacheStorageID = `campaignID-${campaign.campaign_id}`;
-    const reportingData = Utilities.getReportingDataFromCache(cacheStorageID);
- 
-    if (reportingData) {
-
-      // Obtenir les formats disponibles en fonction des données de reporting
-      const availableFormats = getAvailableFormats(reportingData);
-      
-      console.log('report/template.ejs'); process.exit(0);
-     
-      logger.info(`Affichage des données en cache pour la campagne: ${campaign.campaign_id}`);
-      return res.render('report/template.ejs', {
-        campaign,
-        campaignDates,
-        utilities: Utilities,
-        reporting: reportingData,
-        availableFormats: availableFormats
-      });
-    } else {
-
       logger.info(`Génération du rapport pour la campagne: ${campaign.campaign_id}`);
-      console.log('report/generate.ejs'); process.exit(0);
-      return res.render('report/generate.ejs', {
+      return res.render('report.arsb/generate.ejs', {
         campaign,
         campaignDates
       });
+
     }
-    */
+
   } catch (error) {
     logger.error(`Erreur lors de la génération du rapport Generate : ${error.message}`);
     return Utilities.handleCampaignNotFound(res, 500, campaigncrypt);
@@ -284,7 +230,7 @@ exports.report = async (req, res) => {
 
     // Récupére le cache de campaignID
     let cachedCampaignId = getCampaignId(campaignId);
-
+   
     if (!cachedCampaignId) {
       // D'abord, vérifiez dans le cache si les instanceId existent déjà
       // Vérifier d'abord si les instanceId existent déjà dans le cache
@@ -305,9 +251,9 @@ exports.report = async (req, res) => {
 
         // Initialiser reportIdVU (Vide si non applicable)
         let reportIdVU = "";
-
+        console.log(campaignDates)
         // Si la campagne dure 31 jours ou moins, récupérer également le reportId VU
-        if (campaignDates.duration <= 31) {
+        if ((campaignDates.duration <= 31) && ((campaignDates.remainingDays <= 40) && (campaignDates.remainingDays > 0))) {
           reportIdVU = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId, true);
           logger.info(`ReportIDVU : ${reportIdVU}`);
 

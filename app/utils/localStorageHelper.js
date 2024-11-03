@@ -27,12 +27,12 @@ function setReportIdsWithExpiry(campaignId, reportId, reportIdVU, ttl = 2 * 60 *
     expiryTime
   };
 
-  localStorageReportIds.setItem(`reportIds-${campaignId}`, JSON.stringify(data));
+  localStorageReportIds.setItem(`reportIds-${campaignId}.json`, JSON.stringify(data));
 }
 
 // Récupérer les deux reportId depuis le cache et vérifier l'expiration
 function getReportIds(campaignId) {
-  const storedData = localStorageReportIds.getItem(`reportIds-${campaignId}`);
+  const storedData = localStorageReportIds.getItem(`reportIds-${campaignId}.json`);
 
   if (!storedData) {
     return null; // Pas de données en cache
@@ -47,7 +47,7 @@ function getReportIds(campaignId) {
 
   // Si le cache est expiré
   if (now > expiryTime) {
-    localStorageReportIds.removeItem(`reportIds-${campaignId}`); // Supprimer le cache expiré
+    localStorageReportIds.removeItem(`reportIds-${campaignId}.json`); // Supprimer le cache expiré
     return null;
   }
 
@@ -68,12 +68,12 @@ function setInstanceIdsWithExpiry(campaignId, instanceId, instanceIdVU, ttl = 2 
     expiryTime
   };
 
-  localStorageInstanceIds.setItem(`instanceIds-${campaignId}`, JSON.stringify(data));
+  localStorageInstanceIds.setItem(`instanceIds-${campaignId}.json`, JSON.stringify(data));
 }
 
 // Récupérer les deux instanceId depuis le cache et vérifier l'expiration
 function getInstanceIds(campaignId) {
-  const storedData = localStorageInstanceIds.getItem(`instanceIds-${campaignId}`);
+  const storedData = localStorageInstanceIds.getItem(`instanceIds-${campaignId}.json`);
 
   if (!storedData) {
     return null; // Pas de données en cache
@@ -88,7 +88,7 @@ function getInstanceIds(campaignId) {
 
   // Si le cache est expiré
   if (now > expiryTime) {
-    localStorageInstanceIds.removeItem(`instanceIds-${campaignId}`); // Supprimer le cache expiré
+    localStorageInstanceIds.removeItem(`instanceIds-${campaignId}.json`); // Supprimer le cache expiré
     return null;
   }
 
@@ -109,12 +109,12 @@ function setCampaignIdWithExpiry(campaignId, reportData, ttl = 2 * 60 * 60 * 100
     expiryTime
   };
 
-  localStorage.setItem(`campaignID-${campaignId}`, JSON.stringify(data));
+  localStorage.setItem(`campaignID-${campaignId}.json`, JSON.stringify(data));
 }
 
 // Récupérer la campagne depuis le cache et vérifier l'expiration
 function getCampaignId(campaignId) {
-  const storedData = localStorage.getItem(`campaignID-${campaignId}`);
+  const storedData = localStorage.getItem(`campaignID-${campaignId}.json`);
 
   if (!storedData) {
     return null; // Pas de données en cache
@@ -123,10 +123,21 @@ function getCampaignId(campaignId) {
   const { reportData, expiryTime } = JSON.parse(storedData);
   const now = Date.now();
 
-  // Vérifie si le cache a expiré et que la campagne est toujours en cours par rapport aux dates de reporting
-  // now > expiryTime && 
-  if (new Date(reportData.campaign_end_date) < new Date(reportData.reporting_dates.reporting_start_date)) {
-    localStorage.removeItem(`campaignID-${campaignId}`); // Supprime le cache expiré
+  // Récupération des dates nécessaires
+  const campaignEndDate = new Date(reportData.campaign_end_date);
+  const reportingStartDate = new Date(reportData.reporting_dates.reporting_start_date);
+
+  // Vérifier si la campagne est terminée et que le reporting est valide
+  if (now > campaignEndDate && reportingStartDate > campaignEndDate) {
+    // La campagne est terminée ET le reporting a été généré après la fin de la campagne
+    console.log('La campagne est terminée et le reporting est généré après la fin de la campagne, données conservées.');
+    return reportData;
+  }
+
+  // Vérifier si le cache a expiré
+  if (now > expiryTime) {
+    console.log('Cache expiré, suppression des données...');
+    localStorage.removeItem(`campaignID-${campaignId}.json`); // Supprimer le cache expiré
     return null;
   }
 
