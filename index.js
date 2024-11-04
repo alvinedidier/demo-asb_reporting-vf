@@ -11,7 +11,6 @@ const cookieSession = require('cookie-session')
 var fileUpload = require('express-fileupload');
 var runner = require("child_process");
 
-const rateLimit = require('express-rate-limit');
 const { validationResult } = require('express-validator');
 const morgan = require('morgan');
 const winston = require('winston');
@@ -44,15 +43,7 @@ const logger = winston.createLogger({
 // Sécurité avec helmet pour définir les headers HTTP sécurisés
 const helmet = require('helmet');
 app.use(helmet());
-/*
-// Limitation du nombre de requêtes pour éviter les attaques de type force brute
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limite chaque IP à 100 requêtes par fenêtre de 15 minutes
-  message: 'Trop de requêtes, veuillez réessayer plus tard.'
-});
-app.use(limiter);
-*/
+
 const db = require("./app/config/config.database");
 
 const epilot_campaigns = require('./app/models/models.epilot_campaigns');
