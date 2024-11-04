@@ -156,7 +156,7 @@ exports.signup_add = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
-  res.render('users/login.ejs');
+ res.render('users/login.ejs');
 }
 
 exports.login_add = async (req, res) => {
