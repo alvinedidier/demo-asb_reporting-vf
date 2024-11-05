@@ -156,8 +156,8 @@
                                 -
                             <% } %>
                         </td>
-                         <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> 
-                            <td class="text-right"><%= reporting.globalMetrics.completionRateGlobal.toLocaleString('fr-FR') %>%</td> 
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %> 
+                            <td class="text-right"><%= reporting.metrics.byFormat["INSTREAM"].toLocaleString('fr-FR') %>%</td> 
                         <% } %>
                     </tr>
                 </tbody>
