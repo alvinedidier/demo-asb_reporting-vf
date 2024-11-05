@@ -158,6 +158,8 @@ exports.campaign = async (req, res) => {
         // Mapper les données de campagne et d'insertion
         const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
         campaignData.campaign_crypt = campaign_crypt; // Généré manuellement
+        logger.info(`campaignData : ${campaignData}`);
+
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
 
         // Gestion des insertions associées à la campagne
@@ -165,13 +167,13 @@ exports.campaign = async (req, res) => {
             campaign_id: campaignid
         });
         const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
-
+/*
         if (dataInsertions) {
             for (const insertion of dataInsertions) {
                 const insertionData = mapApiFieldsToDb(insertion, insertionFieldMapping);
                 await upsertEntity(ModelInsertions, insertionData, 'insertion_id');
             }
-        }
+        }*/
 
         // Envoyer les données en réponse
         return res.status(200).json({
