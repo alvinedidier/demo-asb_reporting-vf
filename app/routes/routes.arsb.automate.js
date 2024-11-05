@@ -18,10 +18,12 @@ const {
 const validateCampaignCrypt = validateParam('campaigncrypt', 'string');
 const validateCampaignId = validateParam('campaignid', 'int');
 const validateAdvertisterId = validateParam('advertiserid', 'int');
+const validateAgencyId = validateParam('agencyid', 'int');
 
 router.get("/campaigns", automate.campaigns);
 router.get("/campaign/:campaignid",validateCampaignId, automate.campaign);
 router.get("/advertiser/:advertiserid",validateAdvertisterId, automate.advertiser);
+router.get("/agency/:agencyid",validateAgencyId, automate.agency);
 
 router.post("/reporting", automate.reporting);
 

@@ -10,6 +10,7 @@ const apiBaseUrls = {
 // Endpoints spécifiques à l'API "manage"
 const manageApiUrlMap = {
   agencies: `Agencies/`,
+  agency: (params) => `Agencies/${params?.agency_id}`,
   advertisers: `Advertisers`,
   advertiser: (params) => `Advertisers/${params?.advertiser_id}`,
   advertiserCampaigns: (params) => `Advertisers/${params?.advertiser_id}/Campaigns`,

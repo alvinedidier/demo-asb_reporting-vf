@@ -325,6 +325,43 @@ exports.advertiser = async (req, res) => {
     }
 };
 
+exports.agency = async (req, res) => {
+    const agencyid = req.params.agencyid;
+    try {
+        logger.info(`Récupération des données pour annonceur : ${agencyid}`);
+
+        const apiUrl = apiBuilder.buildApiUrl('agencies', {
+            agency_id: agencyid
+        });
+        if (!apiUrl) {
+            throw new Error('URL de l\'API introuvable.');
+        }
+
+        // Utilisation de la fonction utilitaire pour faire la requête GET avec retry
+        const data = await makeApiRequest('GET', apiUrl);
+
+        // Vérification si les données existent
+        if (!data || !data.id) {
+            throw new Error('Données agence non trouvées');
+        }
+
+        // Mapper les données de campagne et d'insertion
+        const agencyData = mapApiFieldsToDb(data, agencyFieldMapping);
+        await upsertEntity(ModelAgencies, agencyData, 'agency_id');
+
+        // Envoyer les données en réponse
+        return res.status(200).json({
+            message: 'Agence récupérée et sauvegardée avec succès',
+            agency: agencyData,
+            agencyData: data
+        });
+
+    } catch (error) {
+        logger.error(`Erreur lors de la récupération des données : ${error.message}`);
+        return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données`, 'json');
+    }
+};
+
 exports.reporting = async (req, res) => {
     try {
 
