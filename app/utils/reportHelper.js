@@ -105,12 +105,12 @@ const formats = [{
         title: 'BILLBOARD'
     },
  {
-        name: 'preroll',
-        title: 'INSTREAM'
+        name: 'instream',
+        title: 'PREROLL'
     },
     {
-        name: 'preroll / midroll',
-        title: 'INSTREAM'
+        name: 'instream',
+        title: 'PREROLL / MIDROLL'
     }
 ];
 
@@ -513,6 +513,7 @@ function regrouperParFormatEtSiteAvecMetrics(results) {
     return resultat;
 }
 
+/*
 // Fonction pour regrouper et calculer les métriques uniquement par format
 function regrouperParFormat(data) {
     const resultat = {};
@@ -554,6 +555,63 @@ function regrouperParFormat(data) {
             result.completions += videoComplete;
         } else {
             console.log('Format non trouvé pour insertion -- insertionName : ', row);
+            console.warn('Format non trouvé pour insertion:', insertionName);
+        }
+    });
+
+    // Calcul des CTR et VTR pour chaque format
+    for (const format in resultat) {
+        const result = resultat[format];
+        result.ctr = result.impressions > 0 ? (result.clics / result.impressions * 100).toFixed(2) : "0.00";
+        result.vtr = result.impressions > 0 ? (result.completions / result.impressions * 100).toFixed(2) : "0.00";
+    }
+
+    return resultat;
+}
+*/
+
+// Fonction pour regrouper et calculer les métriques uniquement par format
+function regrouperParFormat(data) {
+    const resultat = {};
+
+    data.slice(1).forEach(row => {
+        // Vérifier que les valeurs nécessaires existent
+        if (!row || !row._5 || !row._11 || !row._12 || !row._14) {
+            console.warn("Ligne invalide ou données manquantes:", row);
+            return;
+        }
+
+        // Extraire les valeurs
+        const insertionName = row._5 || '';
+        const impressions = parseInt(row._11, 10) || 0;
+        const clics = parseInt(row._12, 10) || 0;
+        const videoComplete = parseInt(row._14, 10) || 0;
+
+        // Trouver le format correspondant en fonction du libellé d'insertion
+        const formatTrouve = formats.find(format =>
+            insertionName.toUpperCase().includes(format.title)
+        );
+
+        if (formatTrouve) {
+            const formatTitle = formatTrouve.title; // Utiliser le titre du format
+
+            // Initialiser le format dans le résultat s'il n'existe pas encore
+            if (!resultat[formatTitle]) {
+                resultat[formatTitle] = {
+                    impressions: 0,
+                    clics: 0,
+                    completions: 0,
+                    ctr: 0,
+                    vtr: 0
+                };
+            }
+
+            // Ajouter les valeurs au format approprié
+            const result = resultat[formatTitle];
+            result.impressions += impressions;
+            result.clics += clics;
+            result.completions += videoComplete;
+        } else {
             console.warn('Format non trouvé pour insertion:', insertionName);
         }
     });
