@@ -457,143 +457,198 @@ exports.download = async (req, res) => {
         campaign_end_date_formatted: reportingData.campaign_end_date_formatted,
       }];
 
-      // Structure de "globalMetrics"
-      const globalMetricsSpec = {
-        totalImpressions: {
-          displayName: 'Impressions',
-          headerStyle: styles.header,
-          width: 150
-        },
-        totalClics: {
-          displayName: 'Clics',
-          headerStyle: styles.header,
-          width: 150
-        },
-        ctrGlobal: {
-          displayName: 'CTR Global',
-          headerStyle: styles.header,
-          width: 150
-        },
-        completionRateGlobal: {
-          displayName: 'Taux de complétion',
-          headerStyle: styles.header,
-          width: 150
-        },
-        uniqueVisitors: {
-          displayName: 'Visiteurs uniques',
-          headerStyle: styles.header,
-          width: 150
-        },
-        repetition: {
-          displayName: 'Répétition',
-          headerStyle: styles.header,
-          width: 150
-        },
-      };
+     // Structure de "globalMetricsSpec" sans "completionRateGlobal" par défaut
+const globalMetricsSpec = {
+  totalImpressions: {
+    displayName: 'Impressions',
+    headerStyle: styles.header,
+    width: 150
+  },
+  totalClics: {
+    displayName: 'Clics',
+    headerStyle: styles.header,
+    width: 150
+  },
+  ctrGlobal: {
+    displayName: 'CTR Global',
+    headerStyle: styles.header,
+    width: 150
+  },
+  uniqueVisitors: {
+    displayName: 'Visiteurs uniques',
+    headerStyle: styles.header,
+    width: 150
+  },
+  repetition: {
+    displayName: 'Répétition',
+    headerStyle: styles.header,
+    width: 150
+  }
+};
 
-      const globalMetricsData = [{
-        totalImpressions: reportingData.globalMetrics.totalImpressions,
-        totalClics: reportingData.globalMetrics.totalClics,
-        ctrGlobal: reportingData.globalMetrics.ctrGlobal.replace('.', ',') + '%',
-        completionRateGlobal: reportingData.globalMetrics.completionRateGlobal.replace('.', ',') + '%',
-        uniqueVisitors: reportingData.globalMetrics.uniqueVisitors,
-        repetition: reportingData.globalMetrics.repetition.replace('.', ',')
-      }];
+// Ajouter "completionRateGlobal" à "globalMetricsSpec" si "INSTREAM" est présent dans "reportingData.metrics.byFormat"
+if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+  globalMetricsSpec.completionRateGlobal = {
+    displayName: 'Taux de complétion',
+    headerStyle: styles.header,
+    width: 150
+  };
+}
 
-      // Structure de "bySite" (Sites de diffusion de la campagne)
-      const bySiteSpec = {
-        site: {
-          displayName: 'Nom du site',
-          headerStyle: styles.header,
-          width: 150
-        },
-        impressions: {
-          displayName: 'Impressions',
-          headerStyle: styles.header,
-          width: 150
-        },
-        clics: {
-          displayName: 'Clics',
-          headerStyle: styles.header,
-          width: 150
-        },
-        ctr: {
-          displayName: 'Taux de clics',
-          headerStyle: styles.header,
-          width: 150
-        },
-        vtr: {
-          displayName: 'Taux de complétion',
-          headerStyle: styles.header,
-          width: 150
-        },
-      };
+// Création de "globalMetricsData"
+const globalMetricsData = [{
+  totalImpressions: reportingData.globalMetrics.totalImpressions,
+  totalClics: reportingData.globalMetrics.totalClics,
+  ctrGlobal: reportingData.globalMetrics.ctrGlobal.replace('.', ',') + '%',
+  uniqueVisitors: reportingData.globalMetrics.uniqueVisitors,
+  repetition: reportingData.globalMetrics.repetition.replace('.', ',')
+}];
 
-      const bySiteData = Object.entries(reportingData.metrics.bySite).map(([siteName, values]) => ({
-        site: siteName, // Nom du site
-        impressions: values.impressions, // Formate les impressions en ajoutant un séparateur de milliers
-        clics: values.clics, // Formate les clics avec un séparateur de milliers
-        ctr: values.ctr.replace('.', ',') + '%', // Remplace le point décimal par une virgule
-        vtr: values.vtr.replace('.', ',') + '%' // Remplace le point décimal par une virgule
-      }));
+// Ajouter "completionRateGlobal" à "globalMetricsData" si "INSTREAM" est présent dans "reportingData.metrics.byFormat"
+if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+  globalMetricsData[0].completionRateGlobal = reportingData.globalMetrics.completionRateGlobal.replace('.', ',') + '%';
+}
 
-      // Structure de "byFormat" (Formats de campagne)
-      const byFormatSpec = {
-        format: {
-          displayName: 'Format',
-          headerStyle: styles.header,
-          width: 150
-        },
-        impressions: {
-          displayName: 'Impressions',
-          headerStyle: styles.header,
-          width: 150
-        },
-        clics: {
-          displayName: 'Clics',
-          headerStyle: styles.header,
-          width: 150
-        },
-        ctr: {
-          displayName: 'Taux de clics',
-          headerStyle: styles.header,
-          width: 150
-        },
-        vtr: {
-          displayName: 'Taux de complétion',
-          headerStyle: styles.header,
-          width: 150
-        },
-      };
+     // Structure de "bySiteSpec" sans "vtr" par défaut
+const bySiteSpec = {
+  site: {
+    displayName: 'Nom du site',
+    headerStyle: styles.header,
+    width: 150
+  },
+  impressions: {
+    displayName: 'Impressions',
+    headerStyle: styles.header,
+    width: 150
+  },
+  clics: {
+    displayName: 'Clics',
+    headerStyle: styles.header,
+    width: 150
+  },
+  ctr: {
+    displayName: 'Taux de clics',
+    headerStyle: styles.header,
+    width: 150
+  }
+};
 
-      const byFormatData = Object.entries(reportingData.metrics.byFormat).map(([formatName, values]) => ({
-        format: formatName, // Nom du site
-        impressions: values.impressions, // Formate les impressions en ajoutant un séparateur de milliers
-        clics: values.clics, // Formate les clics avec un séparateur de milliers
-        ctr: values.ctr.replace('.', ',') + '%', // Remplace le point décimal par une virgule
-        vtr: values.vtr.replace('.', ',') + '%' // Remplace le point décimal par une virgule
-      }));
+// Ajouter "vtr" à "bySiteSpec" si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
+if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+  bySiteSpec.vtr = {
+    displayName: 'Taux de complétion',
+    headerStyle: styles.header,
+    width: 150
+  };
+}
 
-      // Structure de "byFormatAndSiteSpec" (Formats et par sites de campagne)
-      const byFormatAndSiteSpec = {
-        format: { displayName: 'Format', headerStyle: styles.header, width: 150 },
-        site: { displayName: 'Nom du site', headerStyle: styles.header, width: 150 },
-        impressions: { displayName: 'Impressions', headerStyle: styles.header, width: 150 },
-        clics: { displayName: 'Clics', headerStyle: styles.header, width: 150 },
-        ctr: { displayName: 'Taux de clics', headerStyle: styles.header, width: 150 },
-        vtr: { displayName: 'Taux de complétion', headerStyle: styles.header, width: 150 }
-      };
+// Création de "bySiteData"
+const bySiteData = Object.entries(reportingData.metrics.bySite).map(([siteName, values]) => {
+  // Structure de base sans "vtr"
+  const siteData = {
+    site: siteName,
+    impressions: values.impressions,
+    clics: values.clics,
+    ctr: values.ctr.replace('.', ',') + '%'
+  };
 
-      const byFormatAndSiteData = Object.entries(reportingData.metrics.byFormatAndSite).flatMap(([formatName, sites]) => 
-        Object.entries(sites).map(([siteName, values]) => ({
-          format: formatName,
-          site: siteName,
-          impressions: values.impressions,
-          clics: values.clics,
-          ctr: values.ctr.replace('.', ',') + '%',
-          vtr: values.vtr.replace('.', ',') + '%'
-        }))
-      );
+  // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
+  if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
+    siteData.vtr = values.vtr.replace('.', ',') + '%';
+  }
+
+  return siteData;
+});
+
+    // Structure de "byFormatSpec" sans "vtr" par défaut
+const byFormatSpec = {
+  format: {
+    displayName: 'Format',
+    headerStyle: styles.header,
+    width: 150
+  },
+  impressions: {
+    displayName: 'Impressions',
+    headerStyle: styles.header,
+    width: 150
+  },
+  clics: {
+    displayName: 'Clics',
+    headerStyle: styles.header,
+    width: 150
+  },
+  ctr: {
+    displayName: 'Taux de clics',
+    headerStyle: styles.header,
+    width: 150
+  }
+};
+
+// Ajouter "vtr" à "byFormatSpec" si la métrique "INSTREAM" est présente dans les données
+if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+  byFormatSpec.vtr = {
+    displayName: 'Taux de complétion',
+    headerStyle: styles.header,
+    width: 150
+  };
+}
+
+// Création de "byFormatData"
+const byFormatData = Object.entries(reportingData.metrics.byFormat).map(([formatName, values]) => {
+  // Structure de base sans "vtr"
+  const formatData = {
+    format: formatName,
+    impressions: values.impressions,
+    clics: values.clics,
+    ctr: values.ctr.replace('.', ',') + '%'
+  };
+
+  // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
+  if (reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
+    formatData.vtr = values.vtr.replace('.', ',') + '%';
+  }
+
+  return formatData;
+});
+
+  // Structure de "byFormatAndSiteSpec" sans "vtr" par défaut
+const byFormatAndSiteSpec = {
+  format: { displayName: 'Format', headerStyle: styles.header, width: 150 },
+  site: { displayName: 'Nom du site', headerStyle: styles.header, width: 150 },
+  impressions: { displayName: 'Impressions', headerStyle: styles.header, width: 150 },
+  clics: { displayName: 'Clics', headerStyle: styles.header, width: 150 },
+  ctr: { displayName: 'Taux de clics', headerStyle: styles.header, width: 150 }
+};
+
+// Ajouter "vtr" à "byFormatAndSiteSpec" si la métrique "INSTREAM" est présente dans les données
+if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+  byFormatAndSiteSpec.vtr = {
+    displayName: 'Taux de complétion',
+    headerStyle: styles.header,
+    width: 150
+  };
+}
+
+// Création de "byFormatAndSiteData"
+const byFormatAndSiteData = Object.entries(reportingData.metrics.byFormatAndSite).flatMap(([formatName, sites]) => 
+  Object.entries(sites).map(([siteName, values]) => {
+    // Structure de base sans "vtr"
+    const formatAndSiteData = {
+      format: formatName,
+      site: siteName,
+      impressions: values.impressions,
+      clics: values.clics,
+      ctr: values.ctr.replace('.', ',') + '%'
+    };
+
+    // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
+    if (reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
+      formatAndSiteData.vtr = values.vtr.replace('.', ',') + '%';
+    }
+
+    return formatAndSiteData;
+  })
+);
 
       // Structure de "byCreatives" (Creatives de campagne)
       const byCreativesSpec = {
