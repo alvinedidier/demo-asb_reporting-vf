@@ -106,9 +106,12 @@ const formats = [{
     },
  {
         name: 'preroll',
-        title: 'PREROLL'
+        title: 'INSTREAM'
     },
-    
+    {
+        name: 'preroll / midroll',
+        title: 'INSTREAM'
+    }
 ];
 
 // Fonction pour créer un stream à partir d'une chaîne de caractères
