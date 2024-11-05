@@ -132,8 +132,8 @@
                         <th scope="col">Taux de clics</th>
                         <th scope="col">Visiteurs uniques</th>
                         <th scope="col">Répétition</th>
-                        <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> <th scope="col"
-                            class="text-right">Taux de complétion</th>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %> 
+                            <th scope="col" class="text-right">Taux de complétion</th>
                         <% } %>
                     </tr>
                 </thead>
@@ -185,7 +185,7 @@
                             <th scope="col" class="text-right">Impressions</th>
                             <th scope="col" class="text-right">Clics</th>
                             <th scope="col" class="text-right">Taux de clics</th>
-                            <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> 
+                            <% if(reporting.metrics.byFormat["INSTREAM"]) { %> 
                                 <th scope="col" class="text-right">Taux de complétion</th>
                             <% } %>
                         </tr>
