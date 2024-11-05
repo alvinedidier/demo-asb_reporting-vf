@@ -54,7 +54,8 @@ const {
   getInstanceIds,
   setInstanceIdsWithExpiry,
   getCampaignId,
-  setCampaignIdWithExpiry
+  setCampaignIdWithExpiry,
+  deleteAllCampaignData
 } = require('../utils/localStorageHelper'); // Import des fonctions de gestion du cache
 
 const {
@@ -102,16 +103,24 @@ exports.generate = async (req, res) => {
     // Récupére l'ID de la campagne
     let campaignId = campaign.campaign_id;
 
-     // Suppression du cache
-     let mode = req.query.mode;
-     if (mode && (mode === 'delete')) {
-         // si le local storage expire; on supprime les precedents cache et les taskid                           
-         localStorage.removeItem('campaignID-' + campaignId+'.json');
-         logger.error(`Suppression du cache de la campagne : ${campaignId}`);
-         // Redirection vers le bilan
-         return res.redirect(`/r/${campaigncrypt}`);
-     }
- 
+   // Suppression du cache
+let mode = req.query.mode;
+if (mode && (mode === 'delete')) {
+  // si le local storage expire; on supprime les precedents cache et les taskid   
+  
+  // Appeler la fonction deleteAllCampaignData pour supprimer toutes les données associées à la campagne
+  const deleteResult = deleteAllCampaignData(campaignId);
+
+  if (deleteResult) {
+    logger.info(`Suppression réussie du cache de la campagne : ${campaignId}`);
+  } else {
+    logger.error(`Échec de la suppression du cache de la campagne : ${campaignId}`);
+  }
+
+  // Redirection vers le bilan
+  return res.redirect(`/r/${campaigncrypt}`);
+}
+
     // Gestion des dates avec date-fns
     const dateNow = new Date();
     const campaignDates = {

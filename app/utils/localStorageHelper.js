@@ -145,11 +145,31 @@ function getCampaignId(campaignId) {
   return reportData;
 }
 
+function deleteAllCampaignData(campaignId) {
+  try {
+    // Supprimer les reportIds associés à la campagne
+    localStorageReportIds.removeItem(`reportIds-${campaignId}.json`);
+
+    // Supprimer les instanceIds associés à la campagne
+    localStorageInstanceIds.removeItem(`instanceIds-${campaignId}.json`);
+
+    // Supprimer les données de campagne associées au campaignId
+    localStorage.removeItem(`campaignID-${campaignId}.json`);
+
+    console.log(`Toutes les données associées à la campagne ${campaignId} ont été supprimées.`);
+    return true; // Retourner true pour indiquer que la suppression a réussi
+  } catch (error) {
+    console.error(`Erreur lors de la suppression des données de la campagne ${campaignId}:`, error);
+    return false; // Retourner false en cas d'erreur
+  }
+}
+
 module.exports = {
   setReportIdsWithExpiry,
   getReportIds,
   setInstanceIdsWithExpiry,
   getInstanceIds,
   setCampaignIdWithExpiry,
-  getCampaignId
+  getCampaignId,
+  deleteAllCampaignData
 };
