@@ -160,9 +160,10 @@ exports.campaign = async (req, res) => {
         const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
         campaignData.campaign_crypt = campaign_crypt; // Généré manuellement
         logger.info(`campaignData : ${JSON.stringify(campaignData)}`);
- console.log(dataCampaign); process.exit(0);
-      /*  await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
-        
+
+        await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
+        console.log(dataCampaign); process.exit(0);
+        /*
         // Gestion des insertions associées à la campagne
         const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
             campaign_id: campaignid
