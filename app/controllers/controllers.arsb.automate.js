@@ -128,7 +128,6 @@ exports.campaign = async (req, res) => {
             throw new Error('Données de campagne non trouvées');
         }
 
-        console.log(dataCampaign); process.exit(0);
 /*
         // **Vérification du champ agencyId**
         if (dataCampaign.agencyId && dataCampaign.agencyId !== 0) {
@@ -153,7 +152,7 @@ exports.campaign = async (req, res) => {
         // Mapper les données de campagne et d'insertion
         const advertiserData = mapApiFieldsToDb(dataAdvertiser, advertiserFieldMapping);
         await upsertEntity(ModelAdvertisers, advertiserData, 'advertiser_id');
-        
+        */
         // Génération d’un identifiant unique pour chaque campagne
         const campaign_crypt = crypto.createHash('md5').update(dataCampaign.id.toString()).digest("hex");
 
@@ -161,7 +160,7 @@ exports.campaign = async (req, res) => {
         const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
         campaignData.campaign_crypt = campaign_crypt; // Généré manuellement
         logger.info(`campaignData : ${JSON.stringify(campaignData)}`);
-
+ console.log(dataCampaign); process.exit(0);
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
         
         // Gestion des insertions associées à la campagne
