@@ -183,7 +183,7 @@ exports.campaign = async (req, res) => {
             campaignData: dataCampaign,
             campaignInsertionsData: dataInsertions,
         });
-*/
+
     } catch (error) {
         logger.error(`Erreur lors de la récupération des données : ${error.message}`);
         return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données : ${error.message}`, 'json');
