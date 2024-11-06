@@ -128,6 +128,8 @@ exports.campaign = async (req, res) => {
             throw new Error('Données de campagne non trouvées');
         }
 
+        console.log(dataCampaign); process.exit(0);
+/*
         // **Vérification du champ agencyId**
         if (dataCampaign.agencyId && dataCampaign.agencyId !== 0) {
             // Gestion de l'agence
@@ -182,7 +184,7 @@ exports.campaign = async (req, res) => {
             campaignData: dataCampaign,
             campaignInsertionsData: dataInsertions,
         });
-
+*/
     } catch (error) {
         logger.error(`Erreur lors de la récupération des données : ${error.message}`);
         return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données : ${error.message}`, 'json');
