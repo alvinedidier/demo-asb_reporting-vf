@@ -142,7 +142,7 @@ exports.campaign = async (req, res) => {
         } else {
             logger.info(`Aucune agence associée ou agencyId invalide pour la campagne : ${campaignid}`);
         }
-
+        /*
         // Gestion de l'annonceur
         const apiUrlAdvertiser = apiBuilder.buildApiUrl('advertiser', {
             advertiser_id: dataCampaign.advertiserId
@@ -151,23 +151,23 @@ exports.campaign = async (req, res) => {
         // Mapper les données de campagne et d'insertion
         const advertiserData = mapApiFieldsToDb(dataAdvertiser, advertiserFieldMapping);
         await upsertEntity(ModelAdvertisers, advertiserData, 'advertiser_id');
-
+        */
         // Génération d’un identifiant unique pour chaque campagne
         const campaign_crypt = crypto.createHash('md5').update(dataCampaign.id.toString()).digest("hex");
 
         // Mapper les données de campagne et d'insertion
         const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
         campaignData.campaign_crypt = campaign_crypt; // Généré manuellement
-        logger.info(`campaignData : ${campaignData}`);
+        logger.info(`campaignData : ${JSON.stringify(campaignData)}`);
 
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
-
+        /*
         // Gestion des insertions associées à la campagne
         const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
             campaign_id: campaignid
         });
         const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
-/*
+
         if (dataInsertions) {
             for (const insertion of dataInsertions) {
                 const insertionData = mapApiFieldsToDb(insertion, insertionFieldMapping);
