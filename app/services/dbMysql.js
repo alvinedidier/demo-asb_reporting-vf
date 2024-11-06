@@ -24,7 +24,7 @@ const upsertEntity = async (Model, entityData, uniqueKey) => {
     } catch (error) {
         logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité : ${error.message}`);
         logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité Model : ${Model}`);
-        logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité entityData : ${entityData}`);
+        logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité entityData : ${JSON.stringify(entityData)}`);
         logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité uniqueKey : ${uniqueKey}`);
         throw error;
     }
