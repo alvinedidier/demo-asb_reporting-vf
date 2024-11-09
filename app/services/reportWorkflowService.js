@@ -11,6 +11,35 @@ const dotenv = require("dotenv");
 const { CsvParserStream } = require('fast-csv');
 dotenv.config({path:"./config.env"})
 
+// Construction du corps de la requête API
+const createRequestNow = (startDate, endDate) => ({
+  startDate,
+  endDate,
+  metrics: [
+    { field: 'Impressions', outputName: 'Impressions', emptyValue: '0' },
+    { field: 'Clicks', outputName: 'Clics', emptyValue: '0' },
+    { field: 'ClickRate', outputName: 'ClickRate', emptyValue: '0' },
+    { field: 'VideoComplete', outputName: 'VideoComplete', emptyValue: '0' },
+  ],
+  dimensions: [
+    { field: 'AdvertiserId', outputName: 'AdvertiserId', emptyValue: '0' },
+    { field: 'AdvertiserName', outputName: 'AdvertiserName', emptyValue: '0' },
+    { field: 'CampaignId', outputName: 'CampaignId', emptyValue: '0' },
+    { field: 'CampaignName', outputName: 'CampaignName', emptyValue: '0' },
+    { field: 'InsertionId', outputName: 'InsertionId', emptyValue: '0' },
+    { field: 'InsertionName', outputName: 'InsertionName', emptyValue: '0' },
+    { field: 'FormatId', outputName: 'FormatId', emptyValue: '0' },
+    { field: 'FormatName', outputName: 'FormatName', emptyValue: '0' },
+    { field: 'AppOrSiteId', outputName: 'AppOrSiteId', emptyValue: '0' },
+    { field: 'AppOrSiteName', outputName: 'AppOrSiteName', emptyValue: '0' },
+    { field: 'AdservingCreativeName', outputName: 'AdservingCreativeName', emptyValue: '0' }
+  ],
+  useCaseId: 'AdServing',
+  dateFormat: "yyyy-MM-dd'T'HH:mm:ss",
+  timezone: 'UTC',
+  reportName: `Report Campaign - Date ${new Date().toISOString()}`,
+});
+
 // Crée une requête pour la campagne
 const createRequestCampaign = (startDate, endDate, campaignId) => ({
   startDate,
@@ -65,20 +94,28 @@ const createRequestCampaignVU = (startDate, endDate, campaignId) => ({
   reportName: `Report Campaign ${campaignId} VU - Date ${new Date().toISOString()}`,
 });
 
-// Fonction pour envoyer la requête et obtenir l'instanceId
-async function fetchReportId(startDate, endDate, campaignId, useVu = false) {
+// Fonction pour envoyer la requête et obtenir le reportId
+async function fetchReportId(startDate, endDate, campaignId = false, useVu = false) {
   // Utilisation de apiBuilder pour générer l'URL de reporting
   const apiUrl = apiBuilder.buildApiUrl('report');
-  const body = useVu
-    ? createRequestCampaignVU(startDate, endDate, campaignId)
-    : createRequestCampaign(startDate, endDate, campaignId);
 
-  try {   
-    // Utilisation de la fonction utilitaire pour faire la requête GET avec retry
+  // Sélection du corps de la requête en fonction de la présence de campaignId
+  let body;
+  if (campaignId) {
+    body = useVu
+      ? createRequestCampaignVU(startDate, endDate, campaignId)
+      : createRequestCampaign(startDate, endDate, campaignId);
+  } else {
+    // Utiliser createRequestNow pour toutes les campagnes si campaignId est false
+    body = createRequestNow(startDate, endDate);
+  }
+
+  try {
+    // Utilisation de la fonction utilitaire pour faire la requête POST avec retry
     const response = await makeApiRequest('POST', apiUrl, body);
-    return response; // reportId ou objet similaire
+    return response; // Retourne le reportId ou objet similaire
   } catch (error) {
-    console.error('Erreur lors de la récupération du reportId dans la fct fetchReportId:', error);
+    console.error('Erreur lors de la récupération du reportId dans la fonction fetchReportId:', error);
     throw new Error('Erreur lors de la création du reporting');
   }
 }

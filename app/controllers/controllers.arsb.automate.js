@@ -162,8 +162,8 @@ exports.campaign = async (req, res) => {
         logger.info(`campaignData : ${JSON.stringify(campaignData)}`);
 
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
-        console.log(dataCampaign); process.exit(0);
-        /*
+        // console.log(dataCampaign); process.exit(0);
+        
         // Gestion des insertions associées à la campagne
         const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
             campaign_id: campaignid
@@ -184,7 +184,7 @@ exports.campaign = async (req, res) => {
             campaignData: dataCampaign,
             campaignInsertionsData: dataInsertions,
         });
-*/
+
     } catch (error) {
         logger.error(`Erreur lors de la récupération des données : ${error.message}`);
         return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données : ${error.message}`, 'json');

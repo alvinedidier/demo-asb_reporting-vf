@@ -1,6 +1,5 @@
 const EventEmitter = require('events');
-const emitter = new EventEmitter();
-emitter.setMaxListeners(2000); // Augmentez la limite si nécessaire
+EventEmitter.defaultMaxListeners = 2000; // Définit la limite pour tous les écouteurs d'événements
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -518,9 +517,12 @@ app.use('/t/', reportingTV);
 const manager = require('./app/routes/routes.manager');
 app.use('/manager', manager);
 
+// Gestion des alertes DIGITAL pour ARSB
+const alerts = require('./app/routes/routes.arsb.alerts');
+app.use('/alerts', alerts);
+
 // Automatise la récupération de donnée
 const automate = require('./app/routes/routes.arsb.automate');
-const { campaign } = require('./app/controllers/controllers.arsb.automate');
 app.use('/automate', automate);
 
 const extention_chrome = require('./app/routes/routes.plugin_chrome');

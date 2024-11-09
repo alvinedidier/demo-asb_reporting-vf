@@ -11,7 +11,7 @@ const needle = require("needle");
 
 const csv = require('csv-parser')
 const {
-    Op
+    Op, QueryTypes
 } = require("sequelize");
 
 const logger = require('../utils/logger');
@@ -24,9 +24,7 @@ const path = require('path');
 const ExcelJS = require('exceljs');
 const excel = require('node-excel-export');
 var nodeoutlook = require('nodejs-nodemailer-outlook');
-const {
-    QueryTypes
-} = require('sequelize');
+
 const moment = require('moment');
 const {
     check,
