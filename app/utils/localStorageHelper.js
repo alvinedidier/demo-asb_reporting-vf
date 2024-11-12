@@ -16,6 +16,128 @@ const LocalStorage = require('node-localstorage').LocalStorage;
 const localStorage = new LocalStorage('data/reporting/');
 const localStorageReportIds = new LocalStorage(`data/reportIds/${formattedDate}/`);
 const localStorageInstanceIds = new LocalStorage(`data/instanceIds/${formattedDate}/`);
+const localStorageAlerts = new LocalStorage(`data/alerts/${formattedDate}/`);
+
+// Sauvegarder le reportId avec expiration :
+function setReportWithExpiry(reportId, ttl = 2 * 60 * 60 * 1000) {
+  const now = Date.now();
+  const expiryTime = now + ttl; // Délai d'expiration (TTL) de 2 heures
+  const data = {
+    reportId,
+    expiryTime
+  };
+
+  localStorageAlerts.setItem(`reportId.json`, JSON.stringify(data));
+}
+
+// Récupérer le reportid
+function getReport() {
+  const storedData = localStorageAlerts.getItem(`reportId.json`);
+
+  if (!storedData) {
+    return null; // Pas de données en cache
+  }
+
+  const {
+    reportId,
+    expiryTime
+  } = JSON.parse(storedData);
+  const now = Date.now();
+
+  // Si le cache est expiré
+  if (now > expiryTime) {
+    localStorageAlerts.removeItem(`reportId.json`); // Supprimer le cache expiré
+    return null;
+  }
+
+  // Sinon, retourner les reportId et reportIdVU
+  return {
+    reportId
+  };
+}
+
+// Sauvegarder l'instanceId avec expiration :
+function setInstanceWithExpiry(instanceId, ttl = 2 * 60 * 60 * 1000) {
+  const now = Date.now();
+  const expiryTime = now + ttl; // Délai d'expiration (TTL) de 2 heures
+  const data = {
+    instanceId,
+    expiryTime
+  };
+
+  localStorageAlerts.setItem(`instanceId.json`, JSON.stringify(data));
+}
+
+// Récupérer les deux instanceId depuis le cache et vérifier l'expiration
+function getInstance(campaignId) {
+  const storedData = localStorageAlerts.getItem(`instanceId.json`);
+
+  if (!storedData) {
+    return null; // Pas de données en cache
+  }
+
+  const {
+    instanceId,
+    expiryTime
+  } = JSON.parse(storedData);
+  const now = Date.now();
+
+  // Si le cache est expiré
+  if (now > expiryTime) {
+    localStorageAlerts.removeItem(`instanceId.json`); // Supprimer le cache expiré
+    return null;
+  }
+
+  // Sinon, retourner les instanceId
+  return {
+    instanceId
+  };
+}
+
+// Sauvegarder les deux instanceId avec expiration :
+function setCampaignsWithExpiry(reportData, ttl = 2 * 60 * 60 * 1000) {
+  const now = Date.now();
+  const expiryTime = now + ttl; // Délai d'expiration (TTL) de 2 heures
+  const data = {
+    reportData,
+    expiryTime
+  };
+
+  localStorageAlerts.setItem(`report.json`, JSON.stringify(data));
+}
+
+// Récupérer les campagns depuis le cache et vérifier l'expiration
+function getCampaigns() {
+  const storedData = localStorageAlerts.getItem(`campaigns.json`);
+
+  if (!storedData) {
+    return null; // Pas de données en cache
+  }
+
+  const { reportData, expiryTime } = JSON.parse(storedData);
+  const now = Date.now();
+
+  // Récupération des dates nécessaires
+  const campaignEndDate = new Date(reportData.campaign_end_date);
+  const reportingStartDate = new Date(reportData.reporting_dates.reporting_start_date);
+
+  // Vérifier si la campagne est terminée et que le reporting est valide
+  if (now > campaignEndDate && reportingStartDate > campaignEndDate) {
+    // La campagne est terminée ET le reporting a été généré après la fin de la campagne
+    console.log('La campagne est terminée et le reporting est généré après la fin de la campagne, données conservées.');
+    return reportData;
+  }
+
+  // Vérifier si le cache a expiré
+  if (now > expiryTime) {
+    console.log('Cache expiré, suppression des données...');
+    localStorageAlerts.removeItem(`campaigns.json`); // Supprimer le cache expiré
+    return null;
+  }
+
+  // Sinon, retourner les données de la campagne
+  return reportData;
+}
 
 // Sauvegarder les deux reportId avec expiration :
 function setReportIdsWithExpiry(campaignId, reportId, reportIdVU, ttl = 2 * 60 * 60 * 1000) {
@@ -165,6 +287,13 @@ function deleteAllCampaignData(campaignId) {
 }
 
 module.exports = {
+  setReportWithExpiry,
+  getReport,
+  setInstanceWithExpiry,
+  getInstance,
+  setCampaignsWithExpiry,
+  getCampaigns,
+  
   setReportIdsWithExpiry,
   getReportIds,
   setInstanceIdsWithExpiry,

@@ -459,16 +459,17 @@ app.use((req, res, next) => {
     next()
 })
 
+/*
 app.post('/uploads', function (req) {
     console.log(req.files.file_csv.name); //requette.files.nom du file
 });
-
+*/
 app.use(express.static(path.join(__dirname, 'public')));
 
 // signup login home page
 const index = require('./app/routes/routes.index');
 app.use('/', index);
-
+/*
 // action admin forecast
 const forecast = require('./app/routes/routes.api_forecast');
 app.use('/forecast', forecast);
@@ -476,7 +477,7 @@ app.use('/forecast', forecast);
 // action admin reporting
 // const reporting = require('./app/routes/routes.api_report');
 // app.use('/r/', reporting);
-/*
+
 // action liste campagne epilot
 const epilot = require('./app/routes/routes.api_epilot');
 app.use('/epilot', epilot);
@@ -491,9 +492,10 @@ app.use('/alerts', alerts);
 
 const tests = require('./app/routes/routes.tests');
 app.use('/test', tests);
-*/
+
 const application = require('./app/routes/routes.application');
 app.use('/app', application);
+*/
 
 // Gestion du reporting DIGITAL pour ARSB
 const report_arsb = require('./app/routes/routes.arsb.report');
@@ -507,7 +509,6 @@ app.use('/r/', reporting_rs);
 // Gestion du reporting DIGITAL 30j
 const reporting_30 = require('./app/routes/routes.reporting_30');
 app.use('/d/', reporting_30);
-*/
 
 // Gestion du reporting TV
 const reportingTV = require('./app/routes/routes.tv.reporting');
@@ -517,6 +518,8 @@ app.use('/t/', reportingTV);
 const manager = require('./app/routes/routes.manager');
 app.use('/manager', manager);
 
+*/
+
 // Gestion des alertes DIGITAL pour ARSB
 const alerts = require('./app/routes/routes.arsb.alerts');
 app.use('/alerts', alerts);
@@ -525,11 +528,13 @@ app.use('/alerts', alerts);
 const automate = require('./app/routes/routes.arsb.automate');
 app.use('/automate', automate);
 
+/*
 const extention_chrome = require('./app/routes/routes.plugin_chrome');
 app.use('/extension-chrome', extention_chrome);
 
 const api = require('./app/routes/routes.json')
 app.use('/api', api);
+*/
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {

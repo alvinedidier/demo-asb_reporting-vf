@@ -1,7 +1,7 @@
 const { validateParam } = require('../utils/validationRoute');
 const router = require("express").Router();
 const Sequelize = require('sequelize');
-const report = require("../controllers/controllers.report.arsb");
+const report = require("../controllers/controllers.arsb.report");
 
 // Utilisation de la fonction utilitaire pour valider les paramètres
 const validateCampaignCrypt = validateParam('campaigncrypt', 'string');

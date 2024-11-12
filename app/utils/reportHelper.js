@@ -4,7 +4,8 @@ const {
 } = require('stream'); // Nécessaire pour créer un stream à partir d'une chaîne de caractères
 
 const {
-    setCampaignIdWithExpiry
+    setCampaignIdWithExpiry,
+    setCampaignsWithExpiry
 } = require('./localStorageHelper'); // Import des fonctions localStorage
 
 const {
@@ -116,6 +117,9 @@ const formats = [{
 
 // Fonction pour créer un stream à partir d'une chaîne de caractères
 function stringToStream(text) {
+    if (typeof text !== 'string') {
+        throw new TypeError('L\'argument "text" doit être de type string');
+    }
     const stream = new Readable();
     stream.push(text);
     stream.push(null); // Signale la fin des données
@@ -232,6 +236,139 @@ async function ReportBuildJson(campaignId, csvData1String, csvData2String) {
         console.log("report : ",report)
 
         logger.info(`Rapport JSON pour la campagne ${campaignId} sauvegardé dans localStorage.`);
+
+        return report;
+    } catch (error) {
+        logger.error('Erreur lors de la génération du rapport :', error.message);
+        throw error;
+    }
+}
+
+// Fonction principale pour construire le JSON final
+async function ReportBuildJsonNow(csvData1String) {
+    try {
+       
+       // Extraction des campaignId depuis le CSV
+     //  const report = await parseCsvString(csvData1String);
+
+      const campaignIds = await getCampaignIdsFromCsv(csvData1String);
+       console.log("Identifiants de campagnes extraits :", campaignIds);
+
+       process.exit(0);
+       // Conversion des chaînes CSV en objets
+      //
+       // Retourne le rapport (ou toute autre opération nécessaire)
+      // return { campaignIds };
+
+      //  console.log(report);
+      //  process.exit(0)
+        // Retourne le rapport (ou toute autre opération nécessaire)
+      //  return { report};
+       /* Calcul des métriques globales
+        const globalMetrics = calculateGlobalMetrics(parsedCsv1, false);
+
+        // Calcul des métriques par format, créative et site
+        const metricsByFormat = regrouperParFormat(parsedCsv1);
+        const metricsByCreatives = regrouperParCreatives(parsedCsv1);
+        const metricsBySite = regrouperParSite(parsedCsv1);
+        const metricsByFormatAndSite = regrouperParFormatEtSiteAvecMetrics(parsedCsv1);
+
+        // Structure du rapport JSON final
+        const report = {
+                campaign_id: campaign.campaign_id,
+                campaign_name: campaign.campaign_name,
+                campaign_crypt: campaign.campaign_crypt,
+                advertiser_id: campaign.advertiser_id,
+                advertiser_name: campaign.advertiser.advertiser_name ? campaign.advertiser.advertiser_name : 'N/A',
+                campaign_start_date: campaign.campaign_start_date,
+                campaign_end_date: campaign.campaign_end_date,
+                campaign_start_date_formatted: format(parseISO(campaign.campaign_start_date), 'dd/MM/yyyy', {
+                    locale: frLocale
+                }),
+                campaign_end_date_formatted: format(parseISO(campaign.campaign_end_date), 'dd/MM/yyyy', {
+                    locale: frLocale
+                }),
+                campaign_duration: differenceInDays(parseISO(campaign.campaign_end_date), parseISO(campaign.campaign_start_date)),
+                globalMetrics,
+                metrics: {
+                    byFormat: metricsByFormat,
+                    bySite: metricsBySite,
+                    byFormatAndSite: metricsByFormatAndSite,
+                    byCreatives: metricsByCreatives
+                },
+                reporting_dates: {
+                    reporting_start_date: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+                    reporting_end_date: format(addHours(new Date(), 2), "yyyy-MM-dd HH:mm:ss")
+                }
+        };
+
+        // Sauvegarde du rapport JSON dans localStorage avec expiration
+        setCampaignIdWithExpiry(campaignId, report);
+        console.log("report : ",report)
+
+        logger.info(`Rapport JSON pour la campagne ${campaignId} sauvegardé dans localStorage.`);
+        */
+       // return report;
+    } catch (error) {
+        logger.error('Erreur lors de la génération du rapport :', error.message);
+        throw error;
+    }
+}
+
+// Fonction pour extraire les campaignId uniques d'un fichier CSV
+// Fonction mise à jour pour construire le JSON final à partir du CSV et extraire les campaignId
+async function ReportBuildJsonNow(csvData1String) {
+    try {
+        // Vérification de type pour s'assurer que csvData1String est une chaîne
+        if (typeof csvData1String !== 'string') {
+            throw new TypeError('L\'argument "csvData1String" doit être de type string');
+        }
+
+        // Conversion de la chaîne CSV en objets via parseCsvString
+        const parsedCsv = await parseCsvString(csvData1String);
+
+        // Extraction des campaignIds uniques
+        const campaignIds = insertionIds = new Set();
+        const reportData = [];
+
+        // Parcours des lignes du CSV
+        parsedCsv.forEach(row => {
+            if (row && row._2 && Number.isInteger(parseInt(row._2, 10))) {  // Vérifie que _2 est un nombre entier
+                campaignIds.add(parseInt(row._2, 10));  // Ajoute uniquement des IDs uniques numériques
+            }
+
+            if (row && row._4 && Number.isInteger(parseInt(row._4, 10))) {  // Vérifie que _4 est un nombre entier
+                insertionIds.add(parseInt(row._4, 10));  // Ajoute uniquement des IDs uniques numériques
+            }
+
+            // Exemple d'ajout de données au rapport en fonction des colonnes
+            reportData.push({
+                advertiserId: row._0,
+                advertiserName: row._1,
+                campaignId: row._0,
+                campaignName: row._3,
+                insertionId: row._4,
+                format: row._5,
+                impressions: parseInt(row._11, 10) || 0,
+                clicks: parseInt(row._12, 10) || 0,
+                videoComplete: parseInt(row._14, 10) || 0,
+                siteName: row._9,
+                creativeName: row._10
+            });
+        });
+
+        // Conversion du Set en tableau pour les IDs de campagne
+        const uniqueCampaignIds = Array.from(campaignIds);
+
+        // Génération du rapport
+        const report = {
+            campaignIds: uniqueCampaignIds,
+            insertionIds : insertionIds,
+            reportData
+        };
+
+        console.log("Report : ", report);
+        logger.info(`Rapport JSON généré et contient ${uniqueCampaignIds.length} IDs de campagne uniques.`);
 
         return report;
     } catch (error) {
@@ -721,5 +858,6 @@ function regrouperParSite(data) {
 
 // Exportation de la fonction pour réutilisation
 module.exports = {
-    ReportBuildJson
+    ReportBuildJson,
+    ReportBuildJsonNow
 };
