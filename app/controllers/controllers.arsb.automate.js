@@ -110,6 +110,112 @@ const {
 
 exports.campaign = async (req, res) => {
     const campaignid = req.params.campaignid;
+    
+    try {
+        logger.info(`Récupération des données pour la campagne : ${campaignid}`);
+
+        // 1. Vérification de l'ID de campagne
+        if (!campaignid) {
+            throw new Error('ID de campagne manquant');
+        }
+
+        // 2. Récupération des données de la campagne
+        const apiUrl = apiBuilder.buildApiUrl('campaign', {
+            campaign_id: campaignid
+        });
+        
+        if (!apiUrl) {
+            throw new Error('URL de l\'API introuvable.');
+        }
+
+        // 3. Récupération sécurisée des données
+        const dataCampaign = await makeApiRequest('GET', apiUrl);
+        
+        if (!dataCampaign || !dataCampaign.id) {
+            throw new Error('Données de campagne non trouvées ou invalides');
+        }
+
+        // 4. Génération de l'identifiant crypté
+        const campaign_crypt = crypto
+            .createHash('md5')
+            .update(dataCampaign.id.toString())
+            .digest("hex");
+
+        // 5. Préparation et sauvegarde des données de campagne
+        const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
+        
+        if (!campaignData) {
+            throw new Error('Échec du mapping des données de campagne');
+        }
+
+        campaignData.campaign_crypt = campaign_crypt;
+        logger.info(`Données de campagne mappées : ${JSON.stringify(campaignData)}`);
+
+        // 6. Sauvegarde de la campagne
+        await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
+
+        // 7. Récupération et traitement des insertions
+        const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
+            campaign_id: campaignid
+        });
+
+        const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
+
+        // 8. Traitement sécurisé des insertions
+        const processedInsertions = [];
+        if (Array.isArray(dataInsertions) && dataInsertions.length > 0) {
+            for (const insertion of dataInsertions) {
+                try {
+                    if (!insertion) continue;
+                    
+                    const insertionData = mapApiFieldsToDb(insertion, insertionFieldMapping);
+                    if (!insertionData) continue;
+
+                    await upsertEntity(ModelInsertions, insertionData, 'insertion_id');
+                    processedInsertions.push(insertionData);
+                } catch (insertionError) {
+                    logger.error(`Erreur lors du traitement de l'insertion : ${insertionError.message}`);
+                    // Continue avec les autres insertions
+                    continue;
+                }
+            }
+        }
+
+        // 9. Préparation de la réponse
+        const response = {
+            status: 'success',
+            message: 'Campagne récupérée et sauvegardée avec succès',
+            data: {
+                campaign: campaignData,
+                raw_campaign: dataCampaign,
+                insertions: {
+                    processed: processedInsertions.length,
+                    total: dataInsertions ? dataInsertions.length : 0,
+                    data: processedInsertions
+                }
+            }
+        };
+
+        // 10. Envoi de la réponse
+        return res.status(200).json(response);
+
+    } catch (error) {
+        logger.error(`Erreur lors de la récupération des données de campagne ${campaignid}: ${error.message}`);
+        logger.error(`Stack trace: ${error.stack}`);
+
+        // Retourne une réponse d'erreur structurée
+        return Utilities.handleCampaignNotFound(
+            res, 
+            500, 
+            `Erreur lors de la récupération des données : ${error.message}`,
+            'json'
+        );
+    }
+};
+
+/*
+exports.campaign = async (req, res) => {
+    const campaignid = req.params.campaignid;
     try {
         logger.info(`Récupération des données pour la campagne : ${campaignid}`);
 
@@ -128,7 +234,6 @@ exports.campaign = async (req, res) => {
             throw new Error('Données de campagne non trouvées');
         }
 
-/*
         // **Vérification du champ agencyId**
         if (dataCampaign.agencyId && dataCampaign.agencyId !== 0) {
             // Gestion de l'agence
@@ -152,7 +257,7 @@ exports.campaign = async (req, res) => {
         // Mapper les données de campagne et d'insertion
         const advertiserData = mapApiFieldsToDb(dataAdvertiser, advertiserFieldMapping);
         await upsertEntity(ModelAdvertisers, advertiserData, 'advertiser_id');
-        */
+        
         // Génération d’un identifiant unique pour chaque campagne
         const campaign_crypt = crypto.createHash('md5').update(dataCampaign.id.toString()).digest("hex");
 
@@ -190,6 +295,7 @@ exports.campaign = async (req, res) => {
         return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données : ${error.message}`, 'json');
     }
 };
+*/
 
 exports.campaigns = async (req, res) => {
     try {
@@ -365,7 +471,7 @@ exports.agency = async (req, res) => {
         return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données`, 'json');
     }
 };
-
+/*
 exports.reporting = async (req, res) => {
     try {
 
@@ -462,3 +568,4 @@ exports.reporting = async (req, res) => {
         return Utilities.handleCampaignNotFound(res, 500, "Erreur lors de la récupération des données", 'json');
     }
 };
+*/
