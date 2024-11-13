@@ -153,14 +153,15 @@ exports.campaign = async (req, res) => {
         
         // 6. Sauvegarde de la campagne
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
-/*
+
         // 7. Récupération et traitement des insertions
         const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
             campaign_id: campaignid
         });
 
         const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
-
+        
+        /*
         // 8. Traitement sécurisé des insertions
         const processedInsertions = [];
         if (Array.isArray(dataInsertions) && dataInsertions.length > 0) {
