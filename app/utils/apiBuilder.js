@@ -32,7 +32,6 @@ const manageApiUrlMap = {
   creatives: (params) => `Insertions/${params?.insertion_id}/creatives`,
 };
 
-// Classe ApiBuilder
 class ApiBuilder {
   constructor() {
     this.baseUrls = apiBaseUrls;
@@ -42,17 +41,28 @@ class ApiBuilder {
     };
   }
 
-  // Fonction pour obtenir l'URL de base en fonction de la méthode
+  /**
+   * Obtient l'URL de base en fonction de la méthode d'API.
+   * @param {string} method - La méthode d'API ('report', 'forecast' ou 'manage')
+   * @returns {string|null} - L'URL de base correspondante, ou null si la méthode est inconnue
+   */
   getBaseUrlForMethod(method) {
     if (method === 'report') {
       return this.baseUrls.reporting;
     } else if (method === 'forecast') {
       return this.baseUrls.forecast;
+    } else if (method === 'manage') {
+      return this.baseUrls.manage;
     }
-    return this.baseUrls.manage;
+    return null;
   }
 
-  // Fonction pour construire l'URL API complète
+  /**
+   * Construit l'URL API complète en fonction de la méthode et des paramètres.
+   * @param {string} method - La méthode d'API ('report', 'forecast' ou 'manage')
+   * @param {Object} [params={}] - Les paramètres éventuels pour construire l'URL
+   * @returns {string|null} - L'URL API complète, ou null si la méthode est inconnue
+   */
   buildApiUrl(method, params = {}) {
     const baseUrl = this.getBaseUrlForMethod(method);
 

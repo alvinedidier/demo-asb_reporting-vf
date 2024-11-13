@@ -12,6 +12,15 @@ const logger = require('../utils/logger');
  */
 const upsertEntity = async (Model, entityData, uniqueKey) => {
     try {
+        // Ajouter la validation au début
+    if (!Model || !entityData || !uniqueKey) {
+        throw new Error('Tous les paramètres sont requis (Model, entityData, uniqueKey)');
+    }
+    
+    if (!entityData[uniqueKey]) {
+        throw new Error(`La clé unique ${uniqueKey} est manquante dans entityData`);
+    }
+
         const [entity, created] = await Model.upsert(entityData);
 
         if (created) {
@@ -20,12 +29,19 @@ const upsertEntity = async (Model, entityData, uniqueKey) => {
             logger.info(`Entité mise à jour : ${entityData[uniqueKey]}`);
         }
 
-        return entity;
+        return {
+            entity,
+            created,
+            uniqueValue: entityData[uniqueKey]
+        };
     } catch (error) {
-        logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité : ${error.message}`);
-        logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité Model : ${Model}`);
-        logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité entityData : ${JSON.stringify(entityData)}`);
-        logger.error(`Erreur lors de l'ajout ou mise à jour de l'entité uniqueKey : ${uniqueKey}`);
+        logger.error('Échec upsert entité :', {
+            error: error.message,
+            model: Model.name, // Plus propre que ${Model}
+            data: entityData,
+            uniqueKey,
+            uniqueValue: entityData[uniqueKey]
+        });
         throw error;
     }
 };
