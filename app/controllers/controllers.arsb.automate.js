@@ -150,7 +150,7 @@ exports.campaign = async (req, res) => {
 
         campaignData.campaign_crypt = campaign_crypt;
         logger.info(`Données de campagne mappées : ${JSON.stringify(campaignData)}`);
-
+        /*
         // 6. Sauvegarde de la campagne
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
 
@@ -180,22 +180,22 @@ exports.campaign = async (req, res) => {
                 }
             }
         }
-
+        */
         // 9. Préparation de la réponse
         const response = {
             status: 'success',
             message: 'Campagne récupérée et sauvegardée avec succès',
             data: {
                 campaign: campaignData,
-                raw_campaign: dataCampaign,
+               /* raw_campaign: dataCampaign,
                 insertions: {
                     processed: processedInsertions.length,
                     total: dataInsertions ? dataInsertions.length : 0,
                     data: processedInsertions
-                }
+                }*/
             }
         };
-
+       
         // 10. Envoi de la réponse
         return res.status(200).json(response);
 
