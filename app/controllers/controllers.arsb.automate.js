@@ -160,7 +160,7 @@ exports.campaign = async (req, res) => {
         });
 
         const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
-        
+        logger.error(`apiUrlInsertions : ${apiUrlInsertions}`);
         /*
         // 8. Traitement sécurisé des insertions
         const processedInsertions = [];
