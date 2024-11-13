@@ -150,10 +150,10 @@ exports.campaign = async (req, res) => {
 
         campaignData.campaign_crypt = campaign_crypt;
         logger.info(`Données de campagne mappées : ${JSON.stringify(campaignData)}`);
-        /*
+        
         // 6. Sauvegarde de la campagne
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
-
+/*
         // 7. Récupération et traitement des insertions
         const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
             campaign_id: campaignid
