@@ -25,6 +25,6 @@ router.get("/campaign/:campaignid",validateCampaignId, automate.campaign);
 router.get("/advertiser/:advertiserid",validateAdvertisterId, automate.advertiser);
 router.get("/agency/:agencyid",validateAgencyId, automate.agency);
 
-router.post("/reporting", automate.reporting);
+// router.post("/reporting", automate.reporting);
 
 module.exports = router;
