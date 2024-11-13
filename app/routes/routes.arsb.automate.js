@@ -2,7 +2,6 @@ const { validateParam } = require('../utils/validationRoute');
 const router = require("express").Router();
 const Sequelize = require('sequelize');
 const ReportService = require('../services/reportWorkflowService'); // Supposons que vous avez un service de workflow
-
 const automate = require("../controllers/controllers.arsb.automate");
 
 const {

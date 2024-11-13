@@ -125,7 +125,7 @@ exports.campaign = async (req, res) => {
         });
         
         if (!apiUrl) {
-            throw new Error('URL de l\'API introuvable.');
+            throw new Error(`URL de l\'API introuvable : ${apiUrl}`);
         }
 
         // 3. Récupération sécurisée des données
@@ -158,6 +158,10 @@ exports.campaign = async (req, res) => {
         const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
             campaign_id: campaignid
         });
+         
+        if (!apiUrlInsertions) {
+            throw new Error(`URL de l\'API CampaignInsertions introuvable : ${apiUrlInsertions}`);
+        }
 
         const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
         logger.error(`apiUrlInsertions : ${apiUrlInsertions}`);
