@@ -13,13 +13,16 @@ const logger = require('../utils/logger');
 const upsertEntity = async (Model, entityData, uniqueKey) => {
     try {
         // Ajouter la validation au début
-    if (!Model || !entityData || !uniqueKey) {
-        throw new Error('Tous les paramètres sont requis (Model, entityData, uniqueKey)');
-    }
-    
-    if (!entityData[uniqueKey]) {
-        throw new Error(`La clé unique ${uniqueKey} est manquante dans entityData`);
-    }
+        if (!Model || !entityData || !uniqueKey) {
+            throw new Error('Tous les paramètres sont requis (Model, entityData, uniqueKey)');
+        }
+
+        if (!entityData[uniqueKey]) {
+            throw new Error(`La clé unique ${uniqueKey} est manquante dans entityData`);
+        }
+
+        // Log des données avant upsert
+        logger.info(`Données avant upsert : ${JSON.stringify(entityData)}`);
 
         const [entity, created] = await Model.upsert(entityData);
 

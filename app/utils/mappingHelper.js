@@ -1,12 +1,13 @@
 // utils/mappingHelper.js
 
-const mapApiFieldsToDb = (apiData, mapping) => {
-    const dbData = {};
-    Object.keys(mapping).forEach((dbField) => {
-        const apiField = mapping[dbField];
-        dbData[dbField] = apiData[apiField];
-    });
-    return dbData;
+const mapApiFieldsToDb = (apiData, fieldMapping) => {
+    const mappedData = {};
+    for (const [dbField, apiField] of Object.entries(fieldMapping)) {
+        if (apiData.hasOwnProperty(apiField)) {
+            mappedData[dbField] = apiData[apiField];
+        }
+    }
+    return mappedData;
 };
 
 module.exports = {

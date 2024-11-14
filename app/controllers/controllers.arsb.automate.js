@@ -141,11 +141,22 @@ exports.campaign = async (req, res) => {
 
         // 5. Préparation et sauvegarde des données de campagne
         const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
+        
         campaignData.campaign_crypt = campaign_crypt;
         logger.info(`Données de campagne mappées : ${JSON.stringify(campaignData)}`);
+       
+        // Vérification des données avant upsert
+        if (!campaignData || typeof campaignData !== 'object') {
+            throw new Error('Données de campagne invalides');
+        }
+
+        if (!campaignData.campaign_id) {
+            throw new Error('La clé unique campaign_id est manquante dans entityData');
+        }
 
         // 6. Sauvegarde de la campagne
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
+
 /*
         // 7. Récupération et traitement des insertions
         const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', { campaign_id: campaignid });

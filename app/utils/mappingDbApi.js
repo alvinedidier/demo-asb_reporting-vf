@@ -21,16 +21,16 @@ const advertiserFieldMapping = {
 
 // Mapping pour les champs de 'campaign'
 const campaignFieldMapping = {
-    campaign_id: 'id',
-     advertiser_id: 'advertiserId',
-    agency_id: 'agencyId',
-    campaign_name: 'name',
-    campaign_start_date: 'startDate',
-    campaign_end_date: 'endDate',
-    campaign_status_id: 'statusId',
-    campaign_archived : 'archived', 
-    campaign_crypt : 'campaign_crypt'
-}
+    campaign_id: 'id', // DB: campaign_id -> API: id
+    advertiser_id: 'advertiserId', // DB: advertiser_id -> API: advertiserId
+    agency_id: 'agencyId', // DB: agency_id -> API: agencyId
+    campaign_name: 'name', // DB: campaign_name -> API: name
+    campaign_start_date: 'startDate', // DB: campaign_start_date -> API: startDate
+    campaign_end_date: 'endDate', // DB: campaign_end_date -> API: endDate
+    campaign_status_id: 'statusId', // DB: campaign_status_id -> API: statusId
+    campaign_archived: 'archived', // DB: campaign_archived -> API: archived
+    campaign_crypt: 'campaign_crypt' // DB: campaign_crypt -> API: campaign_crypt
+};
 
 // Mapping pour les champs de 'insertion'
 const insertionFieldMapping = {
