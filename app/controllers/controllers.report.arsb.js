@@ -138,8 +138,10 @@ if (mode && (mode === 'delete')) {
       daysBeforeStart: differenceInDays(parseISO(campaign.campaign_start_date), dateNow),
     };
 
-    // Conditions basées sur la durée de diffusion
-    if ((campaignDates.duration <= 31) && (campaignDates.daysBeforeStart >= -40) && (campaignDates.daysBeforeStart < 0)) {
+    console.log(campaignDates);
+
+    // Conditions basées sur la durée de diffusion  && (campaignDates.daysBeforeStart >= -40)  && (campaignDates.daysBeforeStart < 0)
+    if ((campaignDates.duration <= 31)) {
       logger.info(`La campagne ${campaignId} est courte, récupération des Visiteurs Uniques (VU).`);
       // Logique pour lancer l'instance de récupération des VU
     } else {
@@ -285,8 +287,8 @@ exports.report = async (req, res) => {
         // Initialiser reportIdVU (Vide si non applicable)
         let reportIdVU = "";
 
-        // Si la campagne dure 31 jours ou moins, récupérer également le reportId VU
-        if ((campaignDates.duration <= 31) && (campaignDates.daysBeforeStart >= -40) && (campaignDates.daysBeforeStart < 0)) {
+        // Si la campagne dure 31 jours ou moins, récupérer également le reportId VU  && (campaignDates.daysBeforeStart >= -40) && (campaignDates.daysBeforeStart < 0)
+        if ((campaignDates.duration <= 31)) {
           reportIdVU = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId, true);
           logger.info(`ReportIDVU : ${reportIdVU}`);
 
