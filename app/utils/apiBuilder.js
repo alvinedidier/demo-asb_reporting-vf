@@ -10,7 +10,6 @@ const apiBaseUrls = {
 // Endpoints spécifiques à l'API "manage"
 const manageApiUrlMap = {
   agencies: `Agencies/`,
-  agency: (params) => `Agencies/${params?.agency_id}`,
   advertisers: `Advertisers`,
   advertiser: (params) => `Advertisers/${params?.advertiser_id}`,
   advertiserCampaigns: (params) => `Advertisers/${params?.advertiser_id}/Campaigns`,
@@ -32,6 +31,7 @@ const manageApiUrlMap = {
   creatives: (params) => `Insertions/${params?.insertion_id}/creatives`,
 };
 
+// Classe ApiBuilder
 class ApiBuilder {
   constructor() {
     this.baseUrls = apiBaseUrls;
@@ -41,32 +41,24 @@ class ApiBuilder {
     };
   }
 
-  /**
-   * Obtient l'URL de base en fonction de la méthode d'API.
-   * @param {string} method - La méthode d'API ('report', 'forecast' ou 'manage')
-   * @returns {string|null} - L'URL de base correspondante, ou null si la méthode est inconnue
-   */
+  // Fonction pour obtenir l'URL de base en fonction de la méthode
   getBaseUrlForMethod(method) {
-    if (method === 'report') {
-      return this.baseUrls.reporting;
-    } else if (method === 'forecast') {
-      return this.baseUrls.forecast;
-    } else if (method === 'manage') {
-      return this.baseUrls.manage;
+    switch (method) {
+      case 'report':
+        return this.baseUrls.reporting;
+      case 'forecast':
+        return this.baseUrls.forecast;
+      default:
+        return this.baseUrls.manage;
     }
-    return null;
   }
 
-  /**
-   * Construit l'URL API complète en fonction de la méthode et des paramètres.
-   * @param {string} method - La méthode d'API ('report', 'forecast' ou 'manage')
-   * @param {Object} [params={}] - Les paramètres éventuels pour construire l'URL
-   * @returns {string|null} - L'URL API complète, ou null si la méthode est inconnue
-   */
+  // Fonction pour construire l'URL API complète
   buildApiUrl(method, params = {}) {
     const baseUrl = this.getBaseUrlForMethod(method);
 
     if (!baseUrl) {
+      console.error(`Base URL not found for method: ${method}`);
       return null;
     }
 
@@ -76,7 +68,11 @@ class ApiBuilder {
       if (typeof endpoint === 'function') {
         return `${baseUrl}${endpoint(params)}`;
       }
-      return endpoint ? `${baseUrl}${endpoint}` : null;
+      if (endpoint) {
+        return `${baseUrl}${endpoint}`;
+      }
+      console.error(`Endpoint not found for method: ${method}`);
+      return null;
     }
 
     // Gestion pour les autres APIs ("reporting", "forecast")

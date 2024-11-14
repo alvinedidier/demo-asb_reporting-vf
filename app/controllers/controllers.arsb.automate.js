@@ -110,7 +110,7 @@ const {
 
 exports.campaign = async (req, res) => {
     const campaignid = req.params.campaignid;
-    
+
     try {
         logger.info(`Récupération des données pour la campagne : ${campaignid}`);
 
@@ -120,17 +120,15 @@ exports.campaign = async (req, res) => {
         }
 
         // 2. Récupération des données de la campagne
-        const apiUrl = apiBuilder.buildApiUrl('campaign', {
-            campaign_id: campaignid
-        });
-        
+        const apiUrl = apiBuilder.buildApiUrl('campaign', { campaign_id: campaignid });
+
         if (!apiUrl) {
-            throw new Error(`URL de l\'API introuvable : ${apiUrl}`);
+            throw new Error(`URL de l'API introuvable pour la campagne ${campaignid}`);
         }
 
         // 3. Récupération sécurisée des données
         const dataCampaign = await makeApiRequest('GET', apiUrl);
-        
+
         if (!dataCampaign || !dataCampaign.id) {
             throw new Error('Données de campagne non trouvées ou invalides');
         }
@@ -143,64 +141,33 @@ exports.campaign = async (req, res) => {
 
         // 5. Préparation et sauvegarde des données de campagne
         const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
-        
-        if (!campaignData) {
-            throw new Error('Échec du mapping des données de campagne');
-        }
-
         campaignData.campaign_crypt = campaign_crypt;
         logger.info(`Données de campagne mappées : ${JSON.stringify(campaignData)}`);
-        
+
         // 6. Sauvegarde de la campagne
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
 
         // 7. Récupération et traitement des insertions
-        const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
-            campaign_id: campaignid
-        });
-         
+        const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', { campaign_id: campaignid });
+
         if (!apiUrlInsertions) {
-            throw new Error(`URL de l\'API CampaignInsertions introuvable : ${apiUrlInsertions}`);
+            throw new Error(`URL de l'API CampaignInsertions introuvable pour la campagne ${campaignid}`);
         }
 
         const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
-        logger.error(`apiUrlInsertions : ${apiUrlInsertions}`);
-        /*
-        // 8. Traitement sécurisé des insertions
-        const processedInsertions = [];
-        if (Array.isArray(dataInsertions) && dataInsertions.length > 0) {
-            for (const insertion of dataInsertions) {
-                try {
-                    if (!insertion) continue;
-                    
-                    const insertionData = mapApiFieldsToDb(insertion, insertionFieldMapping);
-                    if (!insertionData) continue;
+        // Traitement des insertions...
 
-                    await upsertEntity(ModelInsertions, insertionData, 'insertion_id');
-                    processedInsertions.push(insertionData);
-                } catch (insertionError) {
-                    logger.error(`Erreur lors du traitement de l'insertion : ${insertionError.message}`);
-                    // Continue avec les autres insertions
-                    continue;
-                }
-            }
-        }
-        */
         // 9. Préparation de la réponse
         const response = {
             status: 'success',
             message: 'Campagne récupérée et sauvegardée avec succès',
             data: {
                 campaign: campaignData,
-               /* raw_campaign: dataCampaign,
-                insertions: {
-                    processed: processedInsertions.length,
-                    total: dataInsertions ? dataInsertions.length : 0,
-                    data: processedInsertions
-                }*/
+                raw_campaign: dataCampaign,
+                // insertions: { ... }
             }
         };
-       
+
         // 10. Envoi de la réponse
         return res.status(200).json(response);
 
@@ -210,8 +177,8 @@ exports.campaign = async (req, res) => {
 
         // Retourne une réponse d'erreur structurée
         return Utilities.handleCampaignNotFound(
-            res, 
-            500, 
+            res,
+            500,
             `Erreur lors de la récupération des données : ${error.message}`,
             'json'
         );
