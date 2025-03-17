@@ -22,7 +22,7 @@ const manager_campaigns_tv = require("../controllers/controllers.manager_campaig
 
 /**
 * Middleware to know if user is connected
-**/
+
 router.use(function (req, res, next) {
     if ((!req.session.user)) {           
         console.log('no access');
@@ -32,7 +32,7 @@ router.use(function (req, res, next) {
     next();  
     // console.log('User Login :',req.session.user)
 });
-
+**/
 const ModelFormats = require("../models/models.formats");
 const ModelAgencies = require("../models/models.agencies");
 const ModelAdvertisers = require("../models/models.advertisers");

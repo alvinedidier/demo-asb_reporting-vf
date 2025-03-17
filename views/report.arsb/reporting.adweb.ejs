@@ -24,7 +24,7 @@
             f.parentNode.insertBefore(j, f);
         })(window, document, 'script', 'dataLayer', 'GTM-KT6H7LH');
     </script>
-    <title><%= reporting.campaign_name %> - <%= reporting.advertiser_name %>- Antenne Solutions Business</title>
+    <title><%= reporting.campaign_name %> - <%= reporting.advertiser_name %> - ADWEB OUTREMER</title>
     <link rel="icon"
         href="/assets/images/adweb-logo.png"
         sizes="32x32" />
@@ -130,8 +130,6 @@
                         <th scope="col">Impressions</th>
                         <th scope="col">Clics</th>
                         <th scope="col">Taux de clics</th>
-                        <th scope="col">Visiteurs uniques</th>
-                        <th scope="col">Répétition</th>
                         <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> <th scope="col"
                             class="text-right">Taux de complétion</th>
                         <% } %>
@@ -141,21 +139,7 @@
                     <tr>
                         <td><%= reporting.globalMetrics.totalImpressions.toLocaleString('fr-FR') %></td>
                         <td><%= reporting.globalMetrics.totalClics.toLocaleString('fr-FR') %></td>
-                        <td><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</td>
-                        <td>
-                            <% if (reporting.globalMetrics.uniqueVisitors != "0") { %> 
-                                <%= reporting.globalMetrics.uniqueVisitors.toLocaleString('fr-FR') %> 
-                            <% } else { %>
-                                -
-                            <% } %>
-                        </td>
-                        <td>
-                            <% if ((reporting.globalMetrics.repetition != "0") && (reporting.globalMetrics.repetition != "0.00")) { %> 
-                                <%= reporting.globalMetrics.repetition.toLocaleString('fr-FR') %> 
-                            <% } else { %>
-                                -
-                            <% } %>
-                        </td>
+                        <td><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</td>                       
                          <% if(reporting.globalMetrics.completionRateGlobal != "0.00") { %> <td class="text-right">
                             <%= reporting.globalMetrics.completionRateGlobal.toLocaleString('fr-FR') %>%</td> <% } %>
                     </tr>
