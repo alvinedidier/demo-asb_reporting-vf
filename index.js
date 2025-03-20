@@ -510,13 +510,13 @@ const reporting_30 = require('./app/routes/routes.reporting_30');
 app.use('/d/', reporting_30);
 */
 
-// Gestion du reporting TV
-const reportingTV = require('./app/routes/routes.tv.reporting');
-app.use('/t/', reportingTV);
-
 // Gestion du management
 const manager = require('./app/routes/routes.manager');
 app.use('/manager', manager);
+
+// Gestion du reporting TV
+const reportingTV = require('./app/routes/routes.tv.reporting');
+app.use('/t', reportingTV);
 
 // Automatise la récupération de donnée
 const automate = require('./app/routes/routes.arsb.automate');

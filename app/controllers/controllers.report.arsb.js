@@ -58,7 +58,8 @@ const {
 } = require('../utils/localStorageHelper'); // Import des fonctions de gestion du cache
 
 const {
-  ReportBuildJson
+  ReportBuildJson, 
+  filterCampaignsADWEB
 } = require('../utils/reportHelper');
 
 // Gestion des rejets asynchrones non capturés
@@ -178,11 +179,16 @@ exports.generate = async (req, res) => {
 
     } else {
       logger.info(`Génération du rapport pour la campagne: ${campaign.campaign_id}`);
-      return res.render('report.arsb/generate.ejs', {
-        campaign,
-        campaignDates
-      });
+      
+      // Regex pour correspondre à "DV" suivi de chiffres et un espace
+      const regexCampaignAdweb = /^DV\d+\s/;
 
+      if (regexCampaignAdweb.test(campaign.campaign_name)) {
+        return res.render('report.arsb/generate.adweb.ejs', { campaign, campaignDates });
+      } else {
+       return res.render('report.arsb/generate.ejs', { campaign, campaignDates });
+      }
+      
     }
 
   } catch (error) {

@@ -43,7 +43,6 @@ const ModelCampaignsTv = require("../models/models.campaigns_tv")
 const ModelAdvertisersTV = require("../models/models.advertisers_tv")
 const ModelUsers = require("../models/models.users")
 
-
 var LocalStorage = require('node-localstorage').LocalStorage;
 localStorageTV = new LocalStorage('data/tv/reporting');
 
@@ -96,12 +95,7 @@ exports.index = async (req, res) => {
                             // Récupére le nom de la feuille
                             var worksheetName = worksheet.name;
 
-
-
-
                             if (worksheetName.match(/[a-zA ](-){1}(?!Paramétrage tarifaire\b)/gi)) {
-
-
                                 const campaignName = worksheet.getCell('C3').value;
                                 const campaignPeriod = worksheet.getCell('C4').value;
                                 const campaignUser = worksheet.getCell('C5').value;
@@ -113,12 +107,9 @@ exports.index = async (req, res) => {
                                 const campaignFormat = worksheet.getCell('H6').value;
                                 const campaignTarget = worksheet.getCell('C11').value;
 
-
-
                                 //recupère data cible filtrage du mot supprésion des accents et transforme en minuscule
                                 const strip_tags = campaignTarget.normalize('NFD').replace(/[\u0300-\u036f  _$&+,:;=?@#|'<>.^*()%!-]/g, "")
                                 const campaignLabel = strip_tags.toLowerCase();
-
 
                                 campaignObjects[worksheetName] = {
                                     'campaignLabel': campaignLabel,
@@ -132,7 +123,6 @@ exports.index = async (req, res) => {
                                     'campaignAdvertiser': campaignAdvertiser,
                                     'campaignFormat': campaignFormat
                                 }
-
 
                                /* console.log('Campagne : ', campaignName);
                                  console.log('Label : ', campaignLabel);
@@ -258,9 +248,6 @@ exports.index = async (req, res) => {
                                                     .value;
                                                 var value = CPM_contacts_Brut.toFixed(2);
 
-                                             
-                                      
-
                                             }
 
                                             ChannelArray[label] = value;
@@ -308,7 +295,6 @@ exports.index = async (req, res) => {
                                         //console.log(IncreaseInLoadPerDayArray);
                                         timeSlotDiaryArray.push(timeSlotDiaryObject);
 
-
                                         // Mets des données des données des tranches horaires
                                         campaignObjects[worksheetName].campaigntimeSlotDiary = timeSlotDiaryArray;
 
@@ -344,23 +330,15 @@ exports.index = async (req, res) => {
                                         // Mets es données des données des tranches horaires
                                         campaignObjects[worksheetName].campaignNameDay = nameDayArray;
 
-
                                     }
 
                                 })
 
-
-
-
-
                                // console.log(campaignObjects)
-
-
 
                             }
 
                         });
-
 
                         await ModelCampaignsTv.findOne({
                             attributes: [
@@ -459,13 +437,11 @@ exports.index = async (req, res) => {
                                         })
                                     }
 
-
                                     var founduser = await ModelUsers.findOne({
                                         where: {
                                             user_id: campaign_tv.user_id
                                         }
                                     })
-
 
                                     if (!Utilities.empty(founduser)) {
 
@@ -496,8 +472,6 @@ exports.index = async (req, res) => {
                                     })
 
                                     }
-
-
 
                                 });
                             }
@@ -537,6 +511,7 @@ exports.index = async (req, res) => {
 exports.generate = async (req, res) => {
 
     let campaigncrypt = req.params.campaigncrypt;
+    console.log('REPORTING TV : ',campaigncrypt)
     await ModelCampaignsTv
         .findOne({
             attributes: [
@@ -664,8 +639,6 @@ exports.charts = async (req, res) => {
                 var reportingData = JSON.parse(LocalStorageTVDATA);
                 var data = new Object();
 
-
-
                 for (const property in reportingData) {
                     var i = reportingData[property].campaignLabel
 
@@ -677,7 +650,6 @@ exports.charts = async (req, res) => {
                             name: reportingData[property].campaignTarget,
                             data: reportingData[property].campaignChannel.Couverture
                         };
-
 
                     // TRANCHES HORAIRES
                     if (reportingData[property].campaigntimeSlotDiary) {
@@ -768,7 +740,6 @@ exports.charts = async (req, res) => {
                         };
                     }
 
-
                 }
 
                 //  console.log(data)
@@ -776,7 +747,6 @@ exports.charts = async (req, res) => {
                 return res
                     .status(200)
                     .json(data);
-
 
             })
 

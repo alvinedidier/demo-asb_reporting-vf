@@ -11,5 +11,4 @@ router.get("/export/:campaigncrypt", reportingTV.export);
 router.get("/pdf/:campaigncrypt", reportingTV.export_pdf);
 router.get("/export/pdf/:campaigncrypt", reportingTV.pdf);
 
-
 module.exports = router;

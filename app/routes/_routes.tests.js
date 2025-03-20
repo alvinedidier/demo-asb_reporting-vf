@@ -22,6 +22,4 @@ router.get("/logs",test.logs)
 router.get("/pdf",test.pdf)
 router.get("/report",test.reports)
 
-
-
 module.exports = router;

@@ -68,11 +68,8 @@
     <!-- End Google Tag Manager (noscript) -->
 
     <div class="container d-flex justify-content-center">
-
         <div class="row">
-
             <!--section 1-->
-
             <div class="card m-3 p-3">
                 <h2 class="card-title text-center">Rapport de campagne</h2>
                 <div class="card-body">
@@ -99,7 +96,6 @@
                 <div class="d-flex justify-content-center">
                     <img src="/admin/photos/data_fiscal.jpg" class="card-img" style="width: 445px;">
                 </div>
-
             </div>
 
             <div></div>
@@ -144,9 +140,6 @@
     <script>
         $(document).ready(function () {
 
-
-
-
             //affiche la modal lors du clic du bouton
             $('.btn').on('shown.bs.modal', function () {
                 $('#myInput').trigger('focus');
@@ -161,8 +154,6 @@
                     success: function (data) {
                         $("#exampleModal").hide();
                         window.location.href = url;
-
-
                     }
                 })
             })

@@ -110,6 +110,10 @@ const {
 
 exports.campaign = async (req, res) => {
     const campaignid = req.params.campaignid;
+    const mode = req.query.mode;
+
+    console.log(`Campaign ${campaignid} ------------- mode: ${mode}`);
+
     try {
         logger.info(`Récupération des données pour la campagne : ${campaignid}`);
 
@@ -172,6 +176,11 @@ exports.campaign = async (req, res) => {
                 await upsertEntity(ModelInsertions, insertionData, 'insertion_id');
             }
         }
+
+        const regexID = /^\d+$/;
+        if (regexID.test(campaignid) && (mode === "view")) {
+            res.redirect(`/manager/campaigns/${campaignid}?mode=automate`);
+        } 
 
         // Envoyer les données en réponse
         return res.status(200).json({

@@ -463,6 +463,12 @@ exports.view = async (req, res) => {
                 // console.log(campaign)
                 if (!campaign) {
                    // return res.redirect(`/extension-chrome/campaign?campaign_id=${campaign_id}`)
+                     // Regex pour correspondre uniquement à une chaîne composée exclusivement de chiffres
+                    const regexID = /^\d+$/;
+                    if (regexID.test(campaign_id)) {
+                        res.redirect(`/automate/campaign/${campaign_id}?mode=view`);
+                    } 
+
                      return res
                           .status(404)
                           .render("manager/error.ejs", {

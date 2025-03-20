@@ -37,7 +37,7 @@ const createRequestCampaign = (startDate, endDate, campaignId) => ({
   filters: [[{ field: 'CampaignId', operator: 'IN', values: [campaignId] }]],
   useCaseId: 'AdServing',
   dateFormat: "yyyy-MM-dd'T'HH:mm:ss",
-  timezone: 'UTC',
+ // timezone: 'UTC',
   reportName: `Report Campaign ${campaignId} - Date ${new Date().toISOString()}`,
 });
 
@@ -61,7 +61,7 @@ const createRequestCampaignVU = (startDate, endDate, campaignId) => ({
   filters: [[{ field: 'CampaignId', operator: 'IN', values: [campaignId] }]],
   useCaseId: 'AdServing',
   dateFormat: "yyyy-MM-dd'T'HH:mm:ss",
-  timezone: 'UTC',
+ // timezone: 'UTC',
   reportName: `Report Campaign ${campaignId} VU - Date ${new Date().toISOString()}`,
 });
 

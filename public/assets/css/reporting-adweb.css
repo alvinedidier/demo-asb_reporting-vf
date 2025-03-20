@@ -56,8 +56,8 @@ body.asb #reporting-board {
     background: #fff;
 }
 
-body.adweb #reporting-board, body.adweb .card {
-    background: #fafafa!important;
+body.adweb #reporting-board {
+    background: #fafafa;
 }
 
 .modal-open {
@@ -72,7 +72,7 @@ hr {
 .progress {height: 2rem!important;}
 
    /* Empêche le défilement en arrière-plan quand la modal est ouverte */
-.no-js-modal-backdrop {
+   .no-js-modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;

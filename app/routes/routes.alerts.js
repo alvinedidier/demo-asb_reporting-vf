@@ -9,7 +9,4 @@ router.get("/forecast", alert.alert_delivered_percentage);
 router.get("/creatives", alert.alert_manage_creative);
 router.get("/campaigns_status",alert.alert_campaignOnline)
 
-
-
-
 module.exports = router;
