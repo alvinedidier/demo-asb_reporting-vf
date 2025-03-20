@@ -11,37 +11,37 @@
         </thead>
         <tbody>
             <% for (let i=0; i < users.length; i++) { %>
-            <tr>
-                <td><a href="/manager/users/<%= users[i].user_id %>"
-                        title="<%= users[i].user_id %>"><%= users[i].user_id %></a></td>
-                <td><a href="/manager/users/<%= users[i].user_id %>"
-                        title="<%= users[i].user_firstname %> <%= users[i].user_lastname %>"><%= users[i].user_firstname %>
-                        <%= users[i].user_lastname %></a></td>
-                <td><a href="/manager/users/<%= users[i].user_id %>"
-                        title="<%= users[i].user_email %>"><%= users[i].user_email %></a></td>
-                <td>
-                   <%
-                   switch (users[i].roles_user.role_id) {
-                    case 1: %>
-                    <span class="badge bg-danger">Administrateur</span>
-                      <% break;
-                    case 2: %>
-                    <span class="badge bg-success">Commercial</span>
-                    <% break;
-                    case 3: %>
-                    <span class="badge bg-warning">ADV</span>
-                    <% break;                   
-                  }  %>
-                </td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a href="/manager/users/<%= users[i].user_id %>" title="Visualiser" class="btn btn-sm"><i
-                                class="icon feather icon-eye f-16 text-info"></i></a>
-                        <a href="/manager/users/<%= users[i].user_id %>/edit" title="Modifier" class="btn btn-sm"><i
-                                class="icon feather icon-edit f-16 text-success"></i></a>
-                    </div>
-                </td>
-            </tr>
+                <tr>
+                    <td><a href="/manager/users/<%= users[i].user_id %>"
+                            title="<%= users[i].user_id %>"><%= users[i].user_id %></a></td>
+                    <td><a href="/manager/users/<%= users[i].user_id %>"
+                            title="<%= users[i].user_firstname %> <%= users[i].user_lastname %>"><%= users[i].user_firstname %>
+                            <%= users[i].user_lastname %></a></td>
+                    <td><a href="/manager/users/<%= users[i].user_id %>"
+                            title="<%= users[i].user_email %>"><%= users[i].user_email %></a></td>
+                    <td>
+                        <%
+                        switch (users[i].user_role) {
+                         case 1: %>
+                         <span class="badge bg-danger">Administrateur</span>
+                           <% break;
+                         case 2: %>
+                         <span class="badge bg-success">Commercial</span>
+                         <% break;
+                         case 3: %>
+                         <span class="badge bg-warning">ADV</span>
+                         <% break;                   
+                       }  %>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="/manager/users/<%= users[i].user_id %>" title="Visualiser" class="btn btn-sm"><i
+                                    class="icon feather icon-eye f-16 text-info"></i></a>
+                            <a href="/manager/users/<%= users[i].user_id %>/edit" title="Modifier" class="btn btn-sm"><i
+                                    class="icon feather icon-edit f-16 text-success"></i></a>
+                        </div>
+                    </td>
+                </tr>
             <% } %>
         </tbody>
     </table>

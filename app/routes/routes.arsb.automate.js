@@ -20,6 +20,7 @@ const validateCampaignId = validateParam('campaignid', 'int');
 const validateAdvertisterId = validateParam('advertiserid', 'int');
 
 router.get("/campaigns", automate.campaigns);
+
 router.get("/campaign/:campaignid",validateCampaignId, automate.campaign);
 router.get("/advertiser/:advertiserid",validateAdvertisterId, automate.advertiser);
 

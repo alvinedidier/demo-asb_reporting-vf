@@ -74,10 +74,11 @@ exports.list = async (req, res) => {
 
         var userList = await ModelUsers.findAll({
             include: [{ model: ModelRolesUsers }
-                /*, {  model: ModelRoles }*/
+            //    , {  model: ModelRoles }
             ]
         });
-        data.users = userList;
+        data.users = userList; 
+      //  console.log(data.users); process.exit();
 
         // Créer le fil d'ariane
         var breadcrumbLink = 'users'

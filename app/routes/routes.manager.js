@@ -211,6 +211,7 @@ router.get("/users/list", manager_users.list);
 router.get("/users/export", manager_users.export);
 
 router.get("/users/create", manager_users.create);
+router.post("/users/create", manager_users.create_post);
 router.get("/users/:id", manager_users.view);
 router.get("/users/:id/edit", manager_users.edit);
 

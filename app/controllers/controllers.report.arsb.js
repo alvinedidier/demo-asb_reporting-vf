@@ -368,13 +368,15 @@ exports.download = async (req, res) => {
         'campaign_crypt',
         'advertiser_id',
         'campaign_start_date',
-        'campaign_end_date',
+        'campaign_end_date'
       ],
       where: {
         campaign_crypt: campaigncrypt
       },
-      include: [{
-        model: ModelAdvertisers,
+      include: [ {
+        model: ModelAdvertisers
+      },
+      {
         model: ModelInsertions
       }]
     });
@@ -385,8 +387,30 @@ exports.download = async (req, res) => {
     }
 
     const campaignId = campaign.campaign_id;
-    // return res.json(campaignId);
+    // return res.json(campaign);  process.exit();
+/*
+    // Fonction pour tester si `advertiser_name` commence par "ARSB" ou "ADWEB"
+// Fonction pour tester si `advertiser_name` commence par ARSB, sinon par ADWEB
+const checkAdvertiserName = (campaign) => {
+  const advertiserName = campaign.advertiser.advertiser_name;
 
+  // Vérification si le nom commence par ARSB
+  if (advertiserName.startsWith('ARSB')) {
+    console.log("Le nom de l'annonceur commence par ARSB.");
+  } 
+  // Sinon, vérifier si le nom commence par ADWEB
+  else if (advertiserName.startsWith('ADWEB')) {
+    console.log("Le nom de l'annonceur commence par ADWEB.");
+  } 
+  // Si aucun des deux
+  else {
+    console.log("Le nom de l'annonceur ne commence ni par ARSB ni par ADWEB.");
+  }
+};
+
+// Appel de la fonction avec la campagne
+checkAdvertiserName(campaign);
+*/
     // Récupére le cache de campaignID    
     let reportingData = getCampaignId(campaignId);
 

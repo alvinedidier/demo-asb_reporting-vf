@@ -34,7 +34,6 @@ router.get("/insertions_status", automate.insertions_status);
 router.get("/insertions", automate.insertions);
 router.get("/insertion", automate.insertion);
 
-
 router.get("/insertions_templates", automate.insertions_templates);
 router.get("/insertions_priorities", automate.insertions_priorities);
 router.get("/creatives", automate.creatives);
@@ -48,7 +47,5 @@ router.get("/forecast",automate.forecast)
 /** AUTOMATE SUPPRESSION DES LOCALSTORAGES */
 router.get("/delete/storage_forecast",automate.delete_localStorageForecast)
 router.get("/delete/storage_task",automate.delete_localStorageTask)
-
-
 
 module.exports = router;
