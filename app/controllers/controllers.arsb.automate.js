@@ -163,7 +163,7 @@ exports.campaign = async (req, res) => {
         const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
         campaignData.campaign_crypt = campaign_crypt; // Généré manuellement
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
-
+/*
         // Gestion des insertions associées à la campagne
         const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', {
             campaign_id: campaignid
@@ -181,13 +181,13 @@ exports.campaign = async (req, res) => {
         if (regexID.test(campaignid) && (mode === "view")) {
             res.redirect(`/manager/campaigns/${campaignid}?mode=automate`);
         } 
-
+*/
         // Envoyer les données en réponse
         return res.status(200).json({
             message: 'Campagne récupérée et sauvegardée avec succès',
             campaign: campaignData,
             campaignData: dataCampaign,
-            campaignInsertionsData: dataInsertions,
+          //  campaignInsertionsData: dataInsertions,
         });
 
     } catch (error) {
