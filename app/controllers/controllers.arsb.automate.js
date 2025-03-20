@@ -110,7 +110,7 @@ const {
 
 exports.campaign = async (req, res) => {
     const campaignid = req.params.campaignid;
-    const mode = req.query.mode;
+    const mode = req.query.mode || "";
 
     console.log(`Campaign ${campaignid} ------------- mode: ${mode}`);
 
@@ -128,18 +128,22 @@ exports.campaign = async (req, res) => {
         const dataCampaign = await makeApiRequest('GET', apiUrl);
 
         // Vérification si les données existent
-        if (!dataCampaign || !dataCampaign.id) {
-            throw new Error('Données de campagne non trouvées');
+        if (!dataCampaign || typeof dataCampaign !== 'object' || !dataCampaign.id) {
+            throw new Error('Données de campagne invalides ou non trouvées');
         }
 
         // **Vérification du champ agencyId**
-        if (dataCampaign.agencyId && dataCampaign.agencyId !== 0) {
+        if (dataCampaign.agencyId && typeof dataCampaign.agencyId === 'number')  {            
             // Gestion de l'agence
             const apiUrlAgency = apiBuilder.buildApiUrl('agency', {
                 agency_id: dataCampaign.agencyId
             });
             const dataAgency = await makeApiRequest('GET', apiUrlAgency);
 
+            if (!dataAgency || typeof dataAgency !== 'object') {
+                throw new Error('Données de l\'agence invalides');
+            }
+            
             // Mapper les données de l'agence
             const agencyData = mapApiFieldsToDb(dataAgency, agencyFieldMapping);
             await upsertEntity(ModelAgencies, agencyData, 'agency_id');
@@ -170,12 +174,13 @@ exports.campaign = async (req, res) => {
         });
         const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
 
-        if (dataInsertions) {
-            for (const insertion of dataInsertions) {
-                const insertionData = mapApiFieldsToDb(insertion, insertionFieldMapping);
-                await upsertEntity(ModelInsertions, insertionData, 'insertion_id');
-            }
-        }
+       if (!Array.isArray(dataInsertions)) {
+        throw new Error('Données des insertions invalides : attendu un tableau');
+    }
+        for (const insertion of dataInsertions) {
+    const insertionData = mapApiFieldsToDb(insertion, insertionFieldMapping);
+    await upsertEntity(ModelInsertions, insertionData, 'insertion_id');
+}
 
         const regexID = /^\d+$/;
         if (regexID.test(campaignid) && (mode === "view")) {
@@ -194,6 +199,7 @@ exports.campaign = async (req, res) => {
         logger.error(`Erreur lors de la récupération des données : ${error.message}`);
         return Utilities.handleCampaignNotFound(res, 500, `Erreur lors de la récupération des données : ${error.message}`, 'json');
     }
+
 };
 
 exports.campaigns = async (req, res) => {
