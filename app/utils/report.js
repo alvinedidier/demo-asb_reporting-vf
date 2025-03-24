@@ -1,10 +1,11 @@
 
   const formats = [
     { name: 'habillage', title: 'HABILLAGE' },
-    { name: 'interstitiel', title: 'INTERSTITIEL' },
     { name: 'interstitielvideo', title: 'INTERSTITIEL VIDEO' },
+    { name: 'interstitiel', title: 'INTERSTITIEL' },
     { name: 'instream', title: 'INSTREAM' },
     { name: 'masthead', title: 'MASTHEAD' },
+    { name: 'grandanglepave', title: 'GRAND ANGLE PAVE' },
     { name: 'grandangle', title: 'GRAND ANGLE' },
     { name: 'rectanglevideo', title: 'RECTANGLE VIDEO' },
     { name: 'rectangle', title: 'RECTANGLE' },
@@ -15,6 +16,7 @@
     { name: 'slidervideo', title: 'SLIDER VIDEO' },
     { name: 'clickcommand', title: 'CLICK COMMAND' },
     { name: 'footer', title: 'FOOTER' },
+    { name: 'inreadvideo', title: 'INREAD VIDEO' },
     { name: 'inread', title: 'INREAD' }
 ];
 

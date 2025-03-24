@@ -180,8 +180,8 @@ exports.generate = async (req, res) => {
     } else {
       logger.info(`Génération du rapport pour la campagne: ${campaign.campaign_id}`);
       
-      // Regex pour correspondre à "DV" suivi de chiffres et un espace
-      const regexCampaignAdweb = /^DV\d+\s/;
+      // Regex pour correspondre à "DV" suivi de chiffres
+      const regexCampaignAdweb = /^DV\d+$/;
 
       if (regexCampaignAdweb.test(campaign.campaign_name)) {
         return res.render('report.arsb/generate.adweb.ejs', { campaign, campaignDates });

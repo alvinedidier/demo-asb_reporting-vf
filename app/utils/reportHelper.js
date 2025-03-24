@@ -45,6 +45,10 @@ const formats = [{
         title: 'MASTHEAD'
     },
     {
+        name: 'grandanglepave',
+        title: 'GRAND ANGLE PAVE'
+    },
+    {
         name: 'grandangle',
         title: 'GRAND ANGLE'
     },
@@ -93,13 +97,13 @@ const formats = [{
         title: 'FOOTER'
     },
     {
-        name: 'inread',
-        title: 'INREAD'
-    },
-    {
         name: 'inreadvideo',
         title: 'INREAD VIDEO'
     },
+    {
+        name: 'inread',
+        title: 'INREAD'
+    },   
     {
         name: 'billboard',
         title: 'BILLBOARD'
@@ -281,59 +285,6 @@ function calculateGlobalMetrics(data, dataVU) {
 }
 
 // Calcule les métriques globales par formats et sites
-/*
-function groupMetricsByFormatAndSite(data) {
-    const result = {};
-
-    // Parcourir les lignes de données (ignorer la première ligne qui contient les noms de colonnes)
-    data.slice(1).forEach(row => {
-        const formatName = row._7; // Nom du format
-        let siteName = row._9; // Nom de l'application ou du site
-
-        // Normalisation du nom du site pour regrouper SM_LINFO-IOS et SM_LINFO-ANDROID sous SM_LINFO-APPLI
-        if (siteName === 'SM_LINFO-IOS' || siteName === 'SM_LINFO-ANDROID') {
-            siteName = 'SM_LINFO-APPLI';
-        }
-
-        const impressions = parseInt(row._11, 10) || 0; // Nombre d'impressions
-        const clics = parseInt(row._12, 10) || 0; // Nombre de clics
-        const videoComplete = parseInt(row._14, 10) || 0; // Nombre de vidéos complètes
-
-        // Vérifier si le format existe déjà dans le résultat, sinon l'initialiser
-        if (!result[formatName]) {
-            result[formatName] = {};
-        }
-
-        // Vérifier si le site existe déjà sous le format, sinon l'initialiser
-        if (!result[formatName][siteName]) {
-            result[formatName][siteName] = {
-                impressions: 0,
-                clics: 0,
-                ctr: 0,
-                videoComplete: 0,
-                vtr: 0
-            };
-        }
-
-        // Ajouter les impressions, clics et vidéos complètes au site sous ce format
-        result[formatName][siteName].impressions += impressions;
-        result[formatName][siteName].clics += clics;
-        result[formatName][siteName].videoComplete += videoComplete;
-    });
-
-    // Calculer le CTR et le VTR pour chaque format et site
-    for (const format in result) {
-        for (const site in result[format]) {
-            const data = result[format][site];
-            data.ctr = data.impressions > 0 ? data.clics / data.impressions : 0;
-            data.vtr = data.impressions > 0 ? data.videoComplete / data.impressions : 0;
-        }
-    }
-
-    return result;
-}
-*/
-// Calcule les métriques globales par formats et sites
 function groupMetricsByFormatAndSite(data) {
     const result = {};
 
@@ -392,62 +343,6 @@ function groupMetricsByFormatAndSite(data) {
 
     return sortedResult;
 }
-/*
-// Fonction mise à jour pour regrouper et calculer les métriques par format et site avec parseCsv1
-function regrouperParFormatEtSiteAvecMetrics(results) {
-    const resultat = {};
-
-    results.forEach(row => {
-        // Extraire les valeurs nécessaires
-        const insertionName = row._5 || '';
-        const siteName = row._9 || '';
-        const impressions = parseInt(row._11, 10) || 0;
-        const clics = parseInt(row._12, 10) || 0;
-        const videoComplete = parseInt(row._14, 10) || 0;
-
-        // Trouver le format correspondant en fonction du libellé d'insertion
-        const formatTrouve = formats.find(format =>
-            insertionName.toUpperCase().includes(format.title)
-        );
-
-        if (formatTrouve) {
-            // Initialiser le site et le format dans le résultat s'ils n'existent pas
-            if (!resultat[siteName]) {
-                resultat[siteName] = {};
-            }
-            if (!resultat[siteName][formatTrouve.name]) {
-                resultat[siteName][formatTrouve.name] = {
-                    impressions: 0,
-                    clics: 0,
-                    completions: 0,
-                    ctr: 0,
-                    vtr: 0
-                };
-            }
-
-            // Ajouter les valeurs au format et au site appropriés
-            const data = resultat[siteName][formatTrouve.name];
-            data.impressions += impressions;
-            data.clics += clics;
-            data.completions += videoComplete;
-        } else {
-            console.warn('Format non trouvé pour insertion:', insertionName);
-        }
-    });
-
-    // Calcul des CTR et VTR pour chaque format et site
-    for (const site in resultat) {
-        for (const format in resultat[site]) {
-            const data = resultat[site][format];
-            data.ctr = data.impressions > 0 ? (data.clics / data.impressions * 100).toFixed(2) : "0.00";
-            data.vtr = data.impressions > 0 ? (data.completions / data.impressions * 100).toFixed(2) : "0.00";
-        }
-    }
-
-    return resultat;
-}
-
-*/
 
 // Fonction mise à jour pour regrouper et calculer les métriques par format et site
 function regrouperParFormatEtSiteAvecMetrics(results) {
