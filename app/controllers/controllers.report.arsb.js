@@ -43,7 +43,8 @@ const formattedDate = format(currentDate, 'yyyy/MM/dd'); // Formater la date com
 
 const LocalStorage = require('node-localstorage').LocalStorage;
 const localStorage = new LocalStorage('data/reporting/');
-// const localStorageReportIds = new LocalStorage(`data/instanceIds/${formattedDate}/`);
+const localStorageInstanceIds = new LocalStorage(`data/instanceIds/${formattedDate}/`);
+const localStorageReportIds = new LocalStorage(`data/reportIds/${formattedDate}/`);
 
 const {
   getAvailableFormats
@@ -108,6 +109,8 @@ exports.generate = async (req, res) => {
      if (mode && (mode === 'delete')) {
          // si le local storage expire; on supprime les precedents cache et les taskid                           
          localStorage.removeItem('campaignID-' + campaignId+'.json');
+         localStorageInstanceIds.removeItem('instanceIds-' + campaignId+'.json');
+         localStorageReportIds.removeItem('reportIds-' + campaignId+'.json');
          logger.error(`Suppression du cache de la campagne : ${campaignId}`);
          // Redirection vers le bilan
          return res.redirect(`/r/${campaigncrypt}`);
