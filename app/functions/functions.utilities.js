@@ -15,7 +15,6 @@ const localStorageInstance = new LocalStorage(`data/instanceIds/${formattedDate}
 /*
 * Teste si la valeur est vide
 */
-
 exports.empty = function (data) {
     if (typeof (data) == 'number' || typeof (data) == 'boolean') {
         return false;
