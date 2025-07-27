@@ -102,24 +102,25 @@ exports.generate = async (req, res) => {
 
     // Récupére l'ID de la campagne
     let campaignId = campaign.campaign_id;
+    let campaignName = campaign.campaign_name;
 
-   // Suppression du cache
-let mode = req.query.mode;
-if (mode && (mode === 'delete')) {
-  // si le local storage expire; on supprime les precedents cache et les taskid   
-  
-  // Appeler la fonction deleteAllCampaignData pour supprimer toutes les données associées à la campagne
-  const deleteResult = deleteAllCampaignData(campaignId);
+    // Suppression du cache
+    let mode = req.query.mode;
+    if (mode && (mode === 'delete')) {
+      // si le local storage expire; on supprime les precedents cache et les taskid   
 
-  if (deleteResult) {
-    logger.info(`Suppression réussie du cache de la campagne : ${campaignId}`);
-  } else {
-    logger.error(`Échec de la suppression du cache de la campagne : ${campaignId}`);
-  }
+      // Appeler la fonction deleteAllCampaignData pour supprimer toutes les données associées à la campagne
+      const deleteResult = deleteAllCampaignData(campaignId);
 
-  // Redirection vers le bilan
-  return res.redirect(`/r/${campaigncrypt}`);
-}
+      if (deleteResult) {
+        logger.info(`Suppression réussie du cache de la campagne : ${campaignId}`);
+      } else {
+        logger.error(`Échec de la suppression du cache de la campagne : ${campaignId}`);
+      }
+
+      // Redirection vers le bilan
+      return res.redirect(`/r/${campaigncrypt}`);
+    }
 
     // Gestion des dates avec date-fns
     const dateNow = new Date();
@@ -157,11 +158,24 @@ if (mode && (mode === 'delete')) {
       logger.info(`La campagne ${campaignId} est terminée, lancement des requêtes pour le rapport final.`);
     }
 
+    if (campaignDates.remainingDays < -40) {
+      logger.warn(`⚠️ La date de début ${campaignDates.start} dépasse les 40 jours autorisés par l'API Smart. La requête risque d'échouer.`);
+    }
+
     if (campaignDates.daysBeforeStart > 0) {
       logger.info(`La campagne ${campaignId} n'a pas encore commencé, lancement des requêtes.`);
     } else {
       logger.info(`La campagne ${campaignId} est en attente, message d'attente affiché.`);
     }
+
+    // Affichage de la barre de progression
+    // La barre de progression est affichée si la campagne n'est pas encore commencée,  
+    // si elle est terminée depuis moins de 400 jours, ou si elle a commencé il y a moins de 9999 jours
+    const showProgressBar = !(
+      campaignDates.daysBeforeStart > 0 || // campagne pas encore commencée
+      campaignDates.remainingDays < -40 || // +400 jours depuis la fin
+      campaignDates.daysBeforeStart < -9999 // sécurité logique large
+    );
 
     // Récupére le cache de campaignID    
     let reportingData = getCampaignId(campaignId);
@@ -170,28 +184,42 @@ if (mode && (mode === 'delete')) {
       logger.info(`Affichage des données en cache pour la campagne ${campaignId}`);
 
       const advertiser_name = reportingData.advertiser_name;
-      
+      logger.info(`Nom de l'annonceur : ${advertiser_name}`);
+     
       // Vérifier si advertiser_name commence par "ADWEB"
-      if (advertiser_name.startsWith("ADWEB")) {
+      if (campaignName.startsWith("DV")) {
         // Afficher le template pour "ADWEB"
         return res.render('report.arsb/reporting.adweb.ejs', {
           campaignDates: campaignDates,
           campaign: campaign,
-          reporting: reportingData
+          reporting: reportingData,
+          showProgressBar // nouveau
         });
-      } 
+      }
 
       return res.render('report.arsb/reporting.ejs', {
         campaignDates: campaignDates,
         campaign: campaign,
-        reporting: reportingData
+        reporting: reportingData,
+        showProgressBar // nouveau
       });
 
     } else {
       logger.info(`Génération du rapport pour la campagne: ${campaign.campaign_id}`);
+      
+       if (campaignName.startsWith("DV")) {
+        // Afficher le template pour "ADWEB"
+         return res.render('report.arsb/generate.adweb.ejs', {
+          campaign,
+          campaignDates,
+          showProgressBar // nouveau
+        });
+      }
+      
       return res.render('report.arsb/generate.ejs', {
         campaign,
-        campaignDates
+        campaignDates,
+        showProgressBar // nouveau
       });
 
     }
@@ -266,93 +294,98 @@ exports.report = async (req, res) => {
     // Récupére le cache de campaignID
     let cachedCampaignId = getCampaignId(campaignId);
 
-    if (!cachedCampaignId) {
-      // D'abord, vérifiez dans le cache si les instanceId existent déjà
-      // Vérifier d'abord si les instanceId existent déjà dans le cache
-      let cachedReportIds = getReportIds(campaignId);
-
-      // Récupération des ReportIds
-      if (!cachedReportIds) {
-
-        // Récupérer les reports pour le reporting de la campagne et la partie VU
-        const reportId = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId);
-        logger.info(`ReportID : ${reportId}`);
-
-        // Vérification que reportId est attribué
-        if (!reportId) {
-          logger.error(`Erreur: reportId non attribué pour la campagne ID: ${campaignId}`);
-          return Utilities.handleCampaignNotFound(res, 500, "Impossible de générer un reportId pour la campagne", "json");
-        }
-
-        // Initialiser reportIdVU (Vide si non applicable)
-        let reportIdVU = "";
-
-        // Si la campagne dure 31 jours ou moins, récupérer également le reportId VU  && (campaignDates.daysBeforeStart >= -40) && (campaignDates.daysBeforeStart < 0)
-        if ((campaignDates.duration <= 31)) {
-          reportIdVU = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId, true);
-          logger.info(`ReportIDVU : ${reportIdVU}`);
-
-          if (!reportIdVU) {
-            logger.error(`Erreur: reportIdVU non attribué pour la campagne ID: ${campaignId}`);
-            return Utilities.handleCampaignNotFound(res, 500, "Impossible de générer un reportIdVU pour la campagne", "json");
-          }
-        }
-
-        // Sauvegarder dans le cache avec expiration de 2 heures
-        setReportIdsWithExpiry(campaignId, reportId, reportIdVU);
-        logger.info(`ReportId et ReportIdVU sauvegardés dans le cache pour la campagne ${campaignId}`);
-
-        // Mettre à jour le cache local
-        cachedReportIds = {
-          reportId,
-          reportIdVU
-        };
-        logger.info(`Sauvegarde reportId (${reportId}) et reportIdVU (${reportIdVU}) sauvegardés dans le cache pour la campagne ${campaignId}`);
-      }
-
-      // Récupére les instances pour cette campagne
-      let cachedInstanceIds = getInstanceIds(campaignId);
-
-      if (!cachedInstanceIds) {
-        logger.info(`Récupére reportId (${cachedReportIds.reportId}) et reportIdVU (${cachedReportIds.reportIdVU}) via le cache pour la campagne ${campaignId}`);
-
-        // Récupérer les détails du rapport à partir des instanceId et instanceIdVU
-        const instanceIdData = await ReportService.fetchReportDetails(cachedReportIds.reportId);
-        const instanceIdVUData = cachedReportIds.reportIdVU ?
-          await ReportService.fetchReportDetails(cachedReportIds.reportIdVU) :
-          null;
-
-        // Si vous avez besoin des données CSV à partir des instanceId et instanceIdVU
-        const instanceId = await ReportService.fetchCsvData(instanceIdData);
-        let instanceIdVU = null;
-
-        if (instanceIdVUData) {
-          instanceIdVU = await ReportService.fetchCsvData(instanceIdVUData);
-        }
-
-        // Sauvegarde les données CSV
-        setInstanceIdsWithExpiry(campaignId, instanceId, instanceIdVU);
-        cachedInstanceIds = {
-          campaignId,
-          instanceId,
-          instanceIdVU
-        };
-      }
-
-      // Affiche le rapport json    
-      const ReportBuildJsonTemplate = ReportBuildJson(campaignId, cachedInstanceIds.instanceId, cachedInstanceIds.instanceIdVU)
-        .then(result => {
-          logger.info(`Affiche le résultat du rapport json de la campagne ${campaignId}`);
-          return res.json(result);
-        })
-        .catch(error => {
-          logger.error(`Affiche erreur résultat du rapport json :`, error);
-        });
-
+    if (campaignDates.remainingDays < -40) {
+      logger.warn(`⚠️ La date de début ${campaignDates.start} dépasse les 40 jours autorisés par l'API Smart. La requête risque d'échouer.`);
     } else {
-      logger.info(`Affiche le résultat du cache json de la campagne ${campaignId}`);
-      return res.json(cachedCampaignId);
+      if (!cachedCampaignId) {
+        // D'abord, vérifiez dans le cache si les instanceId existent déjà
+        // Vérifier d'abord si les instanceId existent déjà dans le cache
+        let cachedReportIds = getReportIds(campaignId);
+
+        // Récupération des ReportIds
+        if (!cachedReportIds) {
+
+          // Récupérer les reports pour le reporting de la campagne et la partie VU
+          const reportId = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId);
+          logger.info(`ReportID : ${reportId}`);
+
+          // Vérification que reportId est attribué
+          if (!reportId) {
+            logger.error(`Erreur: reportId non attribué pour la campagne ID: ${campaignId}`);
+            return Utilities.handleCampaignNotFound(res, 500, "Impossible de générer un reportId pour la campagne", "json");
+          }
+
+          // Initialiser reportIdVU (Vide si non applicable)
+          let reportIdVU = "";
+
+          // Si la campagne dure 31 jours ou moins, récupérer également le reportId VU  && (campaignDates.daysBeforeStart >= -40) && (campaignDates.daysBeforeStart < 0)
+          if ((campaignDates.duration <= 31)) {
+            reportIdVU = await ReportService.fetchReportId(campaignDates.request_start_date, campaignDates.request_start_end, campaignId, true);
+            logger.info(`ReportIDVU : ${reportIdVU}`);
+
+            if (!reportIdVU) {
+              logger.error(`Erreur: reportIdVU non attribué pour la campagne ID: ${campaignId}`);
+              return Utilities.handleCampaignNotFound(res, 500, "Impossible de générer un reportIdVU pour la campagne", "json");
+            }
+          }
+
+          // Sauvegarder dans le cache avec expiration de 2 heures
+          setReportIdsWithExpiry(campaignId, reportId, reportIdVU);
+          logger.info(`ReportId et ReportIdVU sauvegardés dans le cache pour la campagne ${campaignId}`);
+
+          // Mettre à jour le cache local
+          cachedReportIds = {
+            reportId,
+            reportIdVU
+          };
+          logger.info(`Sauvegarde reportId (${reportId}) et reportIdVU (${reportIdVU}) sauvegardés dans le cache pour la campagne ${campaignId}`);
+        }
+
+        // Récupére les instances pour cette campagne
+        let cachedInstanceIds = getInstanceIds(campaignId);
+
+        if (!cachedInstanceIds) {
+          logger.info(`Récupére reportId (${cachedReportIds.reportId}) et reportIdVU (${cachedReportIds.reportIdVU}) via le cache pour la campagne ${campaignId}`);
+
+          // Récupérer les détails du rapport à partir des instanceId et instanceIdVU
+          const instanceIdData = await ReportService.fetchReportDetails(cachedReportIds.reportId);
+          const instanceIdVUData = cachedReportIds.reportIdVU ?
+            await ReportService.fetchReportDetails(cachedReportIds.reportIdVU) :
+            null;
+
+          // Si vous avez besoin des données CSV à partir des instanceId et instanceIdVU
+          const instanceId = await ReportService.fetchCsvData(instanceIdData);
+          let instanceIdVU = null;
+
+          if (instanceIdVUData) {
+            instanceIdVU = await ReportService.fetchCsvData(instanceIdVUData);
+          }
+
+          // Sauvegarde les données CSV
+          setInstanceIdsWithExpiry(campaignId, instanceId, instanceIdVU);
+          cachedInstanceIds = {
+            campaignId,
+            instanceId,
+            instanceIdVU
+          };
+        }
+
+        // Affiche le rapport json    
+        const ReportBuildJsonTemplate = ReportBuildJson(campaignId, cachedInstanceIds.instanceId, cachedInstanceIds.instanceIdVU)
+          .then(result => {
+            logger.info(`Affiche le résultat du rapport json de la campagne ${campaignId}`);
+            return res.json(result);
+          })
+          .catch(error => {
+            logger.error(`Affiche erreur résultat du rapport json :`, error);
+          });
+
+      } else {
+        logger.info(`Affiche le résultat du cache json de la campagne ${campaignId}`);
+        return res.json(cachedCampaignId);
+      }
     }
+
 
   } catch (error) {
     logger.error(`Erreur lors de la génération du rapport Report : ${error.message}`);
@@ -468,198 +501,218 @@ exports.download = async (req, res) => {
         campaign_end_date_formatted: reportingData.campaign_end_date_formatted,
       }];
 
-     // Structure de "globalMetricsSpec" sans "completionRateGlobal" par défaut
-const globalMetricsSpec = {
-  totalImpressions: {
-    displayName: 'Impressions',
-    headerStyle: styles.header,
-    width: 150
-  },
-  totalClics: {
-    displayName: 'Clics',
-    headerStyle: styles.header,
-    width: 150
-  },
-  ctrGlobal: {
-    displayName: 'CTR Global',
-    headerStyle: styles.header,
-    width: 150
-  },
-  uniqueVisitors: {
-    displayName: 'Visiteurs uniques',
-    headerStyle: styles.header,
-    width: 150
-  },
-  repetition: {
-    displayName: 'Répétition',
-    headerStyle: styles.header,
-    width: 150
-  }
-};
+      // Structure de "globalMetricsSpec" sans "completionRateGlobal" par défaut
+      const globalMetricsSpec = {
+        totalImpressions: {
+          displayName: 'Impressions',
+          headerStyle: styles.header,
+          width: 150
+        },
+        totalClics: {
+          displayName: 'Clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        ctrGlobal: {
+          displayName: 'CTR Global',
+          headerStyle: styles.header,
+          width: 150
+        },
+        uniqueVisitors: {
+          displayName: 'Visiteurs uniques',
+          headerStyle: styles.header,
+          width: 150
+        },
+        repetition: {
+          displayName: 'Répétition',
+          headerStyle: styles.header,
+          width: 150
+        }
+      };
 
-// Ajouter "completionRateGlobal" à "globalMetricsSpec" si "INSTREAM" est présent dans "reportingData.metrics.byFormat"
-if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
-  globalMetricsSpec.completionRateGlobal = {
-    displayName: 'Taux de complétion',
-    headerStyle: styles.header,
-    width: 150
-  };
-}
+      // Ajouter "completionRateGlobal" à "globalMetricsSpec" si "INSTREAM" est présent dans "reportingData.metrics.byFormat"
+      if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+        globalMetricsSpec.completionRateGlobal = {
+          displayName: 'Taux de complétion',
+          headerStyle: styles.header,
+          width: 150
+        };
+      }
 
-// Création de "globalMetricsData"
-const globalMetricsData = [{
-  totalImpressions: reportingData.globalMetrics.totalImpressions,
-  totalClics: reportingData.globalMetrics.totalClics,
-  ctrGlobal: reportingData.globalMetrics.ctrGlobal.replace('.', ',') + '%',
-  uniqueVisitors: reportingData.globalMetrics.uniqueVisitors,
-  repetition: reportingData.globalMetrics.repetition.replace('.', ',')
-}];
+      // Création de "globalMetricsData"
+      const globalMetricsData = [{
+        totalImpressions: reportingData.globalMetrics.totalImpressions,
+        totalClics: reportingData.globalMetrics.totalClics,
+        ctrGlobal: reportingData.globalMetrics.ctrGlobal.replace('.', ',') + '%',
+        uniqueVisitors: reportingData.globalMetrics.uniqueVisitors,
+        repetition: reportingData.globalMetrics.repetition.replace('.', ',')
+      }];
 
-// Ajouter "completionRateGlobal" à "globalMetricsData" si "INSTREAM" est présent dans "reportingData.metrics.byFormat"
-if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
-  globalMetricsData[0].completionRateGlobal = reportingData.globalMetrics.completionRateGlobal.replace('.', ',') + '%';
-}
+      // Ajouter "completionRateGlobal" à "globalMetricsData" si "INSTREAM" est présent dans "reportingData.metrics.byFormat"
+      if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+        globalMetricsData[0].completionRateGlobal = reportingData.globalMetrics.completionRateGlobal.replace('.', ',') + '%';
+      }
 
-     // Structure de "bySiteSpec" sans "vtr" par défaut
-const bySiteSpec = {
-  site: {
-    displayName: 'Nom du site',
-    headerStyle: styles.header,
-    width: 150
-  },
-  impressions: {
-    displayName: 'Impressions',
-    headerStyle: styles.header,
-    width: 150
-  },
-  clics: {
-    displayName: 'Clics',
-    headerStyle: styles.header,
-    width: 150
-  },
-  ctr: {
-    displayName: 'Taux de clics',
-    headerStyle: styles.header,
-    width: 150
-  }
-};
+      // Structure de "bySiteSpec" sans "vtr" par défaut
+      const bySiteSpec = {
+        site: {
+          displayName: 'Nom du site',
+          headerStyle: styles.header,
+          width: 150
+        },
+        impressions: {
+          displayName: 'Impressions',
+          headerStyle: styles.header,
+          width: 150
+        },
+        clics: {
+          displayName: 'Clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        ctr: {
+          displayName: 'Taux de clics',
+          headerStyle: styles.header,
+          width: 150
+        }
+      };
 
-// Ajouter "vtr" à "bySiteSpec" si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
-if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
-  bySiteSpec.vtr = {
-    displayName: 'Taux de complétion',
-    headerStyle: styles.header,
-    width: 150
-  };
-}
+      // Ajouter "vtr" à "bySiteSpec" si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
+      if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+        bySiteSpec.vtr = {
+          displayName: 'Taux de complétion',
+          headerStyle: styles.header,
+          width: 150
+        };
+      }
 
-// Création de "bySiteData"
-const bySiteData = Object.entries(reportingData.metrics.bySite).map(([siteName, values]) => {
-  // Structure de base sans "vtr"
-  const siteData = {
-    site: siteName,
-    impressions: values.impressions,
-    clics: values.clics,
-    ctr: values.ctr.replace('.', ',') + '%'
-  };
+      // Création de "bySiteData"
+      const bySiteData = Object.entries(reportingData.metrics.bySite).map(([siteName, values]) => {
+        // Structure de base sans "vtr"
+        const siteData = {
+          site: siteName,
+          impressions: values.impressions,
+          clics: values.clics,
+          ctr: values.ctr.replace('.', ',') + '%'
+        };
 
-  // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
-  if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
-    siteData.vtr = values.vtr.replace('.', ',') + '%';
-  }
+        // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
+        if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
+          siteData.vtr = values.vtr.replace('.', ',') + '%';
+        }
 
-  return siteData;
-});
+        return siteData;
+      });
 
-    // Structure de "byFormatSpec" sans "vtr" par défaut
-const byFormatSpec = {
-  format: {
-    displayName: 'Format',
-    headerStyle: styles.header,
-    width: 150
-  },
-  impressions: {
-    displayName: 'Impressions',
-    headerStyle: styles.header,
-    width: 150
-  },
-  clics: {
-    displayName: 'Clics',
-    headerStyle: styles.header,
-    width: 150
-  },
-  ctr: {
-    displayName: 'Taux de clics',
-    headerStyle: styles.header,
-    width: 150
-  }
-};
+      // Structure de "byFormatSpec" sans "vtr" par défaut
+      const byFormatSpec = {
+        format: {
+          displayName: 'Format',
+          headerStyle: styles.header,
+          width: 150
+        },
+        impressions: {
+          displayName: 'Impressions',
+          headerStyle: styles.header,
+          width: 150
+        },
+        clics: {
+          displayName: 'Clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        ctr: {
+          displayName: 'Taux de clics',
+          headerStyle: styles.header,
+          width: 150
+        }
+      };
 
-// Ajouter "vtr" à "byFormatSpec" si la métrique "INSTREAM" est présente dans les données
-if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
-  byFormatSpec.vtr = {
-    displayName: 'Taux de complétion',
-    headerStyle: styles.header,
-    width: 150
-  };
-}
+      // Ajouter "vtr" à "byFormatSpec" si la métrique "INSTREAM" est présente dans les données
+      if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+        byFormatSpec.vtr = {
+          displayName: 'Taux de complétion',
+          headerStyle: styles.header,
+          width: 150
+        };
+      }
 
-// Création de "byFormatData"
-const byFormatData = Object.entries(reportingData.metrics.byFormat).map(([formatName, values]) => {
-  // Structure de base sans "vtr"
-  const formatData = {
-    format: formatName,
-    impressions: values.impressions,
-    clics: values.clics,
-    ctr: values.ctr.replace('.', ',') + '%'
-  };
+      // Création de "byFormatData"
+      const byFormatData = Object.entries(reportingData.metrics.byFormat).map(([formatName, values]) => {
+        // Structure de base sans "vtr"
+        const formatData = {
+          format: formatName,
+          impressions: values.impressions,
+          clics: values.clics,
+          ctr: values.ctr.replace('.', ',') + '%'
+        };
 
-  // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
-  if (reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
-    formatData.vtr = values.vtr.replace('.', ',') + '%';
-  }
+        // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
+        if (reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
+          formatData.vtr = values.vtr.replace('.', ',') + '%';
+        }
 
-  return formatData;
-});
+        return formatData;
+      });
 
-  // Structure de "byFormatAndSiteSpec" sans "vtr" par défaut
-const byFormatAndSiteSpec = {
-  format: { displayName: 'Format', headerStyle: styles.header, width: 150 },
-  site: { displayName: 'Nom du site', headerStyle: styles.header, width: 150 },
-  impressions: { displayName: 'Impressions', headerStyle: styles.header, width: 150 },
-  clics: { displayName: 'Clics', headerStyle: styles.header, width: 150 },
-  ctr: { displayName: 'Taux de clics', headerStyle: styles.header, width: 150 }
-};
+      // Structure de "byFormatAndSiteSpec" sans "vtr" par défaut
+      const byFormatAndSiteSpec = {
+        format: {
+          displayName: 'Format',
+          headerStyle: styles.header,
+          width: 150
+        },
+        site: {
+          displayName: 'Nom du site',
+          headerStyle: styles.header,
+          width: 150
+        },
+        impressions: {
+          displayName: 'Impressions',
+          headerStyle: styles.header,
+          width: 150
+        },
+        clics: {
+          displayName: 'Clics',
+          headerStyle: styles.header,
+          width: 150
+        },
+        ctr: {
+          displayName: 'Taux de clics',
+          headerStyle: styles.header,
+          width: 150
+        }
+      };
 
-// Ajouter "vtr" à "byFormatAndSiteSpec" si la métrique "INSTREAM" est présente dans les données
-if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
-  byFormatAndSiteSpec.vtr = {
-    displayName: 'Taux de complétion',
-    headerStyle: styles.header,
-    width: 150
-  };
-}
+      // Ajouter "vtr" à "byFormatAndSiteSpec" si la métrique "INSTREAM" est présente dans les données
+      if (reportingData.metrics.byFormat && reportingData.metrics.byFormat['INSTREAM']) {
+        byFormatAndSiteSpec.vtr = {
+          displayName: 'Taux de complétion',
+          headerStyle: styles.header,
+          width: 150
+        };
+      }
 
-// Création de "byFormatAndSiteData"
-const byFormatAndSiteData = Object.entries(reportingData.metrics.byFormatAndSite).flatMap(([formatName, sites]) => 
-  Object.entries(sites).map(([siteName, values]) => {
-    // Structure de base sans "vtr"
-    const formatAndSiteData = {
-      format: formatName,
-      site: siteName,
-      impressions: values.impressions,
-      clics: values.clics,
-      ctr: values.ctr.replace('.', ',') + '%'
-    };
+      // Création de "byFormatAndSiteData"
+      const byFormatAndSiteData = Object.entries(reportingData.metrics.byFormatAndSite).flatMap(([formatName, sites]) =>
+        Object.entries(sites).map(([siteName, values]) => {
+          // Structure de base sans "vtr"
+          const formatAndSiteData = {
+            format: formatName,
+            site: siteName,
+            impressions: values.impressions,
+            clics: values.clics,
+            ctr: values.ctr.replace('.', ',') + '%'
+          };
 
-    // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
-    if (reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
-      formatAndSiteData.vtr = values.vtr.replace('.', ',') + '%';
-    }
+          // Ajouter "vtr" seulement si la métrique "INSTREAM" est présente dans "reportingData.metrics.byFormat"
+          if (reportingData.metrics.byFormat['INSTREAM'] && values.vtr) {
+            formatAndSiteData.vtr = values.vtr.replace('.', ',') + '%';
+          }
 
-    return formatAndSiteData;
-  })
-);
+          return formatAndSiteData;
+        })
+      );
 
       // Structure de "byCreatives" (Creatives de campagne)
       const byCreativesSpec = {
@@ -713,11 +766,15 @@ const byFormatAndSiteData = Object.entries(reportingData.metrics.byFormatAndSite
           specification: byCreativesSpec,
           data: byCreativesData
         },
-        { name: 'Par formats et sites', specification: byFormatAndSiteSpec, data: byFormatAndSiteData }
-     
+        {
+          name: 'Par formats et sites',
+          specification: byFormatAndSiteSpec,
+          data: byFormatAndSiteData
+        }
+
       ]);
 
-       // rapport_antennesb-202105031152-ESPACE_DECO-67590.xls
+      // rapport_antennesb-202105031152-ESPACE_DECO-67590.xls
       res.attachment(`${dateDownload}-rapport_asb-${campaignNameExcel}.xlsx`);
       return res.send(report);
     } else {

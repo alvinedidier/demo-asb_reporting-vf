@@ -2,7 +2,7 @@
 
 // Définition des URLs de base pour chaque type d'API
 const apiBaseUrls = {
-  manage: 'https://manage.smartadserverapis.com/2044/',
+  manage: 'https://supply-api.eqtv.io/', // 'https://manage.smartadserverapis.com/2044/',
   reporting: 'https://supply-api.eqtv.io/insights/report-async/',
   forecast: 'https://forecast.smartadserverapis.com/2044/forecast',
 };

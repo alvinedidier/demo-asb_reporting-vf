@@ -93,19 +93,19 @@ const localStorage = new LocalStorage('data/reporting/');
 // const localStorageReportIds = new LocalStorage(`data/instanceIds/${formattedDate}/`);
 
 const {
-  getAvailableFormats
+    getAvailableFormats
 } = require('../utils/report'); // Importe la fonction du fichier utils/reports.js
 const {
-  getReportIds,
-  setReportIdsWithExpiry,
-  getInstanceIds,
-  setInstanceIdsWithExpiry,
-  getCampaignId,
-  setCampaignIdWithExpiry
+    getReportIds,
+    setReportIdsWithExpiry,
+    getInstanceIds,
+    setInstanceIdsWithExpiry,
+    getCampaignId,
+    setCampaignIdWithExpiry
 } = require('../utils/localStorageHelper'); // Import des fonctions de gestion du cache
 
 const {
-  ReportBuildJson
+    ReportBuildJson
 } = require('../utils/reportHelper');
 
 exports.campaign = async (req, res) => {
@@ -120,7 +120,9 @@ exports.campaign = async (req, res) => {
         }
 
         // 2. Récupération des données de la campagne
-        const apiUrl = apiBuilder.buildApiUrl('campaign', { campaign_id: campaignid });
+        const apiUrl = apiBuilder.buildApiUrl('campaign', {
+            campaign_id: campaignid
+        });
 
         if (!apiUrl) {
             throw new Error(`URL de l'API introuvable pour la campagne ${campaignid}`);
@@ -141,10 +143,10 @@ exports.campaign = async (req, res) => {
 
         // 5. Préparation et sauvegarde des données de campagne
         const campaignData = mapApiFieldsToDb(dataCampaign, campaignFieldMapping);
-        
+
         campaignData.campaign_crypt = campaign_crypt;
         logger.info(`Données de campagne mappées : ${JSON.stringify(campaignData)}`);
-       
+
         // Vérification des données avant upsert
         if (!campaignData || typeof campaignData !== 'object') {
             throw new Error('Données de campagne invalides');
@@ -154,20 +156,53 @@ exports.campaign = async (req, res) => {
             throw new Error('La clé unique campaign_id est manquante dans entityData');
         }
 
+       const advertiserInfo = await ModelAdvertisers.findOne({
+        where: { advertiser_id: campaignData.advertiser_id }
+    });
+
+        if (!advertiserInfo) {
+            const apiUrlAdvertiser = apiBuilder.buildApiUrl('advertiser', {
+                advertiser_id: campaignData.advertiser_id
+            });
+            if (!apiUrlAdvertiser) {
+                throw new Error('URL de l\'API introuvable.');
+            }
+
+            // Utilisation de la fonction utilitaire pour faire la requête GET avec retry
+            const dataAdvertiser = await makeApiRequest('GET', apiUrlAdvertiser);
+            // Vérification si les données existent
+            if (!dataAdvertiser || !dataAdvertiser.id) {
+                throw new Error('Données de campagne non trouvées');
+            }
+
+            // Mapper les données de campagne et d'insertion
+            const advertiserData = mapApiFieldsToDb(dataAdvertiser, advertiserFieldMapping);
+            await upsertEntity(ModelAdvertisers, advertiserData, 'advertiser_id');
+            logger.warn(`Annonceur ${campaignData.advertiser_id} créé automatiquement.`);
+        }
+
+
         // 6. Sauvegarde de la campagne
         await upsertEntity(ModelCampaigns, campaignData, 'campaign_id');
 
-/*
-        // 7. Récupération et traitement des insertions
-        const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', { campaign_id: campaignid });
-
-        if (!apiUrlInsertions) {
-            throw new Error(`URL de l'API CampaignInsertions introuvable pour la campagne ${campaignid}`);
+        // 👉 Redirection si mode=view
+        if (req.query.mode === 'view') {
+            const permalinkUrl = `/r/${campaignData.campaign_crypt}`;
+            logger.info(`Redirection vers le permalien : ${permalinkUrl}`);
+            return res.redirect(permalinkUrl);
         }
 
-        const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
-        // Traitement des insertions...
-*/
+        /*
+                // 7. Récupération et traitement des insertions
+                const apiUrlInsertions = apiBuilder.buildApiUrl('campaignInsertions', { campaign_id: campaignid });
+
+                if (!apiUrlInsertions) {
+                    throw new Error(`URL de l'API CampaignInsertions introuvable pour la campagne ${campaignid}`);
+                }
+
+                const dataInsertions = await makeApiRequest('GET', apiUrlInsertions);
+                // Traitement des insertions...
+        */
         // 9. Préparation de la réponse
         const response = {
             status: 'success',
@@ -390,7 +425,7 @@ exports.advertiser = async (req, res) => {
 
         // Mapper les données de campagne et d'insertion
         const advertiserData = mapApiFieldsToDb(data, advertiserFieldMapping);
-        await upsertEntity(ModelAdvertiser, advertiserData, 'advertiser_id');
+        await upsertEntity(ModelAdvertisers, advertiserData, 'advertiser_id');
 
         // Gestion des campagnes associées à annonceur
         const apiUrlCampaigns = apiBuilder.buildApiUrl('advertiserCampaigns', {

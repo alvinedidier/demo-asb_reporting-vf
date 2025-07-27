@@ -6,6 +6,8 @@ const axios = require(`axios`);
 // const dbApi = require("../config/config.api");
 require('dotenv').config()
 const Utilities = require('../functions/functions.utilities');
+const { getSmartToken } = require('../utils/axiosHelper'); // adapte le chemin selon ton projet
+
 /**
  * Requête API FORECAST
  * @constructor
@@ -187,7 +189,7 @@ exports.getManageData = async (method) => {
 
       format_data = await axios({
         method: method,
-        url: 'https://manage.smartadserverapis.com/2044/formats',
+        url: 'https://supply-api.eqtv.io/formats',
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Content-type": "Application/json"
@@ -214,33 +216,32 @@ exports.getManageData = async (method) => {
 exports.postManage = async (method, data = null) => {
 
   try {
-    var test;
-
+   
     console.log('method' + method)
     console.log('data' + data)
 
     switch (method) {
       case 'agencies':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/agencies';
+        var configApiUrl = 'https://supply-api.eqtv.io/agencies';
         break;
       case 'advertisers':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/advertisers';
+        var configApiUrl = 'https://supply-api.eqtv.io/advertisers';
         break;
       case 'campaigns':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/campaigns';
+        var configApiUrl = 'https://supply-api.eqtv.io/campaigns';
         break;
       case 'insertions':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/insertions';
+        var configApiUrl = 'https://supply-api.eqtv.io/insertions';
         break;
       case 'creatives':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/imagecreatives';
+        var configApiUrl = 'https://supply-api.eqtv.io/imagecreatives';
         break;
 
       default:
 
         break;
     }
-
+/*
     test = await axios({
       method: 'POST',
       url: configApiUrl,
@@ -254,6 +255,18 @@ exports.postManage = async (method, data = null) => {
       },
       data
     })
+*/
+    const token = await getSmartToken();
+
+const test = await axios({
+  method: 'POST',
+  url: configApiUrl,
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  data: data
+});
 
     return test;
   } catch (error) {
@@ -274,10 +287,10 @@ exports.copyManage = async (method, data = null, id) => {
     switch (method) {
 
       case 'insertions':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/insertions/' + id + '/copy/';
+        var configApiUrl = 'https://supply-api.eqtv.io/insertions/' + id + '/copy/';
         break;
       case 'creatives':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/imagecreatives';
+        var configApiUrl = 'https://supply-api.eqtv.io/imagecreatives';
         break;
 
       default:
@@ -342,10 +355,10 @@ exports.getManageCopy = async (method, id) => {
     switch (method) {
 
       case 'creatives':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/insertions/' + id + '/creatives';
+        var configApiUrl = 'https://supply-api.eqtv.io/insertions/' + id + '/creatives';
         break;
       case 'scriptcreatives':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/scriptcreatives/' + id;
+        var configApiUrl = 'https://supply-api.eqtv.io/scriptcreatives/' + id;
         break;
 
       default:
@@ -385,19 +398,19 @@ exports.putManage = async (method, data = null) => {
 
     switch (method) {
       case 'insertiontargetings':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/insertiontargetings';
+        var configApiUrl = 'https://supply-api.eqtv.io/insertiontargetings';
         break;
       case 'insertiontemplates':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/insertiontemplates';
+        var configApiUrl = 'https://supply-api.eqtv.io/insertiontemplates';
         break;
       case 'imagecreatives':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/imagecreatives/';
+        var configApiUrl = 'https://supply-api.eqtv.io/imagecreatives/';
         break;
       case 'videocreatives':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/videocreatives/';
+        var configApiUrl = 'https://supply-api.eqtv.io/videocreatives/';
         break;
       case 'scriptcreatives':
-        var configApiUrl = 'https://manage.smartadserverapis.com/2044/scriptcreatives/';
+        var configApiUrl = 'https://supply-api.eqtv.io/scriptcreatives/';
         break;
 
       default:

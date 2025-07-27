@@ -14,7 +14,6 @@ exports.config = function (method, params = '') {
             var configApiUrl = 'https://manage.smartadserverapis.com/2044/agencies/';
             break;
         case 'advertisers':
-            // var configApiUrl = 'https://manage.smartadserverapis.com/2044/advertisers/';
             var configApiUrl = 'https://manage.smartadserverapis.com/Advertisers';
             break;
         case 'advertiser':
@@ -24,11 +23,9 @@ exports.config = function (method, params = '') {
             break;
         case 'advertisersCampaigns':
             advertiser_id = params.advertiser_id;
-            // var configApiUrl = 'https://manage.smartadserverapis.com/2044/advertisers/' +  advertiser_id + '/campaigns/';
             var configApiUrl = 'https://manage.smartadserverapis.com/Advertisers/' +  advertiser_id + '/campaigns';
             break;
         case 'campaigns':
-            // var configApiUrl = 'https://manage.smartadserverapis.com/2044/campaigns/';
             var configApiUrl = 'https://manage.smartadserverapis.com/Campaigns/';
             break;
         case 'campaign':

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,8 +27,7 @@
     <link rel="icon"
         href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-32x32.png"
         sizes="32x32" />
-        <link rel="stylesheet" type="text/css"
-        href="/assets/css/reporting.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/reporting.css">
 
 </head>
 
@@ -42,13 +40,15 @@
 
     <div class="container p-2 mt-2 mb-2" id="reporting-board">
 
-
         <% if(reporting.campaign_end_date > reporting.reporting_dates.reporting_end_date) { %>
         <!-- Alerte de mise à jour des statistiques -->
         <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top: 30px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#58151c" xmlns="http://www.w3.org/2000/svg" transform="rotate(0 0 0)">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.5 6C2.5 4.75736 3.50736 3.75 4.75 3.75H19.25C20.4926 3.75 21.5 4.75736 21.5 6V16.5484C21.5 17.791 20.4926 18.7984 19.25 18.7984H7.635L3.75032 22.277C3.52993 22.4743 3.21411 22.5237 2.94401 22.403C2.67391 22.2823 2.5 22.0141 2.5 21.7182V6ZM4.75 5.25C4.33579 5.25 4 5.58579 4 6V20.0399L6.84795 17.4897C6.9855 17.3665 7.16364 17.2984 7.34827 17.2984H19.25C19.6642 17.2984 20 16.9626 20 16.5484V6C20 5.58579 19.6642 5.25 19.25 5.25H4.75Z" fill="#58151c"/>
-                </svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#58151c" xmlns="http://www.w3.org/2000/svg"
+                transform="rotate(0 0 0)">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M2.5 6C2.5 4.75736 3.50736 3.75 4.75 3.75H19.25C20.4926 3.75 21.5 4.75736 21.5 6V16.5484C21.5 17.791 20.4926 18.7984 19.25 18.7984H7.635L3.75032 22.277C3.52993 22.4743 3.21411 22.5237 2.94401 22.403C2.67391 22.2823 2.5 22.0141 2.5 21.7182V6ZM4.75 5.25C4.33579 5.25 4 5.58579 4 6V20.0399L6.84795 17.4897C6.9855 17.3665 7.16364 17.2984 7.34827 17.2984H19.25C19.6642 17.2984 20 16.9626 20 16.5484V6C20 5.58579 19.6642 5.25 19.25 5.25H4.75Z"
+                    fill="#58151c" />
+            </svg>
 
             <strong>Les statistiques de cette campagne sont mises à jour toutes les 2 heures. (Prochaine MAJ :
                 <%= reporting.reporting_dates.reporting_end_date.toLocaleString('fr-FR') %> )</strong>
@@ -87,12 +87,18 @@
                         <%= reporting.campaign_end_date_formatted %>
                     </li>
                     <li class="list-group-item">
-                        <a href='/r/<%= reporting.campaign_crypt %>/download' class="btn btn-xs btn-danger rounded-pill">
-                            <svg width="20" height="20" viewBox="0 0 25 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg" transform="rotate(0 0 0)">
-                                <path d="M12.4239 16.75C12.2079 16.75 12.0132 16.6587 11.8763 16.5126L7.26675 11.9059C6.97376 11.6131 6.97361 11.1382 7.26641 10.8452C7.55921 10.5523 8.03408 10.5521 8.32707 10.8449L11.6739 14.1896L11.6739 4C11.6739 3.58579 12.0096 3.25 12.4239 3.25C12.8381 3.25 13.1739 3.58579 13.1739 4L13.1739 14.1854L16.5168 10.8449C16.8098 10.5521 17.2846 10.5523 17.5774 10.8453C17.8702 11.1383 17.87 11.6131 17.5771 11.9059L13.0021 16.4776C12.8646 16.644 12.6566 16.75 12.4239 16.75Z" fill="#ffffff"/>
-                                <path d="M5.17188 16C5.17188 15.5858 4.83609 15.25 4.42188 15.25C4.00766 15.25 3.67188 15.5858 3.67188 16V18.5C3.67188 19.7426 4.67923 20.75 5.92188 20.75H18.9227C20.1654 20.75 21.1727 19.7426 21.1727 18.5V16C21.1727 15.5858 20.837 15.25 20.4227 15.25C20.0085 15.25 19.6727 15.5858 19.6727 16V18.5C19.6727 18.9142 19.337 19.25 18.9227 19.25H5.92188C5.50766 19.25 5.17188 18.9142 5.17188 18.5V16Z" fill="#ffffff"/>
-                                </svg>
-                                 Télécharger (Format Excel) </a>
+                        <a href='/r/<%= reporting.campaign_crypt %>/download'
+                            class="btn btn-xs btn-danger rounded-pill">
+                            <svg width="20" height="20" viewBox="0 0 25 24" fill="#ffffff"
+                                xmlns="http://www.w3.org/2000/svg" transform="rotate(0 0 0)">
+                                <path
+                                    d="M12.4239 16.75C12.2079 16.75 12.0132 16.6587 11.8763 16.5126L7.26675 11.9059C6.97376 11.6131 6.97361 11.1382 7.26641 10.8452C7.55921 10.5523 8.03408 10.5521 8.32707 10.8449L11.6739 14.1896L11.6739 4C11.6739 3.58579 12.0096 3.25 12.4239 3.25C12.8381 3.25 13.1739 3.58579 13.1739 4L13.1739 14.1854L16.5168 10.8449C16.8098 10.5521 17.2846 10.5523 17.5774 10.8453C17.8702 11.1383 17.87 11.6131 17.5771 11.9059L13.0021 16.4776C12.8646 16.644 12.6566 16.75 12.4239 16.75Z"
+                                    fill="#ffffff" />
+                                <path
+                                    d="M5.17188 16C5.17188 15.5858 4.83609 15.25 4.42188 15.25C4.00766 15.25 3.67188 15.5858 3.67188 16V18.5C3.67188 19.7426 4.67923 20.75 5.92188 20.75H18.9227C20.1654 20.75 21.1727 19.7426 21.1727 18.5V16C21.1727 15.5858 20.837 15.25 20.4227 15.25C20.0085 15.25 19.6727 15.5858 19.6727 16V18.5C19.6727 18.9142 19.337 19.25 18.9227 19.25H5.92188C5.50766 19.25 5.17188 18.9142 5.17188 18.5V16Z"
+                                    fill="#ffffff" />
+                            </svg>
+                            Télécharger (Format Excel) </a>
                     </li>
                 </ul>
             </div>
@@ -132,8 +138,8 @@
                         <th scope="col">Taux de clics</th>
                         <th scope="col">Visiteurs uniques</th>
                         <th scope="col">Répétition</th>
-                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %> 
-                            <th scope="col" class="text-right">Taux de complétion</th>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %>
+                        <th scope="col" class="text-right">Taux de complétion</th>
                         <% } %>
                     </tr>
                 </thead>
@@ -143,89 +149,97 @@
                         <td><%= reporting.globalMetrics.totalClics.toLocaleString('fr-FR') %></td>
                         <td><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</td>
                         <td>
-                            <% if (reporting.globalMetrics.uniqueVisitors != "0") { %> 
-                                <%= reporting.globalMetrics.uniqueVisitors.toLocaleString('fr-FR') %> 
+                            <% if (reporting.globalMetrics.uniqueVisitors != "0") { %>
+                            <%= reporting.globalMetrics.uniqueVisitors.toLocaleString('fr-FR') %>
                             <% } else { %>
-                                -
+                            -
                             <% } %>
                         </td>
                         <td>
-                            <% if ((reporting.globalMetrics.repetition != "0") && (reporting.globalMetrics.repetition != "0.00")) { %> 
-                                <%= reporting.globalMetrics.repetition.toLocaleString('fr-FR') %> 
+                            <% if ((reporting.globalMetrics.repetition != "0") && (reporting.globalMetrics.repetition != "0.00")) { %>
+                            <%= reporting.globalMetrics.repetition.toLocaleString('fr-FR') %>
                             <% } else { %>
-                                -
+                            -
                             <% } %>
                         </td>
-                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %> 
-                            <td class="text-right"><%= reporting.metrics.byFormat["INSTREAM"].vtr.toLocaleString('fr-FR') %>%</td> 
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %>
+                        <td class="text-right">
+                            <%= reporting.metrics.byFormat["INSTREAM"].vtr.toLocaleString('fr-FR') %>%</td>
                         <% } %>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        
+
         <!-- Affichage par format -->
         <% if (reporting.metrics.byFormat && Object.keys(reporting.metrics.byFormat).length > 0) { %>
-            <div class="row p-3 m-5" id="table_global_format">
-                <h3 class="title text-asb">
-                    <svg width="40" height="40" viewBox="0 0 25 24" fill="#112f82" xmlns="http://www.w3.org/2000/svg"
-                        transform="rotate(0 0 0) scale(-1, 1) translate(-0, 0)">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                            d="M7.77344 5.25C7.77344 4.00736 8.7808 3 10.0234 3H14.0234C15.2661 3 16.2734 4.00736 16.2734 5.25V6H19.2736C20.5163 6 21.5236 7.00736 21.5236 8.25V17.25C21.5236 18.4926 20.5163 19.5 19.2736 19.5H4.77344C3.5308 19.5 2.52344 18.4926 2.52344 17.25V8.25C2.52344 7.00736 3.5308 6 4.77344 6H7.77344V5.25ZM14.7734 5.25V6H9.27344V5.25C9.27344 4.83579 9.60922 4.5 10.0234 4.5H14.0234C14.4377 4.5 14.7734 4.83579 14.7734 5.25ZM4.77344 7.5H19.2736C19.6879 7.5 20.0236 7.83579 20.0236 8.25V10.5H14.605C14.3242 9.90876 13.7215 9.5 13.0234 9.5H11.0234C10.3253 9.5 9.72271 9.90876 9.44185 10.5H4.02344V8.25C4.02344 7.83579 4.35922 7.5 4.77344 7.5ZM9.44185 12H4.02344V17.25C4.02344 17.6642 4.35922 18 4.77344 18H19.2736C19.6879 18 20.0236 17.6642 20.0236 17.25V12H14.605C14.3242 12.5912 13.7215 13 13.0234 13H11.0234C10.3253 13 9.72271 12.5912 9.44185 12Z"
-                            fill="#112f82" />
-                    </svg>
-    
-                    <strong>Formats</strong>
-                </h3>
-                <table class="table" id="table_campaigns">
-                    <thead class="text-left table-asb">
-                        <tr>
-                            <th scope="col">Format</th>
-                            <th scope="col" class="text-right">Impressions</th>
-                            <th scope="col" class="text-right">Clics</th>
-                            <th scope="col" class="text-right">Taux de clics</th>
-                            <% if(reporting.metrics.byFormat["INSTREAM"]) { %> 
-                                <th scope="col" class="text-right">Taux de complétion</th>
-                            <% } %>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% for (let format in reporting.metrics.byFormat) { %>
-                        <tr>
-                            <td><%= format.toUpperCase() %></td>
-                            <td class="text-right">
-                                <%= reporting.metrics.byFormat[format].impressions.toLocaleString('fr-FR') %></td>
-                            <td class="text-right"><%= reporting.metrics.byFormat[format].clics.toLocaleString('fr-FR') %>
-                            </td>
-                            <td class="text-right"><%= reporting.metrics.byFormat[format].ctr.toLocaleString('fr-FR') %>%
-                            </td>
-                            <% if(reporting.metrics.byFormat["INSTREAM"]) { %>  
-                                <td class="text-right"><%= reporting.metrics.byFormat["INSTREAM"].vtr.toLocaleString('fr-FR') %>%</td> 
-                            <% } %>
-                        </tr>
+        <div class="row p-3 m-5" id="table_global_format">
+            <h3 class="title text-asb">
+                <svg width="40" height="40" viewBox="0 0 25 24" fill="#112f82" xmlns="http://www.w3.org/2000/svg"
+                    transform="rotate(0 0 0) scale(-1, 1) translate(-0, 0)">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M7.77344 5.25C7.77344 4.00736 8.7808 3 10.0234 3H14.0234C15.2661 3 16.2734 4.00736 16.2734 5.25V6H19.2736C20.5163 6 21.5236 7.00736 21.5236 8.25V17.25C21.5236 18.4926 20.5163 19.5 19.2736 19.5H4.77344C3.5308 19.5 2.52344 18.4926 2.52344 17.25V8.25C2.52344 7.00736 3.5308 6 4.77344 6H7.77344V5.25ZM14.7734 5.25V6H9.27344V5.25C9.27344 4.83579 9.60922 4.5 10.0234 4.5H14.0234C14.4377 4.5 14.7734 4.83579 14.7734 5.25ZM4.77344 7.5H19.2736C19.6879 7.5 20.0236 7.83579 20.0236 8.25V10.5H14.605C14.3242 9.90876 13.7215 9.5 13.0234 9.5H11.0234C10.3253 9.5 9.72271 9.90876 9.44185 10.5H4.02344V8.25C4.02344 7.83579 4.35922 7.5 4.77344 7.5ZM9.44185 12H4.02344V17.25C4.02344 17.6642 4.35922 18 4.77344 18H19.2736C19.6879 18 20.0236 17.6642 20.0236 17.25V12H14.605C14.3242 12.5912 13.7215 13 13.0234 13H11.0234C10.3253 13 9.72271 12.5912 9.44185 12Z"
+                        fill="#112f82" />
+                </svg>
+
+                <strong>Formats</strong>
+            </h3>
+            <table class="table" id="table_campaigns">
+                <thead class="text-left table-asb">
+                    <tr>
+                        <th scope="col">Format</th>
+                        <th scope="col" class="text-right">Impressions</th>
+                        <th scope="col" class="text-right">Clics</th>
+                        <th scope="col" class="text-right">Taux de clics</th>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %>
+                        <th scope="col" class="text-right">Taux de complétion</th>
                         <% } %>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td><strong>Total</strong></td>
-                            <td class="text-right"><strong><%= reporting.globalMetrics.totalImpressions.toLocaleString('fr-FR') %></strong></td>
-                            <td class="text-right"><strong><%= reporting.globalMetrics.totalClics.toLocaleString('fr-FR') %></strong></td>
-                            <td class="text-right"><strong><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</strong></td>
-                            <% if(reporting.metrics.byFormat["INSTREAM"]) { %> <td class="text-right"><strong><%= reporting.metrics.byFormat["INSTREAM"].vtr.toLocaleString('fr-FR') %>%</strong></td> <% } %>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-    
-            <hr />
-            <% } %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let format in reporting.metrics.byFormat) { %>
+                    <tr>
+                        <td><%= format.toUpperCase() %></td>
+                        <td class="text-right">
+                            <%= reporting.metrics.byFormat[format].impressions.toLocaleString('fr-FR') %></td>
+                        <td class="text-right"><%= reporting.metrics.byFormat[format].clics.toLocaleString('fr-FR') %>
+                        </td>
+                        <td class="text-right"><%= reporting.metrics.byFormat[format].ctr.toLocaleString('fr-FR') %>%
+                        </td>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %>
+                        <td class="text-right">
+                            <%= reporting.metrics.byFormat["INSTREAM"].vtr.toLocaleString('fr-FR') %>%</td>
+                        <% } %>
+                    </tr>
+                    <% } %>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td class="text-right">
+                            <strong><%= reporting.globalMetrics.totalImpressions.toLocaleString('fr-FR') %></strong>
+                        </td>
+                        <td class="text-right">
+                            <strong><%= reporting.globalMetrics.totalClics.toLocaleString('fr-FR') %></strong></td>
+                        <td class="text-right">
+                            <strong><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</strong></td>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %> <td class="text-right">
+                            <strong><%= reporting.metrics.byFormat["INSTREAM"].vtr.toLocaleString('fr-FR') %>%</strong>
+                        </td> <% } %>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <hr />
+        <% } %>
 
         <!-- Affichage par format et par site -->
         <% if (reporting.metrics.byFormatAndSite && Object.keys(reporting.metrics.byFormatAndSite).length > 0) { %>
-       
-            <% for (let format in reporting.metrics.byFormatAndSite) { %>
-           <div class="row p-3 m-5">
+
+        <% for (let format in reporting.metrics.byFormatAndSite) { %>
+        <div class="row p-3 m-5">
             <h4 class="title text-asb">
                 <svg width="40" height="40" viewBox="0 0 25 24" fill="#112f82" xmlns="http://www.w3.org/2000/svg"
                     transform="rotate(0 0 0)">
@@ -279,8 +293,8 @@
 
             </table>
         </div>
-            <% } %>
-           
+        <% } %>
+
         <hr />
         <% } %>
 
@@ -326,48 +340,48 @@
                 <tfoot>
                     <tr>
                         <td><strong>Total</strong></td>
-                        <td class="text-right"><strong><%= reporting.globalMetrics.totalImpressions.toLocaleString('fr-FR') %></strong></td>
-                        <td class="text-right"><strong><%= reporting.globalMetrics.totalClics.toLocaleString('fr-FR') %></strong></td>
-                        <td class="text-right"><strong><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</strong></td>
-                   </tr>
+                        <td class="text-right">
+                            <strong><%= reporting.globalMetrics.totalImpressions.toLocaleString('fr-FR') %></strong>
+                        </td>
+                        <td class="text-right">
+                            <strong><%= reporting.globalMetrics.totalClics.toLocaleString('fr-FR') %></strong></td>
+                        <td class="text-right">
+                            <strong><%= reporting.globalMetrics.ctrGlobal.toLocaleString('fr-FR') %>%</strong></td>
+                    </tr>
                 </tfoot>
             </table>
         </div>
         <% } %>
     </div>
-    
-    
+
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
- <!-- Bootstrap JS and Popper.js -->
- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
- <script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Fonction pour effectuer l'appel AJAX
-    function fetchReporting() {
-        $.ajax({
-            url: '/automate/reporting',
-            type: 'POST',
-            success: function(response) {
-                console.log('Succès:', response);
-                // Vous pouvez ajouter ici du code pour traiter la réponse
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error('Erreur:', textStatus, errorThrown);
-                // Gérez les erreurs ici, par exemple, en affichant un message d'erreur
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fonction pour effectuer l'appel AJAX
+            function fetchReporting() {
+                $.ajax({
+                    url: '/automate/reporting',
+                    type: 'POST',
+                    success: function (response) {
+                        console.log('Succès:', response);
+                        // Vous pouvez ajouter ici du code pour traiter la réponse
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('Erreur:', textStatus, errorThrown);
+                        // Gérez les erreurs ici, par exemple, en affichant un message d'erreur
+                    }
+                });
             }
+
+            // Appeler la fonction immédiatement et la répéter toutes les 10 minutes
+            fetchReporting(); // Premier appel immédiat
+            setInterval(fetchReporting, 10 * 60 * 1000); // Répéter toutes les 10 minutes
         });
-    }
-
-    // Appeler la fonction immédiatement et la répéter toutes les 10 minutes
-    fetchReporting(); // Premier appel immédiat
-    setInterval(fetchReporting, 10 * 60 * 1000); // Répéter toutes les 10 minutes
-});
-</script>
-
-
-
+    </script>
 
 </body>
-
 </html>
