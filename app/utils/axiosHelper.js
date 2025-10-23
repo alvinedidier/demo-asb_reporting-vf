@@ -32,6 +32,11 @@ const getSmartToken = async () => {
       }
     );
 
+
+    console.log('- Request TOKEN SMART:', response.data.access_token);
+    console.log('- SMARTADSERVER_CLIENT_ID:', process.env.SMARTADSERVER_CLIENT_ID);
+    console.log('- SMARTADSERVER_CLIENT_SECRET:', process.env.SMARTADSERVER_CLIENT_SECRET);
+
     return response.data.access_token;
   } catch (error) {
     logger.error(`Erreur lors de la récupération du token SMART: ${error.message}`);
@@ -48,6 +53,8 @@ const buildRequestOptions = (method, apiUrl, body, token) => {
       'Authorization': `Bearer ${token}`
     }
   };
+
+  
 
   if (method === 'POST' && body) {
     options.data = body;

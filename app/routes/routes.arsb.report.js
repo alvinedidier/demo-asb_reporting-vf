@@ -106,9 +106,9 @@ router.get('/verify/:campaignid', validateCampaignId, async (req, res) => {
     res.end();
 
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport :', error);
+    console.error('Verify - Erreur lors de la génération du rapport :', error);
     if (!res.headersSent) {
-      res.status(500).send('Erreur lors de la génération du rapport.');
+      res.status(500).send('Verify - Erreur lors de la génération du rapport.');
     }
   }
 });
@@ -116,16 +116,4 @@ router.get('/verify/:campaignid', validateCampaignId, async (req, res) => {
 router.get("/:campaigncrypt", validateCampaignCrypt, report.generate);
 router.post("/:campaigncrypt/report", validateCampaignCrypt, report.report);
 router.get("/:campaigncrypt/download", validateCampaignCrypt, report.download);
-
-/*
-//router.get("/report/:campaigncrypt", validateCampaignCrypt, report.report);
-
-router.get("/:campaigncrypt/export", validateCampaignCrypt, (req, res) => {
-  res.send(`Export report for campaign: ${req.params.campaigncrypt}`);
-});
-
-router.get("/automate/:campaignid/", validateCampaignId, (req, res) => {
-  res.send(`Automate report for campaign: ${req.params.campaignid}`);
-});
-*/
 module.exports = router;

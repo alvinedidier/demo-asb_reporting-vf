@@ -14,11 +14,11 @@ const {
     parseISO,
     format,
     addHours
-  } = require('date-fns');
-  const {
+} = require('date-fns');
+const {
     fr: frLocale
-  } = require('date-fns/locale');
-  
+} = require('date-fns/locale');
+
 const logger = require('../utils/logger');
 const ModelAdvertisers = require('../models/models.advertisers');
 const ModelCampaigns = require('../models/models.campaigns');
@@ -45,6 +45,10 @@ const formats = [{
         title: 'MASTHEAD'
     },
     {
+        name: 'grandangle-pave',
+        title: 'GRAND ANGLE - PAVE'
+    },
+    {
         name: 'grandangle',
         title: 'GRAND ANGLE'
     },
@@ -57,12 +61,12 @@ const formats = [{
         title: 'RECTANGLE'
     },
     {
-        name: 'pave',
-        title: 'PAVE'
-    },
-    {
         name: 'pavevideo',
         title: 'PAVE VIDEO'
+    },
+    {
+        name: 'pave',
+        title: 'PAVE'
     },
     {
         name: 'logo',
@@ -104,7 +108,7 @@ const formats = [{
         name: 'billboard',
         title: 'BILLBOARD'
     },
- {
+    {
         name: 'instream',
         title: 'PREROLL'
     },
@@ -122,6 +126,48 @@ function stringToStream(text) {
     return stream;
 }
 
+/**
+ * Vérifie et nettoie un objet JSON avant de l’envoyer
+ * - Supprime les caractères invisibles (\r, \n, BOM, etc.)
+ * - Vérifie que les nombres sont valides
+ * - Vérifie que les strings n’ont pas de guillemets non échappés
+ */
+function validateJsonObject(obj, path = "") {
+    const errors = [];
+
+    function checkValue(value, keyPath) {
+        if (value === null || value === undefined) return;
+
+        if (typeof value === "string") {
+            // Nettoyage de base
+            const clean = value.replace(/[\r\n\t]/g, "").trim();
+
+            // Vérifie si guillemets non échappés
+            if (/["']{2,}/.test(clean)) {
+                errors.push(`⚠️ Chaîne suspecte à ${keyPath}: "${clean}"`);
+            }
+
+            // Vérifie si pourcentage ou virgule numérique
+            if (/^\d+,\d+%?$/.test(clean)) {
+                errors.push(`⚠️ Nombre avec virgule trouvé à ${keyPath}: "${clean}" (utilise un point)`);
+            }
+        } else if (typeof value === "number") {
+            if (Number.isNaN(value)) {
+                errors.push(`⚠️ NaN détecté à ${keyPath}`);
+            }
+        } else if (typeof value === "object") {
+            for (const [k, v] of Object.entries(value)) {
+                checkValue(v, `${keyPath}.${k}`);
+            }
+        }
+    }
+
+    checkValue(obj, path || "root");
+
+    return errors;
+}
+
+
 // Fonction pour analyser une chaîne de caractères CSV avec csv-parser
 function parseCsvString(csvString) {
     return new Promise((resolve, reject) => {
@@ -130,13 +176,37 @@ function parseCsvString(csvString) {
         stream
             .pipe(csv({
                 separator: ';',
-                headers: true
-            })) // Traiter le CSV avec les entêtes
-            .on('data', (row) => results.push(row)) // Ajouter chaque ligne analysée
-            .on('end', () => resolve(results)) // Résoudre la promesse quand c'est terminé
-            .on('error', (err) => reject(err)); // Rejeter en cas d'erreur
+                headers: true,
+                skipEmptyLines: true, // ⚡ ignore les lignes vides
+                mapValues: ({
+                    header,
+                    index,
+                    value
+                }) => {
+                    if (!value) return null;
+
+                    // Trim & nettoyer
+                    let clean = value.toString().trim().replace(/\r|\n/g, "");
+
+                    // Si c'est un nombre formaté "123,45" -> convertis en "123.45"
+                    if (/^-?\d+,\d+$/.test(clean)) {
+                        clean = clean.replace(',', '.');
+                    }
+
+                    // Si c'est un pourcentage -> garde en string normalisée
+                    if (clean.endsWith('%')) {
+                        return clean.replace(',', '.'); // "12,3%" => "12.3%"
+                    }
+
+                    return clean;
+                }
+            }))
+            .on('data', (row) => results.push(row))
+            .on('end', () => resolve(results))
+            .on('error', (err) => reject(err));
     });
 }
+
 
 // Fonction pour calculer le CTR
 function calculateCtr(clicks, impressions) {
@@ -161,84 +231,85 @@ function buildFormatData(csvData, formatName) {
 }
 
 // Fonction principale pour construire le JSON final
-async function ReportBuildJson(campaignId, csvData1String, csvData2String) {
-    try {
-        // Récupération des informations de la campagne depuis la base de données
-        const campaign = await ModelCampaigns.findOne({
-            attributes: [
-                'campaign_id',
-                'campaign_name',
-                'campaign_crypt',
-                'advertiser_id',
-                'campaign_start_date',
-                'campaign_end_date',
-            ],
-            where: {
-                campaign_id: campaignId
-            },
-            include: [{
-                model: ModelAdvertisers
-            }]
-        });
 
-        if (!campaign) {
-            throw new Error(`La campagne avec l'ID ${campaignId} n'existe pas.`);
-        }
+/**
+ * Génère un rapport JSON valide à partir des données de campagne et des instances.
+ * @param {number} campaignId - ID de la campagne.
+ * @param {object} instanceData - Données de l'instance principale.
+ * @param {object|null} instanceVUData - Données de l'instance VU (optionnel).
+ * @returns {Promise<object>} - Rapport JSON validé.
+ */
+const ReportBuildJson = async (campaignId, instanceData, instanceVUData) => {
+  try {
+    logger.info(`ReportBuildJson appelé avec : campaignId=${campaignId}, instanceId=${instanceData}, instanceIdVU=${instanceVUData}`);
 
-        // Conversion des chaînes CSV en objets
-        const parsedCsv1 = await parseCsvString(csvData1String);
-        const parsedCsv2 = await parseCsvString(csvData2String);
-
-        // Calcul des métriques globales
-        const globalMetrics = calculateGlobalMetrics(parsedCsv1, parsedCsv2);
-
-        // Calcul des métriques par format, créative et site
-        const metricsByFormat = regrouperParFormat(parsedCsv1);
-        const metricsByCreatives = regrouperParCreatives(parsedCsv1);
-        const metricsBySite = regrouperParSite(parsedCsv1);
-        const metricsByFormatAndSite = regrouperParFormatEtSiteAvecMetrics(parsedCsv1);
-
-        // Structure du rapport JSON final
-        const report = {
-                campaign_id: campaign.campaign_id,
-                campaign_name: campaign.campaign_name,
-                campaign_crypt: campaign.campaign_crypt,
-                advertiser_id: campaign.advertiser_id,
-                advertiser_name: campaign.advertiser.advertiser_name ? campaign.advertiser.advertiser_name : 'N/A',
-                campaign_start_date: campaign.campaign_start_date,
-                campaign_end_date: campaign.campaign_end_date,
-                campaign_start_date_formatted: format(parseISO(campaign.campaign_start_date), 'dd/MM/yyyy', {
-                    locale: frLocale
-                }),
-                campaign_end_date_formatted: format(parseISO(campaign.campaign_end_date), 'dd/MM/yyyy', {
-                    locale: frLocale
-                }),
-                campaign_duration: differenceInDays(parseISO(campaign.campaign_end_date), parseISO(campaign.campaign_start_date)),
-                globalMetrics,
-                metrics: {
-                    byFormat: metricsByFormat,
-                    bySite: metricsBySite,
-                    byFormatAndSite: metricsByFormatAndSite,
-                    byCreatives: metricsByCreatives
-                },
-                reporting_dates: {
-                    reporting_start_date: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
-                    reporting_end_date: format(addHours(new Date(), 2), "yyyy-MM-dd HH:mm:ss")
-                }
-        };
-
-        // Sauvegarde du rapport JSON dans localStorage avec expiration
-        setCampaignIdWithExpiry(campaignId, report);
-        console.log("report : ",report)
-
-        logger.info(`Rapport JSON pour la campagne ${campaignId} sauvegardé dans localStorage.`);
-
-        return report;
-    } catch (error) {
-        logger.error('Erreur lors de la génération du rapport :', error.message);
-        throw error;
+    // 1. Valider les entrées
+    if (!instanceData) {
+      throw new Error(`instanceData manquante pour la campagne ${campaignId}`);
     }
-}
+
+    console.log(`Instance Data: ${JSON.stringify(instanceData)}`);
+    console.log(`Instance advertiser_name: ${instanceData.advertiser_name}`);
+
+    // 2. Structurer les données avec des valeurs par défaut
+    const reportingData = {
+      advertiser_name: instanceData.advertiser_name || '',
+      campaign_name: instanceData.campaign_name || '',
+      campaign_start_date_formatted: instanceData.start_date || '',
+      campaign_end_date_formatted: instanceData.end_date || '',
+      reporting_dates: {
+        reporting_start_date: new Date(),
+        reporting_end_date: new Date(),
+      },
+      globalMetrics: {
+        totalImpressions: instanceData.impressions || 0,
+        totalClics: instanceData.clics || 0,
+        ctrGlobal: instanceData.ctr ? `${instanceData.ctr.toString().replace('.', ',')}%` : '0%',
+        uniqueVisitors: instanceData.uniqueVisitors || 0,
+        repetition: instanceData.repetition ? instanceData.repetition.toString().replace('.', ',') : '0',
+      },
+      metrics: {
+        byFormat: instanceData.byFormat || {},
+        byFormatAndSite: instanceData.byFormatAndSite || {},
+        byCreatives: instanceData.byCreatives || {},
+        bySite: instanceData.bySite || {},
+      },
+    };
+
+    // 3. Ajouter les données VU si disponibles
+    if (instanceVUData) {
+      reportingData.metrics.byFormat.VU = {
+        impressions: instanceVUData.impressions || 0,
+        uniqueVisitors: instanceVUData.uniqueVisitors || 0,
+      };
+    }
+
+    // 4. Valider et nettoyer les données
+    Object.keys(reportingData.globalMetrics).forEach((key) => {
+      if (reportingData.globalMetrics[key] === undefined || reportingData.globalMetrics[key] === null) {
+        reportingData.globalMetrics[key] = '0';
+      }
+    });
+
+    // 5. Nettoyer les métriques par format
+    Object.keys(reportingData.metrics.byFormat).forEach((formatName) => {
+      const formatData = reportingData.metrics.byFormat[formatName];
+      Object.keys(formatData).forEach((metric) => {
+        if (formatData[metric] === undefined || formatData[metric] === null) {
+          formatData[metric] = 0;
+        }
+      });
+    });
+
+    // 6. Logger pour débogage
+    logger.info(`Rapport JSON généré avec succès pour la campagne ${campaignId}`);
+
+    return reportingData;
+  } catch (error) {
+    logger.error(`Erreur dans ReportBuildJson pour la campagne ${campaignId}: ${error.message}`);
+    throw error;
+  }
+};
 
 // Calcule les métriques globales 
 function calculateGlobalMetrics(data, dataVU) {
@@ -250,9 +321,9 @@ function calculateGlobalMetrics(data, dataVU) {
     // Parcourir les lignes de données (ignorer la première ligne qui contient les noms de colonnes)
     data.slice(1).forEach(row => {
         // Convertir les valeurs en nombre, en vérifiant qu'elles existent et sont valides
-        const impressions = parseInt(row._11, 10) || 0;
-        const clics = parseInt(row._12, 10) || 0;
-        const videoComplete = parseInt(row._14, 10) || 0;
+        const impressions = parseInt(row._12, 10) || 0;
+        const clics = parseInt(row._13, 10) || 0;
+        const videoComplete = parseInt(row._15, 10) || 0;
 
         totalImpressions += impressions;
         totalClics += clics;
@@ -460,9 +531,9 @@ function regrouperParFormatEtSiteAvecMetrics(results) {
         // Extraire les valeurs nécessaires
         const insertionName = row._5 || '';
         let siteName = row._9 || '';
-        const impressions = parseInt(row._11, 10) || 0;
-        const clics = parseInt(row._12, 10) || 0;
-        const videoComplete = parseInt(row._14, 10) || 0;
+        const impressions = parseInt(row._12, 10) || 0;
+        const clics = parseInt(row._13, 10) || 0;
+        const videoComplete = parseInt(row._15, 10) || 0;
 
         // Trouver le format correspondant en fonction du libellé d'insertion
         const formatTrouve = formats.find(format =>
@@ -576,16 +647,16 @@ function regrouperParFormat(data) {
 
     data.slice(1).forEach(row => {
         // Vérifier que les valeurs nécessaires existent
-        if (!row || !row._5 || !row._11 || !row._12 || !row._14) {
+        if (!row || !row._5 || !row._12 || !row._13 || !row._15) {
             console.warn("Ligne invalide ou données manquantes:", row);
             return;
         }
 
         // Extraire les valeurs
         const insertionName = row._5 || '';
-        const impressions = parseInt(row._11, 10) || 0;
-        const clics = parseInt(row._12, 10) || 0;
-        const videoComplete = parseInt(row._14, 10) || 0;
+        const impressions = parseInt(row._12, 10) || 0;
+        const clics = parseInt(row._13, 10) || 0;
+        const videoComplete = parseInt(row._15, 10) || 0;
 
         // Trouver le format correspondant en fonction du libellé d'insertion
         const formatTrouve = formats.find(format =>
@@ -634,9 +705,9 @@ function regrouperParCreatives(data) {
     data.slice(1).forEach(row => {
         // Extraire les valeurs nécessaires pour chaque créative
         const creativeName = row._10 || '';
-        const impressions = parseInt(row._11, 10) || 0;
-        const clics = parseInt(row._12, 10) || 0;
-        const videoComplete = parseInt(row._14, 10) || 0;
+        const impressions = parseInt(row._12, 10) || 0;
+        const clics = parseInt(row._13, 10) || 0;
+        const videoComplete = parseInt(row._15, 10) || 0;
 
         // Initialiser la créative dans le résultat si elle n'existe pas encore
         if (!resultat[creativeName]) {
@@ -674,9 +745,9 @@ function regrouperParSite(data) {
     data.slice(1).forEach(row => {
         // Extraire les valeurs nécessaires pour chaque site
         let siteName = row._9 || ''; // Nom du site
-        const impressions = parseInt(row._11, 10) || 0;
-        const clics = parseInt(row._12, 10) || 0;
-        const videoComplete = parseInt(row._14, 10) || 0;
+        const impressions = parseInt(row._12, 10) || 0;
+        const clics = parseInt(row._13, 10) || 0;
+        const videoComplete = parseInt(row._15, 10) || 0;
 
         // Regrouper SM_LINFO-ANDROID et SM_LINFO-IOS sous SM_LINFO-APPLI
         if (siteName === 'SM_LINFO-ANDROID' || siteName === 'SM_LINFO-IOS') {
@@ -717,6 +788,50 @@ function regrouperParSite(data) {
         }, {});
 
     return resultatTrie;
+}
+
+// Fonction pour regrouper et calculer les métriques uniquement par format
+function regrouperParDevice(data) {
+  let resultat = {};
+  let totalCompletions = 0;
+
+  // Saute l'en-tête
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (!row) continue; // Ignore les lignes vides
+
+    // Récupère les valeurs de chaque colonne
+    const deviceName = row._11 ? row._11 : ''; // Si row._11 existe, utilise-le, sinon chaîne vide
+    const impressions = toNumber(row._12);
+    const clics = toNumber(row._13);
+    const completions = toNumber(row._15);
+
+    if (!deviceName) continue; // Ignore les lignes sans nom de device
+
+    // Initialise l'objet pour ce device s'il n'existe pas
+    if (!resultat[deviceName]) {
+      resultat[deviceName] = {
+        impressions: 0,
+        clics: 0,
+        completions: 0,
+      };
+    }
+
+    // Ajoute les valeurs au total pour ce device
+    resultat[deviceName].impressions += impressions;
+    resultat[deviceName].clics += clics;
+    resultat[deviceName].completions += completions;
+
+    // Ajoute aux totaux globaux
+    totalCompletions += completions;
+  }
+
+  return { resultat, totalCompletions };
+}
+
+function toNumber(value) {
+  const num = parseFloat(value);
+  return isNaN(num) ? 0 : num;
 }
 
 // Exportation de la fonction pour réutilisation

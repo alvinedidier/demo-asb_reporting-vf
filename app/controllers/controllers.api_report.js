@@ -96,7 +96,7 @@ exports.generate = async (req, res) => {
             const EndDate = JJ + '/' + MM + '/' + AAAA;
            */
 
-            res.render("reporting/generate.ejs", {
+            res.render("reporting/generate.arsb.ejs", {
                 advertiserid: campaign.advertiser_id,
                 campaignid: campaign.campaign_id,
                // startDate: StartDate,

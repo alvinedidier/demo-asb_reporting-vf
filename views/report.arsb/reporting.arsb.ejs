@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta name="googlebot" content="noindex">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" rel="stylesheet" />
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-KT6H7LH');
+    </script>
+    <title><%= reporting.campaign_name %> - <%= reporting.advertiser_name %>- Antenne Solutions Business</title>
+    <link rel="icon"
+        href="https://antennesb.fr/wp-content/uploads/2020/02/cropped-Logo-AntenneSolutionsBusiness-coul01-2-32x32.png"
+        sizes="32x32" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/reporting.css">
+
+    <% 
+    // Fonction utilitaire pour formater les métriques
+    function formatMetric(value, suffix = '') {
+        if (value !== undefined && value !== null && !isNaN(value)) {
+            return Number(value).toLocaleString('fr-FR') + suffix;
+        }
+        return '-';
+    }
+    %>
+</head>
+
+<body class="asb">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KT6H7LH" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe>
+    </noscript>
+
+    <div class="container p-2 mt-2 mb-2" id="reporting-board">
+
+        <% if(reporting.campaign_end_date > reporting.reporting_dates.reporting_end_date) { %>
+        <!-- Alerte de mise à jour des statistiques -->
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top: 30px;">
+            <strong>Les statistiques de cette campagne sont mises à jour toutes les 2 heures. (Prochaine MAJ :
+                <%= reporting.reporting_dates.reporting_end_date.toLocaleString('fr-FR') %> )</strong>
+        </div>
+        <% } %>
+
+        <!-- En-tête de la campagne -->
+        <div class="row p-3 m-5">
+            <div class="col-md-3">
+                <a href="https://antennesb.fr/">
+                    <img src="/assets/images/logo.png" alt="Logo ASB" />
+                </a>
+            </div>
+            <div class="col-md-9">
+                <h2><%= reporting.campaign_name %></h2>
+            </div>
+        </div>
+
+        <!-- Informations principales -->
+        <div class="row p-1 m-5">
+            <div class="col-md-10">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <strong>Date de génération du rapport :</strong>
+                        <%= reporting.reporting_dates.reporting_start_date %>
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Annonceur :</strong> <%= reporting.advertiser_name %>
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Nom de la campagne :</strong> <%= reporting.campaign_name %>
+                    </li>
+                    <li class="list-group-item">
+                        <strong>Période diffusion :</strong> Du <%= reporting.campaign_start_date_formatted %> au
+                        <%= reporting.campaign_end_date_formatted %>
+                    </li>
+                    <li class="list-group-item">
+                        <a href='/r/<%= reporting.campaign_crypt %>/download'
+                            class="btn btn-xs btn-danger rounded-pill">
+                            Télécharger (Format Excel)
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <hr />
+
+        <!-- Bilan global -->
+        <div class="row p-3 m-5" id="table_uu">
+            <h3 class="title text-asb"><strong>Bilan global de la campagne</strong></h3>
+            <table class="table table-stripe table-hover">
+                <thead class="text-center table-asb">
+                    <tr>
+                        <th>Impressions</th>
+                        <th>Clics</th>
+                        <th>Taux de clics</th>
+                        <th>Visiteurs uniques</th>
+                        <th>Répétition</th>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %>
+                        <th>Taux de complétion</th>
+                        <% } %>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <tr>
+                        <td><%= formatMetric(reporting.globalMetrics.totalImpressions) %></td>
+                        <td><%= formatMetric(reporting.globalMetrics.totalClics) %></td>
+                        <td><%= formatMetric(reporting.globalMetrics.ctrGlobal, '%') %></td>
+                        <td><%= formatMetric(reporting.globalMetrics.uniqueVisitors) %></td>
+                        <td><%= formatMetric(reporting.globalMetrics.repetition) %></td>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %>
+                        <td><%= formatMetric(reporting.metrics.byFormat["INSTREAM"].vtr, '%') %></td>
+                        <% } %>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Affichage par format -->
+        <% if (reporting.metrics.byFormat && Object.keys(reporting.metrics.byFormat).length > 0) { %>
+        <div class="row p-3 m-5" id="table_global_format">
+            <h3 class="title text-asb"><strong>Formats</strong></h3>
+            <table class="table" id="table_campaigns">
+                <thead class="table-asb">
+                    <tr>
+                        <th>Format</th>
+                        <th class="text-right">Impressions</th>
+                        <th class="text-right">Clics</th>
+                        <th class="text-right">Taux de clics</th>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %>
+                        <th class="text-right">Taux de complétion</th>
+                        <% } %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let format in reporting.metrics.byFormat) { 
+                         const data = reporting.metrics.byFormat[format];
+                    %>
+                    <tr>
+                        <td><%= format.toUpperCase() %></td>
+                        <td class="text-right"><%= formatMetric(data.impressions) %></td>
+                        <td class="text-right"><%= formatMetric(data.clics) %></td>
+                        <td class="text-right"><%= formatMetric(data.ctr, '%') %></td>
+                        <% if (data.vtr !== undefined) { %>
+                        <td class="text-right"><%= formatMetric(data.vtr, '%') %></td>
+                        <% } %>
+                    </tr>
+                    <% } %>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td class="text-right"><strong><%= formatMetric(reporting.globalMetrics.totalImpressions) %></strong></td>
+                        <td class="text-right"><strong><%= formatMetric(reporting.globalMetrics.totalClics) %></strong></td>
+                        <td class="text-right"><strong><%= formatMetric(reporting.globalMetrics.ctrGlobal, '%') %></strong></td>
+                        <% if(reporting.metrics.byFormat["INSTREAM"]) { %>
+                        <td class="text-right"><strong><%= formatMetric(reporting.metrics.byFormat["INSTREAM"].vtr, '%') %></strong></td>
+                        <% } %>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <% } %>
+
+        <!-- Affichage par créative -->
+        <% if (reporting.metrics.byCreatives && Object.keys(reporting.metrics.byCreatives).length > 0) { %>
+        <div class="row p-3 m-5" id="table_by_creative">
+            <h3 class="title text-asb"><strong>Créatives</strong></h3>
+            <table class="table table-stripe table-hover">
+                <thead class="table-asb">
+                    <tr>
+                        <th>Créative</th>
+                        <th class="text-right">Impressions</th>
+                        <th class="text-right">Clics</th>
+                        <th class="text-right">Taux de clics</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let creative in reporting.metrics.byCreatives) { 
+                         const creativeData = reporting.metrics.byCreatives[creative]; 
+                    %>
+                    <tr>
+                        <td><%= creative %></td>
+                        <td class="text-right"><%= formatMetric(creativeData.impressions) %></td>
+                        <td class="text-right"><%= formatMetric(creativeData.clics) %></td>
+                        <td class="text-right"><%= formatMetric(creativeData.ctr, '%') %></td>
+                    </tr>
+                    <% } %>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td class="text-right"><strong><%= formatMetric(reporting.globalMetrics.totalImpressions) %></strong></td>
+                        <td class="text-right"><strong><%= formatMetric(reporting.globalMetrics.totalClics) %></strong></td>
+                        <td class="text-right"><strong><%= formatMetric(reporting.globalMetrics.ctrGlobal, '%') %></strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <% } %>
+
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function fetchReporting() {
+                $.ajax({
+                    url: '/automate/reporting',
+                    type: 'POST',
+                    success: function (response) {
+                        console.log('Succès:', response);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('Erreur:', textStatus, errorThrown);
+                    }
+                });
+            }
+            fetchReporting();
+            setInterval(fetchReporting, 10 * 60 * 1000);
+        });
+    </script>
+</body>
+</html>

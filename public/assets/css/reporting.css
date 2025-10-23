@@ -4,10 +4,10 @@ body.asb {
 }
 
 body.adweb {
-    background: #fafafa;
-    font-family: 'playfair display', Tahoma, sans-serif;
+    background: #fff;
+    font-family: 'Playfair Display', Tahoma, sans-serif;
 }
-
+.progress {height: 2rem!important;}
 .table-asb, .bg-asb, .progress-asb {
     background-color: #1d2b66;
 }
@@ -30,6 +30,8 @@ body.adweb {
     border-color: var(--bs-table-border-color);
 }
 
+.table-adweb .progress  { height: 5px!important}
+
 .text-adweb {
     color: #116dff
 }
@@ -48,6 +50,7 @@ body.adweb {
     border-color: var(--bs-table-border-color);
 }
 
+
 .text-asb {
     color: #112f82
 }
@@ -57,7 +60,7 @@ body.asb #reporting-board {
 }
 
 body.adweb #reporting-board {
-    background: #fafafa;
+    background: #fff;
 }
 
 .modal-open {
@@ -69,7 +72,8 @@ hr {
     border-color: #ddd;
 }
 
-.progress {height: 2rem!important;}
+
+
 
    /* Empêche le défilement en arrière-plan quand la modal est ouverte */
    .no-js-modal-backdrop {

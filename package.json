@@ -61,6 +61,7 @@
     "puppeteer": "^23.6.0",
     "puppeteer-core": "^23.6.0",
     "request": "^2.88.2",
+    "sanitize-filename": "^1.6.3",
     "sequelize": "^6.37.3",
     "validator": "^13.7.0",
     "winston": "^3.15.0"

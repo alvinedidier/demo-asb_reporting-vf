@@ -21,6 +21,7 @@ const validateAgencyId = validateParam('agencyid', 'int');
 
 router.get("/campaigns", automate.campaigns);
 router.get("/campaign/:campaignid",validateCampaignId, automate.campaign);
+router.get("/campaigns/:campaignid",validateCampaignId, automate.campaign);
 router.get("/advertiser/:advertiserid",validateAdvertisterId, automate.advertiser);
 router.get("/agency/:agencyid",validateAgencyId, automate.agency);
 
