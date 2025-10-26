@@ -32,7 +32,8 @@ const createRequestNow = (startDate, endDate) => ({
     { field: 'FormatName', outputName: 'FormatName', emptyValue: '0' },
     { field: 'AppOrSiteId', outputName: 'AppOrSiteId', emptyValue: '0' },
     { field: 'AppOrSiteName', outputName: 'AppOrSiteName', emptyValue: '0' },
-    { field: 'AdservingCreativeName', outputName: 'AdservingCreativeName', emptyValue: '0' }
+    { field: 'AdservingCreativeName', outputName: 'AdservingCreativeName', emptyValue: '0' },
+    { field: 'DeviceTypeName', outputName: 'DeviceTypeName', emptyValue: '0' }   
   ],
   useCaseId: 'AdServing',
   dateFormat: "yyyy-MM-dd'T'HH:mm:ss",
@@ -61,7 +62,8 @@ const createRequestCampaign = (startDate, endDate, campaignId) => ({
     { field: 'FormatName', outputName: 'FormatName', emptyValue: '0' },
     { field: 'AppOrSiteId', outputName: 'AppOrSiteId', emptyValue: '0' },
     { field: 'AppOrSiteName', outputName: 'AppOrSiteName', emptyValue: '0' },
-    { field: 'AdservingCreativeName', outputName: 'AdservingCreativeName', emptyValue: '0' }
+    { field: 'AdservingCreativeName', outputName: 'AdservingCreativeName', emptyValue: '0' },
+    { field: 'DeviceTypeName', outputName: 'DeviceTypeName', emptyValue: '0' }   
   ],
   filters: [[{ field: 'CampaignId', operator: 'IN', values: [campaignId] }]],
   useCaseId: 'AdServing',
