@@ -124,6 +124,7 @@ function calculateGlobalMetrics(data, dataVU) {
 // ---------------------------------------------------------------
 // 4. Regroupements par format, site, créative et device
 // ---------------------------------------------------------------
+/*
 function regrouperParFormat(data) {
   const resultat = {};
   data.slice(1).forEach((row) => {
@@ -144,6 +145,55 @@ function regrouperParFormat(data) {
     r.ctr = calculateCtr(r.clics, r.impressions);
     r.vtr = calculateCtr(r.completions, r.impressions);
   }
+  return resultat;
+}
+*/
+
+function normalizeFormatName(name) {
+  return name
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // retire les accents
+    .replace(/[-_/]/g, " ") // uniformise tirets et underscores
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function regrouperParFormat(data) {
+  const resultat = {};
+
+  data.slice(1).forEach((row) => {
+    const insertionName = normalizeFormatName(row._5 || '');
+    const impressions = parseInt(row._12, 10) || 0;
+    const clics = parseInt(row._13, 10) || 0;
+    const completions = parseInt(row._15, 10) || 0;
+
+    // 🔍 Trouver le format le plus spécifique (titre le plus long qui match)
+    const formatTrouve = formats
+      .filter(f => insertionName.includes(normalizeFormatName(f.title)))
+      .sort((a, b) => b.title.length - a.title.length)[0];
+
+    if (!formatTrouve) return;
+
+    const key = formatTrouve.title;
+
+    if (!resultat[key]) {
+      resultat[key] = { impressions: 0, clics: 0, completions: 0, ctr: '0.00', vtr: '0.00' };
+    }
+
+    const f = resultat[key];
+    f.impressions += impressions;
+    f.clics += clics;
+    f.completions += completions;
+  });
+
+  // Calcul des CTR/VTR
+  for (const key in resultat) {
+    const f = resultat[key];
+    f.ctr = calculateCtr(f.clics, f.impressions);
+    f.vtr = calculateCtr(f.completions, f.impressions);
+  }
+
   return resultat;
 }
 

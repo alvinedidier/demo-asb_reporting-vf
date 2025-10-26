@@ -457,97 +457,81 @@ exports.download = async (req, res) => {
     const sheetCampagne = workbook.addWorksheet('Campagne');
     const now = new Date();
 
-   // ----------------------------------------------------
-// BANDEAU ENTÊTE — 100% corrigé sans doublon
-// ----------------------------------------------------
-sheetCampagne.mergeCells('A1:F1');
-sheetCampagne.mergeCells('A3:F3');
+    // ----------------------------------------------------
+    // BANDEAU ENTÊTE
+    // ----------------------------------------------------
+    sheetCampagne.mergeCells('A1:F1');
+    sheetCampagne.mergeCells('A3:F3');
 
-// Nettoyage pour éviter tout résidu de fusion
-sheetCampagne.getCell('A1').value = '';
-sheetCampagne.getCell('A3').value = '';
+    sheetCampagne.getCell('A1').value = '';
+    sheetCampagne.getCell('A3').value = '';
 
-const bannerTitle = sheetCampagne.getCell('A1');
-const bannerSubtitle = sheetCampagne.getCell('A3');
+    const bannerTitle = sheetCampagne.getCell('A1');
+    const bannerSubtitle = sheetCampagne.getCell('A3');
 
-// Couleur du fond (bleu ARSB ou bleu ciel ADWEB)
-const bannerFill = {
-  type: 'pattern',
-  pattern: 'solid',
-  fgColor: { argb: themeColor.replace('#', '') },
-};
+    const bannerFill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: themeColor.replace('#', '') },
+    };
 
-// Ligne principale (titre)
-bannerTitle.value = `RAPPORT DE CAMPAGNE ${regie}`;
-bannerTitle.alignment = { horizontal: 'center', vertical: 'middle' };
-bannerTitle.font = {
-  color: { argb: 'FFFFFF' },
-  bold: true,
-  size: 22,
-  name: 'Centhury Gothic',
-};
-bannerTitle.fill = bannerFill;
+    bannerTitle.value = `RAPPORT DE CAMPAGNE ${regie}`;
+    bannerTitle.alignment = { horizontal: 'center', vertical: 'middle' };
+    bannerTitle.font = {
+      color: { argb: 'FFFFFF' },
+      bold: true,
+      size: 22,
+      name: 'Century Gothic',
+    };
+    bannerTitle.fill = bannerFill;
 
-// Ligne secondaire (date)
-const dateString = now.toLocaleDateString('fr-FR', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
-const timeString = now.toLocaleTimeString('fr-FR', {
-  hour: '2-digit',
-  minute: '2-digit',
-});
+    const dateString = now.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    const timeString = now.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
-bannerSubtitle.value = `Généré automatiquement le ${dateString} à ${timeString}`;
-bannerSubtitle.alignment = { horizontal: 'center', vertical: 'middle' };
-bannerSubtitle.font = {
-  color: { argb: 'ffffff' },
-  italic: true,
-  size: 12,
-  name: 'Centhury Gothic',
-};
-bannerSubtitle.fill = bannerFill;
+    bannerSubtitle.value = `Généré automatiquement le ${dateString} à ${timeString}`;
+    bannerSubtitle.alignment = { horizontal: 'center', vertical: 'middle' };
+    bannerSubtitle.font = {
+      color: { argb: 'ffffff' },
+      italic: true,
+      size: 12,
+      name: 'Century Gothic',
+    };
+    bannerSubtitle.fill = bannerFill;
 
-// Logo
-if (fs.existsSync(logoPath)) {
-  const logoId = workbook.addImage({
-    filename: logoPath,
-    extension: 'png',
-  });
-  sheetCampagne.addImage(logoId, {
-    tl: { col: 5.5, row: 0.5 },
-    ext: { width: 120, height: 60 },
-  });
-}
+    if (fs.existsSync(logoPath)) {
+      const logoId = workbook.addImage({
+        filename: logoPath,
+        extension: 'png',
+      });
+      sheetCampagne.addImage(logoId, {
+        tl: { col: 5.5, row: 0.5 },
+        ext: { width: 120, height: 60 },
+      });
+    }
 
-// Bordure esthétique
-['A1', 'A2', 'A3'].forEach((cell) => {
-  const c = sheetCampagne.getCell(cell);
-  c.border = {
-    top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
-    bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
-  };
-});
-
-// ✅ Au lieu d’ajouter des lignes vides, on fixe la hauteur
-sheetCampagne.getRow(1).height = 25;
-sheetCampagne.getRow(2).height = 25;
-sheetCampagne.getRow(3).height = 20;
-
-// ✅ Ensuite, on saute directement à la ligne 5 pour commencer le tableau
-const startRow = 5;
-sheetCampagne.getRow(startRow).values = [];
+    sheetCampagne.getRow(1).height = 25;
+    sheetCampagne.getRow(2).height = 25;
+    sheetCampagne.getRow(3).height = 20;
+    const startRow = 5;
+    sheetCampagne.getRow(startRow).values = [];
 
     // ------------------------------------------------
-    // INFOS CAMPAGNE
+    // INFOS CAMPAGNE (ordre corrigé)
     // ------------------------------------------------
+    sheetCampagne.columns = [{ width: 30 }, { width: 60 }];
+
     sheetCampagne.addRow(['Annonceur', reportingData.advertiser_name]);
     sheetCampagne.addRow(['Nom de la campagne', reportingData.campaign_name]);
     sheetCampagne.addRow(['Date de début', reportingData.campaign_start_date_formatted]);
     sheetCampagne.addRow(['Date de fin', reportingData.campaign_end_date_formatted]);
-    // sheetCampagne.addRow(['Durée (jours)', reportingData.campaign_duration]);
-    sheetCampagne.columns = [{ width: 30 }, { width: 60 }];
+
     sheetCampagne.eachRow((row, idx) => {
       row.eachCell((cell) => {
         cell.font = idx <= 3 ? { bold: true } : { size: 12 };
@@ -558,30 +542,32 @@ sheetCampagne.getRow(startRow).values = [];
     // FEUILLE Données Globales
     // ------------------------------------------------
     const sheetGlobal = workbook.addWorksheet('Données Globales');
-    if (regie === 'ARSB') {
-      sheetGlobal.columns = [
-        { header: 'Impressions', key: 'totalImpressions', width: 15 },
-        { header: 'Clics', key: 'totalClics', width: 15 },
-        { header: 'CTR Global (%)', key: 'ctrGlobal', width: 20 },
-        { header: 'Visiteurs uniques', key: 'uniqueVisitors', width: 20 },
-        { header: 'Répétition', key: 'repetition', width: 15 },
-        { header: 'Taux de complétion (%)', key: 'completionRateGlobal', width: 25 },
-      ];
-      sheetGlobal.addRow(reportingData.globalMetrics);
-    } else {
-      sheetGlobal.columns = [
-        { header: 'Impressions', key: 'totalImpressions', width: 15 },
-        { header: 'Clics', key: 'totalClics', width: 15 },
-        { header: 'CTR Global (%)', key: 'ctrGlobal', width: 20 },
-        { header: 'Taux de complétion (%)', key: 'completionRateGlobal', width: 25 },
-      ];
-      sheetGlobal.addRow({
-        totalImpressions: reportingData.globalMetrics.totalImpressions,
-        totalClics: reportingData.globalMetrics.totalClics,
-        ctrGlobal: reportingData.globalMetrics.ctrGlobal,
-        completionRateGlobal: reportingData.globalMetrics.completionRateGlobal,
-      });
-    }
+    sheetGlobal.columns = regie === 'ARSB'
+      ? [
+          { header: 'Impressions', key: 'totalImpressions', width: 15 },
+          { header: 'Clics', key: 'totalClics', width: 15 },
+          { header: 'CTR Global (%)', key: 'ctrGlobal', width: 20 },
+          { header: 'Visiteurs uniques', key: 'uniqueVisitors', width: 20 },
+          { header: 'Répétition', key: 'repetition', width: 15 },
+          { header: 'Taux de complétion (%)', key: 'completionRateGlobal', width: 25 },
+        ]
+      : [
+          { header: 'Impressions', key: 'totalImpressions', width: 15 },
+          { header: 'Clics', key: 'totalClics', width: 15 },
+          { header: 'CTR Global (%)', key: 'ctrGlobal', width: 20 },
+          { header: 'Taux de complétion (%)', key: 'completionRateGlobal', width: 25 },
+        ];
+
+    const globalRow = regie === 'ARSB'
+      ? reportingData.globalMetrics
+      : {
+          totalImpressions: reportingData.globalMetrics.totalImpressions,
+          totalClics: reportingData.globalMetrics.totalClics,
+          ctrGlobal: reportingData.globalMetrics.ctrGlobal,
+          completionRateGlobal: reportingData.globalMetrics.completionRateGlobal,
+        };
+
+    sheetGlobal.addRow(globalRow);
 
     // ------------------------------------------------
     // FEUILLE Formats
@@ -605,33 +591,6 @@ sheetCampagne.getRow(startRow).values = [];
       sheetFormat.addRow(row);
     });
 
-    /*
-    // ------------------------------------------------
-    // FEUILLE Par formats et sites
-    // ------------------------------------------------
-    const sheetFormatSite = workbook.addWorksheet('Par formats et sites');
-    const hasVideo = hasVideoFormat;
-    const baseColumns = [
-      { header: 'Format', key: 'format', width: 25 },
-      { header: 'Site', key: 'site', width: 25 },
-      { header: 'Impressions', key: 'impressions', width: 15 },
-      { header: 'Clics', key: 'clics', width: 15 },
-      { header: 'CTR (%)', key: 'ctr', width: 15 },
-    ];
-    if (hasVideo) baseColumns.push({ header: 'VTR (%)', key: 'vtr', width: 15 });
-    sheetFormatSite.columns = baseColumns;
-    if (reportingData.metrics.byFormatAndSite) {
-      Object.entries(reportingData.metrics.byFormatAndSite).forEach(([format, sites]) => {
-        Object.entries(sites).forEach(([site, val]) => {
-          const row = { format, site, impressions: val.impressions, clics: val.clics, ctr: val.ctr };
-          if (hasVideo && val.vtr) row.vtr = val.vtr;
-          sheetFormatSite.addRow(row);
-        });
-      });
-    }
-    */
-
-    
     // ------------------------------------------------
     // FEUILLE Appareils (ADWEB uniquement)
     // ------------------------------------------------
@@ -645,6 +604,7 @@ sheetCampagne.getRow(startRow).values = [];
         { header: 'VTR (%)', key: 'vtr', width: 15 },
         { header: 'Poids par impressions (%)', key: 'poidsImpressions', width: 15 },
       ];
+
       Object.entries(reportingData.metrics.byDevices).forEach(([device, val]) => {
         sheetDevices.addRow({
           device,
@@ -662,27 +622,25 @@ sheetCampagne.getRow(startRow).values = [];
     // FEUILLE Créatives
     // ------------------------------------------------
     const sheetCreatives = workbook.addWorksheet('Créatives');
-    sheetCreatives.columns = [
+    const creativesCols = [
       { header: 'Créative', key: 'creative', width: 50 },
       { header: 'Impressions', key: 'impressions', width: 15 },
       { header: 'Clics', key: 'clics', width: 15 },
       { header: 'CTR (%)', key: 'ctr', width: 15 },
     ];
-    if (hasVideoFormat) sheetCreatives.columns.push({ header: 'VTR (%)', key: 'vtr', width: 15 });
+    if (hasVideoFormat) creativesCols.push({ header: 'VTR (%)', key: 'vtr', width: 15 });
+    sheetCreatives.columns = creativesCols;
+
     Object.entries(reportingData.metrics.byCreatives || {}).forEach(([creative, val]) => {
       const row = { creative, impressions: val.impressions, clics: val.clics, ctr: val.ctr };
       if (hasVideoFormat && val.vtr) row.vtr = val.vtr;
       sheetCreatives.addRow(row);
     });
 
-
     // ------------------------------------------------
     // Mise en forme uniforme
     // ------------------------------------------------
-    [sheetGlobal, sheetFormat, sheetCreatives].forEach((s) =>
-      styleSheet(s, themeColor)
-    );
-
+    [sheetGlobal, sheetFormat, sheetCreatives].forEach((s) => styleSheet(s, themeColor));
     styleSheet(sheetCampagne, themeColor, false);
 
     // ------------------------------------------------
@@ -701,28 +659,59 @@ sheetCampagne.getRow(startRow).values = [];
 };
 
 // ----------------------------------------------------
-// Fonction utilitaire de style uniforme
+// FONCTION DE STYLE UNIFORME (version robuste)
 // ----------------------------------------------------
 function styleSheet(sheet, themeColor, zebra = true) {
-  if (!sheet) return;
-  const header = sheet.getRow(1);
-  header.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-  header.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: themeColor.replace('#', '') } };
-  header.alignment = { horizontal: 'center', vertical: 'middle' };
-  sheet.views = [{ state: 'frozen', ySplit: 1 }];
+  try {
+    if (!sheet) return;
+    if (sheet.rowCount === 0) return;
 
-  if (zebra) {
-    sheet.eachRow((row, idx) => {
-      if (idx > 1 && idx % 2 === 0) {
-        row.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFF6F6F6' },
-          };
-        });
-      }
+    const header = sheet.getRow(1);
+    if (!header || typeof header.eachCell !== 'function') return;
+
+    header.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, name: 'Calibri' };
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: themeColor.replace('#', '') },
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+        bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+      };
     });
+
+    sheet.views = [{ state: 'frozen', ySplit: 1 }];
+
+    sheet.columns?.forEach((col) => {
+      if (!col.width || col.width < 10) col.width = 15;
+    });
+
+    if (zebra && sheet.rowCount > 2) {
+      sheet.eachRow((row, idx) => {
+        if (idx > 1 && idx % 2 === 0) {
+          row.eachCell((cell) => {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFF6F6F6' },
+            };
+          });
+        }
+      });
+    }
+
+    sheet.eachRow((row) => {
+      row.eachCell((cell) => {
+        cell.alignment = cell.alignment || {};
+        cell.alignment.vertical = 'middle';
+      });
+    });
+
+  } catch (err) {
+    logger.error(`❌ Erreur styleSheet sur "${sheet?.name || 'unknown'}" : ${err.message}`);
   }
 }
 
